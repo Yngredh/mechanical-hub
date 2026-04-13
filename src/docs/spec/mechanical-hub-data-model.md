@@ -10,10 +10,10 @@ erDiagram
     USERS ||--o{ SERVICE_ORDERS : creates
     USERS ||--o{ SERVICE_ORDERS : responsible
     PROFILES ||--o{ USERS : assigns
-    SERVICE_ORDERS ||--o{ ORDER_SERVICES : contains
+    SERVICE_ORDERS ||--o{ ORDER_TASKS : contains
     SERVICE_ORDERS ||--o{ STOCK_MOVEMENTS : triggers
     SERVICE_ORDERS ||--o{ STOCK_PENDING_ITEMS : has_pending
-    SERVICES ||--o{ ORDER_SERVICES : listed
+    SERVICES ||--o{ ORDER_TASKS : listed
     SERVICES ||--o{ SERVICE_MATERIALS : requires
     MATERIALS ||--o{ SERVICE_MATERIALS : used_in
     MATERIALS ||--o{ STOCK : has
@@ -88,7 +88,7 @@ erDiagram
         timestamp updated_at
     }
 
-    ORDER_SERVICES {
+    ORDER_TASKS {
         UUID id PK
         UUID service_order_id FK
         UUID service_id FK
