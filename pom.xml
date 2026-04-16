@@ -7,7 +7,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<!-- Identificação do projeto -->
-	<groupId>com.mechanicalhub</groupId>
+	<groupId>com.fiap.mechanical_hub</groupId>
 	<artifactId>mechanical-hub</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>mechanical-hub</name>
