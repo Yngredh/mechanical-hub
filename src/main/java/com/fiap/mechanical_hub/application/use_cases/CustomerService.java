@@ -16,6 +16,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.fiap.mechanical_hub.shared.utils.Formatter.removeFormatting;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -24,10 +26,13 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
 
+
     public CustomerResponse create(UpsertCustomerRequest request) {
-        if (customerRepository.existsByDocumentNumber(request.getDocumentNumber())) {
+        String cleanDocumentNumber = removeFormatting(request.getDocumentNumber());
+
+        if (customerRepository.existsByDocumentNumber(cleanDocumentNumber)) {
             throw new DuplicateDocumentException(
-                    String.format("Customer with document %s already exists", request.getDocumentNumber())
+                    String.format("Cliente com documento %s já existe", request.getDocumentNumber())
             );
         }
 
@@ -40,7 +45,7 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public CustomerResponse findById(UUID id) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Customer not found with id: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Cliente não encontrado para o id: " + id));
         return customerMapper.toResponse(customer);
     }
 
@@ -53,14 +58,15 @@ public class CustomerService {
 
     public CustomerResponse update(UUID id, UpsertCustomerRequest request) {
         Customer existingCustomer = customerRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Customer not found with id: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Cliente não encontrado para o id: " + id));
 
-        boolean documentNumberMatches = !existingCustomer.getDocumentNumber().equals(request.getDocumentNumber());
-        boolean customerExists = customerRepository.existsByDocumentNumber(request.getDocumentNumber());
+        String cleanRequestDocument = removeFormatting(request.getDocumentNumber());
+        String cleanExistingDocument = existingCustomer.getDocumentNumber();
 
-        if (customerExists && documentNumberMatches) {
+        if ((!cleanExistingDocument.equals(cleanRequestDocument)) ||
+                customerRepository.existsByDocumentNumber(cleanRequestDocument)) {
             throw new DuplicateDocumentException(
-                    String.format("Customer with document %s already exists", request.getDocumentNumber())
+                    String.format("Cliente com documento %s já existe", request.getDocumentNumber())
             );
         }
 
@@ -72,15 +78,19 @@ public class CustomerService {
 
     public void delete(UUID id) {
         if (customerRepository.findById(id).isEmpty()) {
-            throw new NoSuchElementException("Customer not found with id: " + id);
+            throw new NoSuchElementException("Cliente não encontrado para o id: " + id);
         }
         customerRepository.deleteById(id);
     }
 
     public Customer findByDocumentOrCreate(String name, String documentType, String documentNumber,
                                            String telephone, String email, String address) {
-        Optional<Customer> existingCustomer = customerRepository.findByDocumentNumber(documentNumber);
-        if (existingCustomer.isPresent()) { return existingCustomer.get(); }
+        String cleanDocumentNumber = removeFormatting(documentNumber);
+
+        Optional<Customer> existingCustomer = customerRepository.findByDocumentNumber(cleanDocumentNumber);
+        if (existingCustomer.isPresent()) {
+            return existingCustomer.get();
+        }
 
         DocumentType type = DocumentType.fromValue(documentType);
         Customer newCustomer = Customer.create(name, type, documentNumber, telephone, email, address);

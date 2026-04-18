@@ -1,26 +1,35 @@
-package com.fiap.mechanical_hub.shared.utils;
+package com.fiap.mechanical_hub.shared.utils.document;
 
-import lombok.NoArgsConstructor;
+import com.fiap.mechanical_hub.domain.enums.DocumentType;
+import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
 
-@NoArgsConstructor
 public class DocumentValidator {
 
-    public DocumentValidator(String document) {
+    public DocumentValidator() {
+        // Utility Class
     }
 
-    public static boolean isValidCPF(String cpf) {
+    public static void validateDocument(DocumentType documentType, String documentNumber) {
+        boolean isValid = documentType == DocumentType.CPF
+                ? isValidCPF(documentNumber)
+                : isValidCNPJ(documentNumber);
+
+        if (!isValid) {
+            throw new InvalidDocumentException(
+                    String.format("Inválido %s: %s", documentType.getValue(), documentNumber)
+            );
+        }
+    }
+
+    private static boolean isValidCPF(String cpf) {
         if (cpf == null) { return false; }
 
-        // Remove formatting
         String cleanCpf = cpf.replaceAll("\\D", "");
 
-        // Must have exactly 11 digits
         if (cleanCpf.length() != 11) { return false; }
 
-        // Check if all digits are the same (invalid CPF)
         if (cleanCpf.matches("(\\d)\\1{10}")) { return false; }
 
-        // Calculate first check digit
         int sum = 0;
         for (int i = 0; i < 9; i++) {
             sum += (cleanCpf.charAt(i) - '0') * (10 - i);
@@ -30,7 +39,6 @@ public class DocumentValidator {
 
         if ((cleanCpf.charAt(9) - '0') != firstCheckDigit) { return false; }
 
-        // Calculate second check digit
         sum = 0;
         for (int i = 0; i < 10; i++) {
             sum += (cleanCpf.charAt(i) - '0') * (11 - i);
@@ -43,32 +51,21 @@ public class DocumentValidator {
         return (cleanCpf.charAt(10) - '0') == secondCheckDigit;
     }
 
-    /**
-     * Validates CNPJ format and check digits.
-     * CNPJ format: XX.XXX.XXX/XXXX-XX or XXXXXXXXXXXXXX
-     *
-     * @param cnpj the CNPJ to validate (with or without formatting)
-     * @return true if valid, false otherwise
-     */
-    public static boolean isValidCNPJ(String cnpj) {
+    private static boolean isValidCNPJ(String cnpj) {
         if (cnpj == null) {
             return false;
         }
 
-        // Remove formatting
         String cleanCnpj = cnpj.replaceAll("\\D", "");
 
-        // Must have exactly 14 digits
         if (cleanCnpj.length() != 14) {
             return false;
         }
 
-        // Check if all digits are the same (invalid CNPJ)
         if (cleanCnpj.matches("(\\d)\\1{13}")) {
             return false;
         }
 
-        // Calculate first check digit
         int sum = 0;
         int multiplier = 5;
         for (int i = 0; i < 8; i++) {
@@ -97,7 +94,6 @@ public class DocumentValidator {
             return false;
         }
 
-        // Calculate second check digit
         sum = 0;
         multiplier = 6;
         for (int i = 0; i < 9; i++) {
@@ -123,5 +119,6 @@ public class DocumentValidator {
 
         return (cleanCnpj.charAt(13) - '0') == secondCheckDigit;
     }
+
 }
 

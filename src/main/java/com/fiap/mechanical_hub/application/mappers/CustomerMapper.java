@@ -6,6 +6,9 @@ import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.enums.DocumentType;
 import org.springframework.stereotype.Component;
 
+import static com.fiap.mechanical_hub.shared.utils.document.DocumentFormatter.formatDocument;
+import static com.fiap.mechanical_hub.shared.utils.telephone.TelephoneFormatter.formatTelephone;
+
 @Component
 public class CustomerMapper {
 
@@ -39,8 +42,11 @@ public class CustomerMapper {
                 customer.getId(),
                 customer.getName(),
                 customer.getDocumentType().getValue(),
-                customer.getDocumentNumber(),
-                customer.getTelephone(),
+                formatDocument(
+                        customer.getDocumentType().getValue(),
+                        customer.getDocumentNumber()
+                ),
+                formatTelephone(customer.getTelephone()),
                 customer.getEmail(),
                 customer.getAddress(),
                 customer.getCreatedAt(),

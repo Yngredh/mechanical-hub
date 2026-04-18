@@ -1,14 +1,16 @@
 package com.fiap.mechanical_hub.domain.entities;
 
 import com.fiap.mechanical_hub.domain.enums.DocumentType;
-import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
-import com.fiap.mechanical_hub.shared.utils.DocumentValidator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import static com.fiap.mechanical_hub.shared.utils.Formatter.removeFormatting;
+import static com.fiap.mechanical_hub.shared.utils.document.DocumentValidator.validateDocument;
+import static com.fiap.mechanical_hub.shared.utils.telephone.TelephoneValidator.validateTelephone;
 
 @Getter
 @AllArgsConstructor
@@ -28,13 +30,14 @@ public class Customer {
     public static Customer create(String name, DocumentType documentType, String documentNumber,
                                    String telephone, String email, String address) {
         validateDocument(documentType, documentNumber);
+        validateTelephone(telephone);
 
         Customer customer = new Customer();
         customer.id = UUID.randomUUID();
         customer.name = name;
         customer.documentType = documentType;
-        customer.documentNumber = documentNumber;
-        customer.telephone = telephone;
+        customer.documentNumber = removeFormatting(documentNumber);
+        customer.telephone = removeFormatting(telephone);
         customer.email = email;
         customer.address = address;
         customer.createdAt = LocalDateTime.now();
@@ -46,26 +49,17 @@ public class Customer {
     public void updateCustomerInfo(String name, DocumentType documentType, String documentNumber,
                                     String telephone, String email, String address) {
         validateDocument(documentType, documentNumber);
+        validateTelephone(telephone);
 
         this.name = name;
         this.documentType = documentType;
-        this.documentNumber = documentNumber;
-        this.telephone = telephone;
+        this.documentNumber = removeFormatting(documentNumber);
+        this.telephone = removeFormatting(telephone);
         this.email = email;
         this.address = address;
         this.updatedAt = LocalDateTime.now();
     }
 
-    private static void validateDocument(DocumentType documentType, String documentNumber) {
-        boolean isValid = documentType == DocumentType.CPF
-                ? DocumentValidator.isValidCPF(documentNumber)
-                : DocumentValidator.isValidCNPJ(documentNumber);
 
-        if (!isValid) {
-            throw new InvalidDocumentException(
-                    String.format("Invalid %s: %s", documentType.getValue(), documentNumber)
-            );
-        }
-    }
 }
 
