@@ -19,5 +19,7 @@ public interface CustomerRepository {
     void deleteById(UUID id);
 
     boolean existsByDocumentNumber(String documentNumber);
+
+    boolean existsByDocumentNumberAndIdNot(String documentNumber, UUID id);
 }
 

@@ -13,5 +13,7 @@ public interface CustomerJpaRepository extends JpaRepository<CustomerModel, UUID
     Optional<CustomerModel> findByDocumentNumber(String documentNumber);
 
     boolean existsByDocumentNumber(String documentNumber);
+
+    boolean existsByDocumentNumberAndIdNot(String documentNumber, UUID id);
 }
 

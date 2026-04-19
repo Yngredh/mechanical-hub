@@ -6,6 +6,7 @@ import com.fiap.mechanical_hub.application.mappers.CustomerMapper;
 import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.enums.DocumentType;
 import com.fiap.mechanical_hub.domain.exceptions.DuplicateDocumentException;
+import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
 import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -63,11 +64,13 @@ public class CustomerService {
         String cleanRequestDocument = removeFormatting(request.getDocumentNumber());
         String cleanExistingDocument = existingCustomer.getDocumentNumber();
 
-        if ((!cleanExistingDocument.equals(cleanRequestDocument)) ||
-                customerRepository.existsByDocumentNumber(cleanRequestDocument)) {
+        if (!cleanExistingDocument.equals(cleanRequestDocument)) {
+            throw new InvalidDocumentException("Não é permitido alterar o documento do cliente");
+        }
+
+        if (customerRepository.existsByDocumentNumberAndIdNot(cleanRequestDocument, id)) {
             throw new DuplicateDocumentException(
-                    String.format("Cliente com documento %s já existe", request.getDocumentNumber())
-            );
+                    String.format("Cliente com documento %s já existe", request.getDocumentNumber()));
         }
 
         Customer updatedCustomer = customerMapper.toDomainEntity(request, existingCustomer);

@@ -60,6 +60,5 @@ public class Customer {
         this.updatedAt = LocalDateTime.now();
     }
 
-
 }
 

@@ -52,6 +52,39 @@ public class DocumentValidator {
     }
 
     private static boolean isValidCNPJ(String cnpj) {
+        if (cnpj == null) return false;
+
+        String clean = cnpj.replaceAll("\\D", "");
+
+        if (clean.length() != 14) return false;
+        if (clean.matches("(\\d)\\1{13}")) return false;
+
+        int[] weights1 = {5,4,3,2,9,8,7,6,5,4,3,2};
+        int[] weights2 = {6,5,4,3,2,9,8,7,6,5,4,3,2};
+
+        // Primeiro dígito
+        int sum = 0;
+        for (int i = 0; i < 12; i++) {
+            sum += (clean.charAt(i) - '0') * weights1[i];
+        }
+
+        int firstDigit = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+
+        if ((clean.charAt(12) - '0') != firstDigit) return false;
+
+        // Segundo dígito
+        sum = 0;
+        for (int i = 0; i < 13; i++) {
+            sum += (clean.charAt(i) - '0') * weights2[i];
+        }
+
+        int secondDigit = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+
+        return (clean.charAt(13) - '0') == secondDigit;
+    }
+
+    /*
+    private static boolean isValidCNPJ(String cnpj) {
         if (cnpj == null) {
             return false;
         }
@@ -119,6 +152,7 @@ public class DocumentValidator {
 
         return (cleanCnpj.charAt(13) - '0') == secondCheckDigit;
     }
+    */
 
 }
 
