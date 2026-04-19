@@ -22,7 +22,9 @@ public class MaterialService {
 
     private final MaterialRepository materialRepository;
     private final MaterialMapper materialMapper;
+    private final StockService stockService;
 
+    @Transactional
     public MaterialResponse create(UpsertMaterialRequest createRequest) {
         log.info("Creating new material with name: {}", createRequest.name());
         Material material = Material.create(
@@ -33,6 +35,7 @@ public class MaterialService {
         );
 
         Material savedMaterial = materialRepository.save(material);
+        stockService.setStockForNewMaterial(savedMaterial.getId());
 
         log.info("Material created with id: {}", savedMaterial.getId());
         return materialMapper.toResponse(savedMaterial);
