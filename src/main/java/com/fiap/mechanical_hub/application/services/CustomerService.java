@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.application.use_cases;
+package com.fiap.mechanical_hub.application.services;
 
 import com.fiap.mechanical_hub.application.dto.customer.UpsertCustomerRequest;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;

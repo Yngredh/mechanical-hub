@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.dto.customer.UpsertCustomerRequest;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
-import com.fiap.mechanical_hub.application.use_cases.CustomerService;
+import com.fiap.mechanical_hub.application.services.CustomerService;
 import com.fiap.mechanical_hub.infrastructure.http.middlewares.RequireProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
