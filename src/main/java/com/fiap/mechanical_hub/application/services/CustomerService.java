@@ -9,6 +9,7 @@ import com.fiap.mechanical_hub.domain.exceptions.DuplicateDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
 import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.UUID;
 import static com.fiap.mechanical_hub.shared.utils.Formatter.removeFormatting;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional
 public class CustomerService {
@@ -29,6 +31,7 @@ public class CustomerService {
 
 
     public CustomerResponse create(UpsertCustomerRequest request) {
+        log.info("Creating new customer");
         String cleanDocumentNumber = removeFormatting(request.getDocumentNumber());
 
         if (customerRepository.existsByDocumentNumber(cleanDocumentNumber)) {
@@ -40,11 +43,13 @@ public class CustomerService {
         Customer customer = customerMapper.toDomainEntity(request);
         Customer savedCustomer = customerRepository.save(customer);
 
+        log.info("Customer created with id: {}", savedCustomer.getId());
         return customerMapper.toResponse(savedCustomer);
     }
 
     @Transactional(readOnly = true)
     public CustomerResponse findById(UUID id) {
+        log.info("Retrieving customer with id: {}", id);
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Cliente não encontrado para o id: " + id));
         return customerMapper.toResponse(customer);
@@ -52,12 +57,14 @@ public class CustomerService {
 
     @Transactional(readOnly = true)
     public List<CustomerResponse> findAll() {
+        log.info("Retrieving all customers");
         return customerRepository.findAll().stream()
                 .map(customerMapper::toResponse)
                 .toList();
     }
 
     public CustomerResponse update(UUID id, UpsertCustomerRequest request) {
+        log.info("Updating customer with id: {}", id);
         Customer existingCustomer = customerRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Cliente não encontrado para o id: " + id));
 
@@ -76,10 +83,12 @@ public class CustomerService {
         Customer updatedCustomer = customerMapper.toDomainEntity(request, existingCustomer);
         Customer savedCustomer = customerRepository.save(updatedCustomer);
 
+        log.info("Customer with id: {} updated successfully", id);
         return customerMapper.toResponse(savedCustomer);
     }
 
     public void delete(UUID id) {
+        log.info("Deleting customer with id: {}", id);
         if (customerRepository.findById(id).isEmpty()) {
             throw new NoSuchElementException("Cliente não encontrado para o id: " + id);
         }
