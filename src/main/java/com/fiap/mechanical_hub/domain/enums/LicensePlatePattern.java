@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 @Getter
 public enum LicensePlatePattern {
-    ANTIGO("Antigo", "[A-Z]{3}-\\d{4}"),
+    ANTIGO("Antigo", "[A-Z]{3}\\d{4}"),
     MERCOSUL("Mercosul", "[A-Z]{3}\\d[A-Z]\\d{2}");
 
     private final String description;

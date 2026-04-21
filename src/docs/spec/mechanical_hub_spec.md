@@ -213,7 +213,7 @@ Campos obrigatórios: Cliente vinculado, Placa, Marca, Modelo, Ano, Cor.
 Cada veículo é identificado de forma única pela placa.
 
 **RN-VEI-PLACA | Validação**
-O sistema valida o formato da placa (Mercosul `AAA9A99` e padrão antigo `AAA-9999`) para assegurar que o valor inserido é válido.
+O sistema valida o formato da placa (Mercosul `AAA9A99` e padrão antigo `AAA9999`) para assegurar que o valor inserido é válido.
 
 ---
 

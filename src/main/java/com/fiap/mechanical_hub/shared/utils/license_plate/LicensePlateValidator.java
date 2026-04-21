@@ -25,7 +25,7 @@ public class LicensePlateValidator {
 
         if (!isValid) {
             throw new InvalidLicensePlateException(
-                    "Formato de placa inválido. Use o padrão antigo (ABC-1234) ou padrão Mercosul (ABC1D23)."
+                    "Formato de placa inválido. Use o padrão antigo (ABC1234) ou padrão Mercosul (ABC1D23)."
             );
         }
     }
