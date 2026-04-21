@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import static com.fiap.mechanical_hub.shared.utils.document.DocumentFormatter.formatDocument;
 import static com.fiap.mechanical_hub.shared.utils.telephone.TelephoneFormatter.formatTelephone;
-import static com.fiap.mechanical_hub.shared.utils.telephone.TelephoneFormatter.formatTelephone;
 
 @Component
 public class CustomerMapper {
