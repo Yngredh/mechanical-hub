@@ -1,5 +1,6 @@
 package com.fiap.mechanical_hub.application.dto.service;
 
+import com.fiap.mechanical_hub.application.dto.servicematerials.ServiceMaterialRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.application.services;
+package com.fiap.mechanical_hub.application.usecases;
 
 import com.fiap.mechanical_hub.domain.entities.Stock;
 import com.fiap.mechanical_hub.domain.repositories.StockRepository;

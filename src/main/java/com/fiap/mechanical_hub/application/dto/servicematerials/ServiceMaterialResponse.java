@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.application.dto.service;
+package com.fiap.mechanical_hub.application.dto.servicematerials;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

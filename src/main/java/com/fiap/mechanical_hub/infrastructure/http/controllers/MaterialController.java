@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.dto.material.UpsertMaterialRequest;
 import com.fiap.mechanical_hub.application.dto.material.MaterialResponse;
-import com.fiap.mechanical_hub.application.services.MaterialService;
+import com.fiap.mechanical_hub.application.usecases.MaterialService;
 import com.fiap.mechanical_hub.infrastructure.http.middlewares.RequireProfile;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.application.dto.service.UpsertServiceRequest;
-import com.fiap.mechanical_hub.application.services.ServiceUseCase;
+import com.fiap.mechanical_hub.application.usecases.ServiceUseCase;
 import com.fiap.mechanical_hub.infrastructure.http.middlewares.RequireProfile;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
