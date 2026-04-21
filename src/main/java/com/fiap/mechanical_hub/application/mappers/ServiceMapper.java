@@ -37,7 +37,10 @@ public class ServiceMapper {
                 model.getLaborCost(),
                 model.getBasePrice(),
                 model.getTotalPrice(),
-                materials
+                materials,
+                model.isActive(),
+                model.getCreatedAt(),
+                model.getUpdatedAt()
         );
     }
 

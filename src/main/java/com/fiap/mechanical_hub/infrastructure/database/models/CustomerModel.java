@@ -39,7 +39,7 @@ public class CustomerModel {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "address", nullable = false, length = 500)
+    @Column(name = "address", nullable = false)
     private String address;
 
     @Column(name = "created_at", nullable = false)
