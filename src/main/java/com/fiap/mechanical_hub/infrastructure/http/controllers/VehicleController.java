@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.dto.vehicle.UpsertVehicleRequest;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
-import com.fiap.mechanical_hub.application.use_cases.VehicleService;
+import com.fiap.mechanical_hub.application.usecases.VehicleService;
 import com.fiap.mechanical_hub.infrastructure.http.middlewares.RequireProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
