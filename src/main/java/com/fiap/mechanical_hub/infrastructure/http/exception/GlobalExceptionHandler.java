@@ -1,15 +1,16 @@
 package com.fiap.mechanical_hub.infrastructure.http.exception;
 
+import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
 import com.fiap.mechanical_hub.domain.exceptions.DuplicateDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidTelephoneException;
+import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -48,8 +49,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<Object> handleNotFound(NoSuchElementException ex) {
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<Object> handleBusinessRuleException(BusinessRuleException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put(STATUS, HttpStatus.UNPROCESSABLE_ENTITY.value());
+        body.put(ERROR, "Violação de Regra de Negócio");
+        body.put(MESSAGE, ex.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Object> handleNotFound(NotFoundException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put(STATUS, HttpStatus.NOT_FOUND.value());
         body.put(ERROR, "Not Found");
