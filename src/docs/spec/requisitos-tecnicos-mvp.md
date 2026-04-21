@@ -74,7 +74,7 @@
 - `DELETE /vehicles/:id` — remoção
 
 **3.2 – Validação de Placa**
-- Implementar validação de formato de placa brasileira (padrão antigo `AAA-9999` e Mercosul `AAA9A99`)
+- Implementar validação de formato de placa brasileira (padrão antigo `AAA9999` e Mercosul `AAA9A99`)
 - Retornar erro tratado para placas inválidas ou duplicadas
 
 ---

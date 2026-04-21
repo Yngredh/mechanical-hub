@@ -1,10 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.http.exception;
 
-import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
-import com.fiap.mechanical_hub.domain.exceptions.DuplicateDocumentException;
-import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
-import com.fiap.mechanical_hub.domain.exceptions.InvalidTelephoneException;
-import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
+import com.fiap.mechanical_hub.domain.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,6 +45,26 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(DuplicateLicensePlateException.class)
+    public ResponseEntity<Object> handleDuplicateLicensePlate(DuplicateLicensePlateException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put(STATUS, HttpStatus.CONFLICT.value());
+        body.put(ERROR, "Placa duplicada");
+        body.put(MESSAGE, ex.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(InvalidLicensePlateException.class)
+    public ResponseEntity<Object> handleInvalidLicensePlate(InvalidLicensePlateException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put(STATUS, HttpStatus.UNPROCESSABLE_ENTITY.value());
+        body.put(ERROR, "Placa inválida");
+        body.put(MESSAGE, ex.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
     @ExceptionHandler(BusinessRuleException.class)
     public ResponseEntity<Object> handleBusinessRuleException(BusinessRuleException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
@@ -79,4 +95,3 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 }
-
