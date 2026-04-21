@@ -7,6 +7,7 @@ import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.enums.DocumentType;
 import com.fiap.mechanical_hub.domain.exceptions.DuplicateDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
+import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -51,7 +51,7 @@ public class CustomerService {
     public CustomerResponse findById(UUID id) {
         log.info("Retrieving customer with id: {}", id);
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Cliente não encontrado para o id: " + id));
+                .orElseThrow(() -> new NotFoundException("Cliente não encontrado para o id: " + id));
         return customerMapper.toResponse(customer);
     }
 
@@ -66,7 +66,7 @@ public class CustomerService {
     public CustomerResponse update(UUID id, UpsertCustomerRequest request) {
         log.info("Updating customer with id: {}", id);
         Customer existingCustomer = customerRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Cliente não encontrado para o id: " + id));
+                .orElseThrow(() -> new NotFoundException("Cliente não encontrado para o id: " + id));
 
         String cleanRequestDocument = removeFormatting(request.getDocumentNumber());
         String cleanExistingDocument = existingCustomer.getDocumentNumber();
@@ -90,7 +90,7 @@ public class CustomerService {
     public void delete(UUID id) {
         log.info("Deleting customer with id: {}", id);
         if (customerRepository.findById(id).isEmpty()) {
-            throw new NoSuchElementException("Cliente não encontrado para o id: " + id);
+            throw new NotFoundException("Cliente não encontrado para o id: " + id);
         }
         customerRepository.deleteById(id);
     }

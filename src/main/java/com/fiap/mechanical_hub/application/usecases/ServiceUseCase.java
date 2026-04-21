@@ -64,8 +64,8 @@ public class ServiceUseCase {
         service.update(
                 request.getName(),
                 request.getDescription(),
-                request.getBasePrice(),
                 request.getLaborCost(),
+                request.getBasePrice(),
                 materials
         );
 

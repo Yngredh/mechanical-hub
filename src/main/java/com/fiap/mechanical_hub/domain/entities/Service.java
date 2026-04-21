@@ -23,7 +23,7 @@ public class Service {
     private LocalDateTime updatedAt;
 
     public Service(UUID id, String name, String description, BigDecimal laborCost, BigDecimal basePrice,
-                   BigDecimal totalPrice, List<ServiceMaterial> materials) {
+                   BigDecimal totalPrice, List<ServiceMaterial> materials, boolean active, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -31,9 +31,9 @@ public class Service {
         this.basePrice = basePrice;
         this.totalPrice = totalPrice;
         this.materials = materials;
-        this.active = true;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.active = active;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public static Service create(
@@ -50,7 +50,10 @@ public class Service {
                 laborCost,
                 basePrice,
                 BigDecimal.ZERO,
-                materials
+                materials,
+                true,
+                LocalDateTime.now(),
+                LocalDateTime.now()
         );
 
         service.validateInputs();

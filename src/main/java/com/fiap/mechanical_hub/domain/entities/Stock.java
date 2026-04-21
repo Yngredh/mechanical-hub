@@ -41,7 +41,7 @@ public class Stock {
         if (quantityToReserve > this.quantity) {
             throw new IllegalArgumentException("Quantidade insuficiente para reserva");
         }
-        this.status = StockStatus.AVAILABLE;
+        this.status = StockStatus.RESERVED;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -51,17 +51,13 @@ public class Stock {
     }
 
     public void addQuantity(Integer quantity) {
-        if (quantity < 0) {
-            throw new IllegalArgumentException("Quantidade não pode ser negativa");
-        }
+        if (quantity < 0) { throw new IllegalArgumentException("Quantidade não pode ser negativa"); }
         this.quantity += quantity;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void subtractQuantity(Integer quantity) {
-        if (quantity > this.quantity) {
-            throw new IllegalArgumentException("Quantidade insuficiente");
-        }
+        if (quantity > this.quantity) { throw new IllegalArgumentException("Quantidade insuficiente"); }
         this.quantity -= quantity;
         this.updatedAt = LocalDateTime.now();
     }
