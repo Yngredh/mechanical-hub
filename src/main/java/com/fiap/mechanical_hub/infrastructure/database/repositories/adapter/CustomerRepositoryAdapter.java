@@ -1,8 +1,9 @@
-package com.fiap.mechanical_hub.infrastructure.database.repositories;
+package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.CustomerModel;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.CustomerJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

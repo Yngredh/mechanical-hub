@@ -1,9 +1,10 @@
-package com.fiap.mechanical_hub.infrastructure.database.repositories;
+package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.Stock;
 import com.fiap.mechanical_hub.domain.enums.StockStatus;
 import com.fiap.mechanical_hub.domain.repositories.StockRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.StockModel;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.StockJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

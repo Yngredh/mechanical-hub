@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.application.services;
+package com.fiap.mechanical_hub.application.usecases;
 
 import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.application.dto.service.UpsertServiceRequest;
@@ -8,7 +8,7 @@ import com.fiap.mechanical_hub.domain.entities.Service;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.domain.repositories.MaterialRepository;
-import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.ServiceRepositoryAdapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
