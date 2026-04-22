@@ -1,6 +1,7 @@
 package com.fiap.mechanical_hub.infrastructure.security;
 
 import com.fiap.mechanical_hub.application.usecases.AuthorizationUseCase;
+import com.fiap.mechanical_hub.domain.enums.ProfileEnum;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -26,17 +27,21 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity httpSecurity,
             SecurityFilter securityFilter) throws Exception {
+        final String administrator = ProfileEnum.ADMINISTRATOR.name();
+        final String mechanical = ProfileEnum.MECHANICAL.name();
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
-                        .requestMatchers("/materials/**").hasRole("ADMINISTRATOR")
-                        .requestMatchers("/services/**").hasRole("ADMINISTRATOR")
-                        .requestMatchers("/customers/**").hasRole("ADMINISTRATOR")
-                        .requestMatchers("/service-orders/**").hasAnyRole("MECHANICAL", "ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.POST, "/auth/register").hasRole(administrator)
+                        .requestMatchers("/materials/**").hasRole(administrator)
+                        .requestMatchers("/services/**").hasRole(mechanical)
+                        .requestMatchers("/customers/**").hasRole(administrator)
+                        .requestMatchers("/service-orders/**").hasAnyRole(
+                                mechanical, administrator
+                        )
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

@@ -486,7 +486,7 @@ class CustomerServiceTest {
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(existingCustomer));
 
         assertThatThrownBy(() -> customerService.update(customerId, updateRequest))
-                .isInstanceOf(DuplicateDocumentException.class)
+                .isInstanceOf(InvalidDocumentException.class)
                 .hasMessageContaining("Não é permitido alterar o documento do cliente");
 
         verify(customerRepository, never()).save(any());
