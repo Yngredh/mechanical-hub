@@ -26,8 +26,6 @@
 - Implementar endpoint de login (`POST /auth/login`)
   - Recebe: `email`, `password`
   - Retorna: token JWT com `user_id` e `profile_id` no payload
-- Implementar middleware de autenticação para validar o token em todas as rotas protegidas
-- Implementar middleware de autorização por perfil (ex.: `requireProfile('Administrador')`)
 
 ---
 
