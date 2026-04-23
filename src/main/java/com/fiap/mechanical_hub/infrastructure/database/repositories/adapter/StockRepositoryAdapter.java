@@ -8,6 +8,7 @@ import com.fiap.mechanical_hub.infrastructure.database.repositories.StockJpaRepo
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,6 +33,20 @@ public class StockRepositoryAdapter implements StockRepository {
     @Override
     public Optional<Stock> findByMaterialIdAndStatus(UUID materialId, StockStatusEnum status) {
         return jpaRepository.findByMaterialIdAndStatus(materialId, status).map(this::toDomainEntity);
+    }
+
+    @Override
+    public List<Stock> findAll() {
+        return jpaRepository.findAll().stream()
+                .map(this::toDomainEntity)
+                .toList();
+    }
+
+    @Override
+    public List<Stock> findAllByMaterialId(UUID materialId) {
+        return jpaRepository.findAllByMaterialId(materialId).stream()
+                .map(this::toDomainEntity)
+                .toList();
     }
 
     @Override

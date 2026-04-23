@@ -8,6 +8,7 @@ import com.fiap.mechanical_hub.infrastructure.database.repositories.StockMovemen
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -28,5 +29,11 @@ public class StockMovementRepositoryAdapter implements StockMovementRepository {
         jpaRepository.deleteById(id);
     }
 
+    @Override
+    public List<StockMovement> findByMaterialId(UUID materialId) {
+        return jpaRepository.findByMaterialIdOrderByCreatedAtDesc(materialId).stream()
+                .map(StockMovementMapper::toDomainEntity)
+                .toList();
+    }
 }
 
