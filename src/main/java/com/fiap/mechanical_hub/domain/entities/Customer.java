@@ -46,8 +46,8 @@ public class Customer {
         return customer;
     }
 
-    public void updateCustomerInfo(String name, DocumentType documentType, String documentNumber,
-                                    String telephone, String email, String address) {
+    public void update(String name, DocumentType documentType, String documentNumber,
+                       String telephone, String email, String address) {
         validateDocument(documentType, documentNumber);
         validateTelephone(telephone);
 
