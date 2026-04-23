@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.Stock;
-import com.fiap.mechanical_hub.domain.enums.StockStatus;
+import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
 import com.fiap.mechanical_hub.domain.repositories.StockRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.StockModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.StockJpaRepository;
@@ -30,7 +30,7 @@ public class StockRepositoryAdapter implements StockRepository {
     }
 
     @Override
-    public Optional<Stock> findByMaterialIdAndStatus(UUID materialId, StockStatus status) {
+    public Optional<Stock> findByMaterialIdAndStatus(UUID materialId, StockStatusEnum status) {
         return jpaRepository.findByMaterialIdAndStatus(materialId, status).map(this::toDomainEntity);
     }
 

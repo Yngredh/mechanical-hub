@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.domain.repositories;
 
 import com.fiap.mechanical_hub.domain.entities.Stock;
-import com.fiap.mechanical_hub.domain.enums.StockStatus;
+import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -12,7 +12,7 @@ public interface StockRepository {
 
     Optional<Stock> findByMaterialId(UUID materialId);
 
-    Optional<Stock> findByMaterialIdAndStatus(UUID materialId, StockStatus status);
+    Optional<Stock> findByMaterialIdAndStatus(UUID materialId, StockStatusEnum status);
 
     void deleteById(UUID id);
 }
