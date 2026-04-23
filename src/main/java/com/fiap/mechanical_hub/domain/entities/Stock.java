@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.domain.entities;
 
-import com.fiap.mechanical_hub.domain.enums.StockStatus;
+import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -12,13 +12,13 @@ public class Stock {
     private UUID id;
     private UUID materialId;
     private Integer quantity;
-    private StockStatus status;
+    private StockStatusEnum status;
     private LocalDateTime updatedAt;
 
     public Stock() {
     }
 
-    public Stock(UUID id, UUID materialId, Integer quantity, StockStatus status, LocalDateTime updatedAt) {
+    public Stock(UUID id, UUID materialId, Integer quantity, StockStatusEnum status, LocalDateTime updatedAt) {
         this.id = id;
         this.materialId = materialId;
         this.quantity = quantity;
@@ -31,7 +31,7 @@ public class Stock {
         stock.id = UUID.randomUUID();
         stock.materialId = materialId;
         stock.quantity = 0;
-        stock.status = StockStatus.AVAILABLE;
+        stock.status = StockStatusEnum.AVAILABLE;
         stock.updatedAt = LocalDateTime.now();
 
         return stock;
@@ -41,12 +41,12 @@ public class Stock {
         if (quantityToReserve > this.quantity) {
             throw new IllegalArgumentException("Quantidade insuficiente para reserva");
         }
-        this.status = StockStatus.RESERVED;
+        this.status = StockStatusEnum.RESERVED;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void markAsAvailable() {
-        this.status = StockStatus.AVAILABLE;
+        this.status = StockStatusEnum.AVAILABLE;
         this.updatedAt = LocalDateTime.now();
     }
 
