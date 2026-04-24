@@ -26,7 +26,7 @@ public class CustomerMapper {
 
     public Customer toDomainEntity(UpsertCustomerRequest request, Customer existingCustomer) {
         DocumentType documentType = DocumentType.fromValue(request.getDocumentType());
-        existingCustomer.updateCustomerInfo(
+        existingCustomer.update(
                 request.getName(),
                 documentType,
                 request.getDocumentNumber(),
