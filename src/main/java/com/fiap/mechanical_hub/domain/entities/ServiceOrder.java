@@ -63,6 +63,12 @@ public class ServiceOrder {
         return order;
     }
 
+        public void receive(String userProfile) {
+            if (!isValidProfileForDiagnosis(userProfile)) {
+                throw new IllegalArgumentException("Apenas Mecânico ou superior pode iniciar a ordem");
+            }
+        }
+
     public void startDiagnosis(String userProfile) {
         if (!isValidProfileForDiagnosis(userProfile)) {
             throw new IllegalArgumentException("Apenas Mecânico ou superior pode iniciar o diagnóstico");
@@ -114,15 +120,6 @@ public class ServiceOrder {
 
         this.status = OrderStatus.ENTREGUE;
         this.deliveredAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public void cancel() {
-        if (status == OrderStatus.ENTREGUE || status == OrderStatus.CANCELADO) {
-            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatus.CANCELADO.getDisplayName());
-        }
-
-        this.status = OrderStatus.CANCELADO;
         this.updatedAt = LocalDateTime.now();
     }
 

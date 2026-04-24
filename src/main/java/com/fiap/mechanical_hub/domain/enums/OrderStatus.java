@@ -4,9 +4,12 @@ import lombok.Getter;
 
 @Getter
 public enum OrderStatus {
+    RECEBIDA("Recebida"),
     CRIADA("Criada"),
     EM_DIAGNOSTICO("Em diagnóstico"),
     EM_EXECUCAO("Em execução"),
+    APROVADO("Aprovado"),
+    RECUSADO("Recusado"),
     FINALIZADO("Finalizado"),
     ENTREGUE("Entregue"),
     CANCELADO("Cancelado");

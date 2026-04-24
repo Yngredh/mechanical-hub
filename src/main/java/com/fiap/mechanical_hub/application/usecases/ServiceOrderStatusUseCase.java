@@ -22,13 +22,16 @@ public class ServiceOrderStatusUseCase {
     private final OrderTaskRepository orderTaskRepository;
     private final ServiceOrderMapper mapper;
 
-    public void updateStatus(UUID orderId, String newStatusString, String userProfile) {
+    public ServiceOrderResponse updateStatus(UUID orderId, String newStatusString, String userProfile) {
         ServiceOrder order = serviceOrderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Service order with id " + orderId + " not found"));
 
         OrderStatus newStatus = OrderStatus.fromString(newStatusString);
 
         switch (newStatus) {
+            case RECEBIDA:
+                order.receive(userProfile);
+                break;
             case EM_DIAGNOSTICO:
                 order.startDiagnosis(userProfile);
                 break;
@@ -42,9 +45,6 @@ public class ServiceOrderStatusUseCase {
             case ENTREGUE:
                 order.deliver();
                 break;
-            case CANCELADO:
-                order.cancel();
-                break;
             default:
                 throw new IllegalArgumentException("Status transition not supported: " + newStatusString);
         }
@@ -54,7 +54,7 @@ public class ServiceOrderStatusUseCase {
         var orderTasks = orderTaskRepository.findByServiceOrderId(orderId);
         updatedOrder.setOrderTasks(orderTasks);
 
-        mapper.toResponse(updatedOrder);
+        return mapper.toResponse(updatedOrder);
     }
 
     @Transactional(readOnly = true)

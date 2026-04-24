@@ -34,9 +34,25 @@ public class OrderTask {
 
     public void start() {
         if (status != TaskStatus.PENDENTE) {
-            throw new IllegalStateException("Task must be in PENDENTE status to start");
+            throw new IllegalStateException("Tarefa precisa estar em status PENDENTE para ser iniciada");
         }
         this.status = TaskStatus.INICIADO;
+        this.startedAt = LocalDateTime.now();
+    }
+
+    public void approve() {
+        if (status != TaskStatus.INICIADO) {
+            throw new IllegalStateException("Tarefa precisa estar em status INICIADO para ser aprovada");
+        }
+        this.status = TaskStatus.APROVADO;
+        this.startedAt = LocalDateTime.now();
+    }
+
+    public void refuse() {
+        if (status != TaskStatus.INICIADO) {
+            throw new IllegalStateException("Tarefa precisa estar em status INICIADO para ser recusada");
+        }
+        this.status = TaskStatus.RECUSADO;
         this.startedAt = LocalDateTime.now();
     }
 
@@ -45,14 +61,6 @@ public class OrderTask {
             throw new IllegalStateException("Task must be in INICIADO status to finish");
         }
         this.status = TaskStatus.FINALIZADO;
-        this.finishedAt = LocalDateTime.now();
-    }
-
-    public void cancel() {
-        if (status != TaskStatus.INICIADO) {
-            throw new IllegalStateException("Task must be in INICIADO status to cancel");
-        }
-        this.status = TaskStatus.CANCELADO;
         this.finishedAt = LocalDateTime.now();
     }
 

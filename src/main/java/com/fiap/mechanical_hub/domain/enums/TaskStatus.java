@@ -5,9 +5,10 @@ import lombok.Getter;
 @Getter
 public enum TaskStatus {
     PENDENTE("Pendente"),
+    APROVADO("Aprovado"),
+    RECUSADO("Recusado"),
     INICIADO("Iniciado"),
-    FINALIZADO("Finalizado"),
-    CANCELADO("Cancelado");
+    FINALIZADO("Finalizado");
 
     private final String displayName;
 
