@@ -5,12 +5,9 @@ import com.fiap.mechanical_hub.domain.enums.OrderStatus;
 import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceOrderModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceOrderJpaRepository;
-import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceOrderSpecification;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,30 +38,10 @@ public class ServiceOrderRepositoryAdapter implements ServiceOrderRepository {
     }
 
     @Override
-    public List<ServiceOrder> findAllFiltered(String status, UUID customerId, LocalDateTime startDate, LocalDateTime endDate) {
-        Specification<ServiceOrderModel> spec = Specification.where(null);
-
-        if (status != null && !status.isEmpty()) {
-            spec = spec.and(ServiceOrderSpecification.hasStatus(status));
-        }
-
-        if (customerId != null) {
-            spec = spec.and(ServiceOrderSpecification.hasCustomerId(customerId));
-        }
-
-        if (startDate != null || endDate != null) {
-            spec = spec.and(ServiceOrderSpecification.createdBetween(startDate, endDate));
-        }
-
-        return jpaRepository.findAll(spec).stream()
-                .map(this::toDomainEntity)
-                .toList();
-    }
-
-    @Override
     public void deleteById(UUID id) {
         jpaRepository.deleteById(id);
     }
+
 
     private ServiceOrderModel toJpaEntity(ServiceOrder order) {
         return new ServiceOrderModel(

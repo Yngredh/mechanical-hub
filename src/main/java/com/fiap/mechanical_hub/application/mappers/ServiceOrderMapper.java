@@ -6,10 +6,10 @@ import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderDetailRe
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
-import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
+import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
-import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
-import com.fiap.mechanical_hub.domain.repositories.VehicleRepository;
+import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
+import com.fiap.mechanical_hub.domain.entities.Vehicle;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ServiceOrderMapper {
 
-    private final CustomerRepository customerRepository;
-    private final VehicleRepository vehicleRepository;
     private final CustomerMapper customerMapper;
     private final VehicleMapper vehicleMapper;
 
@@ -53,36 +51,13 @@ public class ServiceOrderMapper {
         );
     }
 
-    public ServiceOrderSummaryResponse toSummaryResponse(ServiceOrder order) {
-        var customer = customerRepository.findById(order.getCustomerId()).orElse(null);
-        var vehicle = vehicleRepository.findById(order.getVehicleId()).orElse(null);
-
-        String customerName = customer != null ? customer.getName() : "Unknown";
-        String vehicleInfo = vehicle != null ? vehicle.getBrand() + " " + vehicle.getModel() + " (" + vehicle.getLicensePlate() + ")" : "Unknown";
-
-        return new ServiceOrderSummaryResponse(
-                order.getId(),
-                order.getOrderNumber(),
-                order.getStatus().getDisplayName(),
-                customerName,
-                vehicleInfo,
-                order.getBudget(),
-                order.getCreatedAt()
-        );
-    }
-
-    public ServiceOrderDetailResponse toDetailResponse(ServiceOrder order) {
-        var customer = customerRepository.findById(order.getCustomerId()).orElse(null);
-        var vehicle = vehicleRepository.findById(order.getVehicleId()).orElse(null);
-
+    public ServiceOrderDetailResponse toDetailResponse(ServiceOrder order, Customer customer, Vehicle vehicle) {
         CustomerResponse customerResponse = customer != null ? customerMapper.toResponse(customer) : null;
         VehicleResponse vehicleResponse = vehicle != null ? vehicleMapper.toResponse(vehicle) : null;
 
-        List<OrderTaskResponse> orderTasks = order.getOrderTasks() != null 
-            ? order.getOrderTasks().stream()
-                .map(this::toTaskResponse)
-                .collect(Collectors.toList())
-            : List.of();
+        List<OrderTaskResponse> orderTasks = order.getOrderTasks() != null
+                ? order.getOrderTasks().stream().map(this::toTaskResponse).toList()
+                : List.of();
 
         return new ServiceOrderDetailResponse(
                 order.getId(),
@@ -104,6 +79,24 @@ public class ServiceOrderMapper {
                 customerResponse,
                 vehicleResponse,
                 orderTasks
+        );
+    }
+
+    public ServiceOrderSummaryResponse toSummaryResponsee(ServiceOrder order, Customer customer, Vehicle vehicle) {
+
+        String customerName = (customer != null) ? customer.getName() : "Unknown";
+        String vehicleInfo = (vehicle != null)
+                ? vehicle.getBrand() + " " + vehicle.getModel() + " (" + vehicle.getLicensePlate() + ")"
+                : "Unknown";
+
+        return new ServiceOrderSummaryResponse(
+                order.getId(),
+                order.getOrderNumber(),
+                order.getStatus().getDisplayName(),
+                customerName,
+                vehicleInfo,
+                order.getBudget(),
+                order.getCreatedAt()
         );
     }
 

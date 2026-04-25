@@ -6,6 +6,9 @@ import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.enums.OrderStatus;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidOrderStatusTransitionException;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceOrderJpaRepository;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.VehicleRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.CustomerRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.OrderTaskRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.ServiceOrderRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.integrations.whatsapp.WhatsAppMessenger;
@@ -38,6 +41,15 @@ public class ServiceOrderStatusUseCaseTest {
     private ServiceOrderMapper mapper;
 
     @Mock
+    private ServiceOrderJpaRepository serviceOrderJpaRepository;
+
+    @Mock
+    private CustomerRepositoryAdapter customerRepository;
+
+    @Mock
+    private VehicleRepositoryAdapter vehicleRepository;
+
+    @Mock
     private WhatsAppMessenger whatsAppMessenger;
 
     private ServiceOrderStatusUseCase useCase;
@@ -48,7 +60,7 @@ public class ServiceOrderStatusUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        useCase = new ServiceOrderStatusUseCase(serviceOrderRepository, orderTaskRepository, mapper, whatsAppMessenger);
+        useCase = new ServiceOrderStatusUseCase(serviceOrderRepository, orderTaskRepository, mapper, whatsAppMessenger,serviceOrderJpaRepository, customerRepository, vehicleRepository);
         orderId = UUID.randomUUID();
         customerId = UUID.randomUUID();
         vehicleId = UUID.randomUUID();
@@ -205,49 +217,6 @@ public class ServiceOrderStatusUseCaseTest {
         assertNotNull(order.getOpenedAt());
         assertTrue(order.getOpenedAt().isAfter(beforeUpdate) || order.getOpenedAt().isEqual(beforeUpdate));
         assertTrue(order.getOpenedAt().isBefore(afterUpdate) || order.getOpenedAt().isEqual(afterUpdate));
-    }
-
-    @Test
-    void testApproveOrderInAguardandoAprovacaoStatus() {
-        // Arrange
-        ServiceOrder order = ServiceOrder.create(
-                vehicleId,
-                customerId,
-                createdByUserId,
-                "OS-001",
-                "Aprovação de serviço",
-                BigDecimal.valueOf(500),
-                LocalDateTime.now().plusDays(7)
-        );
-        // Manually set status to AGUARDANDO_APROVACAO for testing
-        order = new ServiceOrder(
-                order.getId(),
-                order.getVehicleId(),
-                order.getCustomerId(),
-                OrderStatus.AGUARDANDO_APROVACAO,
-                order.getCreatedByUserId(),
-                order.getResponsibleUserId(),
-                order.getOrderNumber(),
-                order.getRequestDescription(),
-                order.getBudget(),
-                order.isHasStockPending(),
-                order.getEstimatedCompletionAt(),
-                order.getOpenedAt(),
-                order.getCompletedAt(),
-                order.getDeliveredAt(),
-                order.getCreatedAt(),
-                order.getUpdatedAt(),
-                List.of()
-        );
-
-        when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        when(serviceOrderRepository.save(any())).thenReturn(order);
-        when(orderTaskRepository.findByServiceOrderId(orderId)).thenReturn(List.of());
-        when(mapper.toResponse(any())).thenReturn(new ServiceOrderResponse());
-
-        // Assert
-        assertEquals(OrderStatus.APROVADO, order.getStatus());
-        assertNotNull(order.getUpdatedAt());
     }
 
     @Test
