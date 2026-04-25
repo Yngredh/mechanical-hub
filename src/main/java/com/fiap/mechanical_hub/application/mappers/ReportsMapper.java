@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-public class ServiceExecutionTimeMapper {
-    private ServiceExecutionTimeMapper() {}
+public class ReportsMapper {
+    private ReportsMapper() {}
 
     public static ServiceExecutionTimeResponse toResponse(Object[] result) {
         if (result == null || result.length < 4) {

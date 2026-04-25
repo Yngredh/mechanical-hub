@@ -1,5 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
+import com.fiap.mechanical_hub.application.mappers.OrderTaskMapper;
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
 import com.fiap.mechanical_hub.domain.enums.TaskStatus;
 import com.fiap.mechanical_hub.application.repositories.OrderTaskRepository;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.fiap.mechanical_hub.application.mappers.OrderTaskMapper.toDomainEntity;
+
 @Component
 @RequiredArgsConstructor
 public class OrderTaskRepositoryAdapter implements OrderTaskRepository {
@@ -20,12 +23,12 @@ public class OrderTaskRepositoryAdapter implements OrderTaskRepository {
 
     @Override
     public Optional<OrderTask> findById(UUID id) {
-        return jpaRepository.findById(id).map(this::toDomainEntity);
+        return jpaRepository.findById(id).map(OrderTaskMapper::toDomainEntity);
     }
 
     @Override
     public OrderTask save(OrderTask task) {
-        OrderTaskModel entity = toJpaEntity(task);
+        OrderTaskModel entity = OrderTaskMapper.toJpaEntity(task);
         OrderTaskModel saved = jpaRepository.save(entity);
         return toDomainEntity(saved);
     }
@@ -33,14 +36,14 @@ public class OrderTaskRepositoryAdapter implements OrderTaskRepository {
     @Override
     public List<OrderTask> findAll() {
         return jpaRepository.findAll().stream()
-                .map(this::toDomainEntity)
+                .map(OrderTaskMapper::toDomainEntity)
                 .toList();
     }
 
     @Override
     public List<OrderTask> findByServiceOrderId(UUID serviceOrderId) {
         return jpaRepository.findByServiceOrderId(serviceOrderId).stream()
-                .map(this::toDomainEntity)
+                .map(OrderTaskMapper::toDomainEntity)
                 .toList();
     }
 
@@ -54,27 +57,6 @@ public class OrderTaskRepositoryAdapter implements OrderTaskRepository {
         jpaRepository.deleteById(id);
     }
 
-    private OrderTaskModel toJpaEntity(OrderTask task) {
-        return new OrderTaskModel(
-                task.getId(),
-                task.getServiceOrderId(),
-                task.getServiceId(),
-                task.getStatus().name(),
-                task.getStartedAt(),
-                task.getFinishedAt()
-        );
-    }
-
-    private OrderTask toDomainEntity(OrderTaskModel entity) {
-        return new OrderTask(
-                entity.getId(),
-                entity.getServiceOrderId(),
-                entity.getServiceId(),
-                TaskStatus.valueOf(entity.getServiceStatus()),
-                entity.getStartedAt(),
-                entity.getFinishedAt()
-        );
-    }
 }
 
 
