@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.domain.entities;
 
-import com.fiap.mechanical_hub.domain.enums.TaskStatus;
+import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -23,7 +23,7 @@ public class OrderTaskTest {
         assertNotNull(task.getId());
         assertEquals(serviceOrderId, task.getServiceOrderId());
         assertEquals(serviceId, task.getServiceId());
-        assertEquals(TaskStatus.PENDENTE, task.getStatus());
+        assertEquals(TaskStatusEnum.PENDENTE, task.getStatus());
         assertNull(task.getStartedAt());
         assertNull(task.getFinishedAt());
     }
@@ -39,7 +39,7 @@ public class OrderTaskTest {
         LocalDateTime afterStart = LocalDateTime.now();
 
         // Assert
-        assertEquals(TaskStatus.INICIADO, task.getStatus());
+        assertEquals(TaskStatusEnum.INICIADO, task.getStatus());
         assertNotNull(task.getStartedAt());
         assertTrue(task.getStartedAt().isAfter(beforeStart) || task.getStartedAt().isEqual(beforeStart));
         assertTrue(task.getStartedAt().isBefore(afterStart) || task.getStartedAt().isEqual(afterStart));
@@ -69,7 +69,7 @@ public class OrderTaskTest {
         LocalDateTime afterApprove = LocalDateTime.now();
 
         // Assert
-        assertEquals(TaskStatus.APROVADO, task.getStatus());
+        assertEquals(TaskStatusEnum.APROVADO, task.getStatus());
         assertNotNull(task.getStartedAt());
         // Note: approve() atualiza startedAt novamente, o que pode ser um bug
         assertTrue(task.getStartedAt().isAfter(beforeApprove) || task.getStartedAt().isEqual(beforeApprove));
@@ -112,7 +112,7 @@ public class OrderTaskTest {
         LocalDateTime afterRefuse = LocalDateTime.now();
 
         // Assert
-        assertEquals(TaskStatus.RECUSADO, task.getStatus());
+        assertEquals(TaskStatusEnum.RECUSADO, task.getStatus());
         assertNotNull(task.getStartedAt());
         // Note: refuse() atualiza startedAt novamente, o que pode ser um bug
         assertTrue(task.getStartedAt().isAfter(beforeRefuse) || task.getStartedAt().isEqual(beforeRefuse));
@@ -155,7 +155,7 @@ public class OrderTaskTest {
         LocalDateTime afterFinish = LocalDateTime.now();
 
         // Assert
-        assertEquals(TaskStatus.FINALIZADO, task.getStatus());
+        assertEquals(TaskStatusEnum.FINALIZADO, task.getStatus());
         assertNotNull(task.getStartedAt());
         assertNotNull(task.getFinishedAt());
         assertTrue(task.getFinishedAt().isAfter(beforeFinish) || task.getFinishedAt().isEqual(beforeFinish));

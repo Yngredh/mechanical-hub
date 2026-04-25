@@ -4,7 +4,6 @@ import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryR
 import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
 
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
-import com.fiap.mechanical_hub.domain.enums.OrderStatus;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceOrderModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceOrderJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -88,7 +87,7 @@ public class ServiceOrderRepositoryAdapter implements ServiceOrderRepository {
                 entity.getId(),
                 entity.getVehicleId(),
                 entity.getCustomerId(),
-                entity.getOrderStatus(),
+                entity.getOrderStatusEnum(),
                 entity.getCreatedByUserId(),
                 entity.getResponsibleUserId(),
                 entity.getOrderNumber(),

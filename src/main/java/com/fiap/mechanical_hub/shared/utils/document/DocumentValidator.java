@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.shared.utils.document;
 
-import com.fiap.mechanical_hub.domain.enums.DocumentType;
+import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
 
 public class DocumentValidator {
@@ -9,14 +9,14 @@ public class DocumentValidator {
         // Utility Class
     }
 
-    public static void validateDocument(DocumentType documentType, String documentNumber) {
-        boolean isValid = documentType == DocumentType.CPF
+    public static void validateDocument(DocumentTypeEnum documentTypeEnum, String documentNumber) {
+        boolean isValid = documentTypeEnum == DocumentTypeEnum.CPF
                 ? isValidCPF(documentNumber)
                 : isValidCNPJ(documentNumber);
 
         if (!isValid) {
             throw new InvalidDocumentException(
-                    String.format("Inválido %s: %s", documentType.getValue(), documentNumber)
+                    String.format("Inválido %s: %s", documentTypeEnum.getValue(), documentNumber)
             );
         }
     }

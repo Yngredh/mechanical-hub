@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.domain.entities;
 
-import com.fiap.mechanical_hub.domain.enums.DocumentType;
+import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ public class Customer {
 
     private UUID id;
     private String name;
-    private DocumentType documentType;
+    private DocumentTypeEnum documentTypeEnum;
     private String documentNumber;
     private String telephone;
     private String email;
@@ -27,15 +27,15 @@ public class Customer {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static Customer create(String name, DocumentType documentType, String documentNumber,
-                                   String telephone, String email, String address) {
-        validateDocument(documentType, documentNumber);
+    public static Customer create(String name, DocumentTypeEnum documentTypeEnum, String documentNumber,
+                                  String telephone, String email, String address) {
+        validateDocument(documentTypeEnum, documentNumber);
         validateTelephone(telephone);
 
         Customer customer = new Customer();
         customer.id = UUID.randomUUID();
         customer.name = name;
-        customer.documentType = documentType;
+        customer.documentTypeEnum = documentTypeEnum;
         customer.documentNumber = removeFormatting(documentNumber);
         customer.telephone = removeFormatting(telephone);
         customer.email = email;
@@ -46,13 +46,13 @@ public class Customer {
         return customer;
     }
 
-    public void update(String name, DocumentType documentType, String documentNumber,
+    public void update(String name, DocumentTypeEnum documentTypeEnum, String documentNumber,
                        String telephone, String email, String address) {
-        validateDocument(documentType, documentNumber);
+        validateDocument(documentTypeEnum, documentNumber);
         validateTelephone(telephone);
 
         this.name = name;
-        this.documentType = documentType;
+        this.documentTypeEnum = documentTypeEnum;
         this.documentNumber = removeFormatting(documentNumber);
         this.telephone = removeFormatting(telephone);
         this.email = email;

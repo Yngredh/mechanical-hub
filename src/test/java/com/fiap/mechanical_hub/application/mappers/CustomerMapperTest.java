@@ -3,7 +3,7 @@ package com.fiap.mechanical_hub.application.mappers;
 import com.fiap.mechanical_hub.application.dto.customer.UpsertCustomerRequest;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.domain.entities.Customer;
-import com.fiap.mechanical_hub.domain.enums.DocumentType;
+import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +34,7 @@ class CustomerMapperTest {
         assertThat(customer).isNotNull();
         assertThat(customer.getId()).isNotNull();
         assertThat(customer.getName()).isEqualTo("Anabela Almeida");
-        assertThat(customer.getDocumentType()).isEqualTo(DocumentType.CPF);
+        assertThat(customer.getDocumentTypeEnum()).isEqualTo(DocumentTypeEnum.CPF);
         assertThat(customer.getDocumentNumber()).isEqualTo("11144477735");
         assertThat(customer.getTelephone()).isEqualTo("5511987654321");
         assertThat(customer.getEmail()).isEqualTo("joao@example.com");
@@ -50,7 +50,7 @@ class CustomerMapperTest {
         Customer existingCustomer = new Customer(
                 customerId,
                 "João Silva",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "11144477735",
                 "11987654321",
                 "joao@example.com",
@@ -73,7 +73,7 @@ class CustomerMapperTest {
         assertThat(updatedCustomer).isNotNull();
         assertThat(updatedCustomer.getId()).isEqualTo(customerId);
         assertThat(updatedCustomer.getName()).isEqualTo("João Silva Santos");
-        assertThat(updatedCustomer.getDocumentType()).isEqualTo(DocumentType.CPF);
+        assertThat(updatedCustomer.getDocumentTypeEnum()).isEqualTo(DocumentTypeEnum.CPF);
         assertThat(updatedCustomer.getDocumentNumber()).isEqualTo("11144477735");
         assertThat(updatedCustomer.getTelephone()).isEqualTo("5511999999999");
         assertThat(updatedCustomer.getEmail()).isEqualTo("joao.santos@example.com");
@@ -95,7 +95,7 @@ class CustomerMapperTest {
         Customer customer = customerMapper.toDomainEntity(request);
 
         assertThat(customer).isNotNull();
-        assertThat(customer.getDocumentType()).isEqualTo(DocumentType.CNPJ);
+        assertThat(customer.getDocumentTypeEnum()).isEqualTo(DocumentTypeEnum.CNPJ);
         assertThat(customer.getDocumentNumber()).isEqualTo("11222333000181");
     }
 
@@ -107,7 +107,7 @@ class CustomerMapperTest {
         Customer customer = new Customer(
                 customerId,
                 "João Silva",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "11144477735",
                 "11987654321",
                 "joao@example.com",
@@ -138,7 +138,7 @@ class CustomerMapperTest {
         Customer customer = new Customer(
                 customerId,
                 "Empresa XYZ",
-                DocumentType.CNPJ,
+                DocumentTypeEnum.CNPJ,
                 "11222333000181",
                 "1134567890",
                 "empresa@example.com",
@@ -185,7 +185,7 @@ class CustomerMapperTest {
         Customer customer = new Customer(
                 UUID.randomUUID(),
                 "Cliente",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678910",
                 "11987654321",
                 "cliente@example.com",
@@ -206,7 +206,7 @@ class CustomerMapperTest {
         Customer customer = new Customer(
                 UUID.randomUUID(),
                 "Empresa",
-                DocumentType.CNPJ,
+                DocumentTypeEnum.CNPJ,
                 "11222333000181",
                 "1134567890",
                 "empresa@example.com",
@@ -227,7 +227,7 @@ class CustomerMapperTest {
         Customer customer = new Customer(
                 UUID.randomUUID(),
                 "Cliente",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678910",
                 "11987654321",
                 "cliente@example.com",
@@ -248,7 +248,7 @@ class CustomerMapperTest {
         Customer customer = new Customer(
                 UUID.randomUUID(),
                 "Cliente",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678910",
                 "1134567890",
                 "cliente@example.com",
@@ -269,7 +269,7 @@ class CustomerMapperTest {
         Customer customer = new Customer(
                 UUID.randomUUID(),
                 "Cliente",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678910",
                 "551134567890",
                 "cliente@example.com",
@@ -290,7 +290,7 @@ class CustomerMapperTest {
         Customer customer = new Customer(
                 UUID.randomUUID(),
                 "Cliente",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678910",
                 "5511987654321",
                 "cliente@example.com",
@@ -358,7 +358,7 @@ class CustomerMapperTest {
         Customer existingCustomer = new Customer(
                 originalId,
                 "João Silva",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "11144477735",
                 "11987654321",
                 "joao@example.com",

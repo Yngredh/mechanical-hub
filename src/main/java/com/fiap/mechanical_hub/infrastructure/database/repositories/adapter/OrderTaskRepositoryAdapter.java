@@ -2,7 +2,6 @@ package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.application.mappers.OrderTaskMapper;
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
-import com.fiap.mechanical_hub.domain.enums.TaskStatus;
 import com.fiap.mechanical_hub.application.repositories.OrderTaskRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.OrderTaskModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.OrderTaskJpaRepository;

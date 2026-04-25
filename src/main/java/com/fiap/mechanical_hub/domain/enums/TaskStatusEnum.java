@@ -3,7 +3,7 @@ package com.fiap.mechanical_hub.domain.enums;
 import lombok.Getter;
 
 @Getter
-public enum TaskStatus {
+public enum TaskStatusEnum {
     PENDENTE("Pendente"),
     APROVADO("Aprovado"),
     RECUSADO("Recusado"),
@@ -12,7 +12,7 @@ public enum TaskStatus {
 
     private final String displayName;
 
-    TaskStatus(String displayName) {
+    TaskStatusEnum(String displayName) {
         this.displayName = displayName;
     }
 

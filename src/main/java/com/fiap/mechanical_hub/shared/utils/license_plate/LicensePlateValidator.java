@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.shared.utils.license_plate;
 
-import com.fiap.mechanical_hub.domain.enums.LicensePlatePattern;
+import com.fiap.mechanical_hub.domain.enums.LicensePlatePatternEnum;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidLicensePlateException;
 import static com.fiap.mechanical_hub.shared.utils.license_plate.LicensePlateFormatter.normalize;
 
@@ -16,7 +16,7 @@ public class LicensePlateValidator {
         String normalized = normalize(licensePlate);
 
         boolean isValid = false;
-        for (LicensePlatePattern pattern : LicensePlatePattern.values()) {
+        for (LicensePlatePatternEnum pattern : LicensePlatePatternEnum.values()) {
             if (pattern.matches(normalized)) {
                 isValid = true;
                 break;

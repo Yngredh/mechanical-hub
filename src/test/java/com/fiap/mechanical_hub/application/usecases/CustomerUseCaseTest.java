@@ -4,7 +4,7 @@ import com.fiap.mechanical_hub.application.dto.customer.UpsertCustomerRequest;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.mappers.CustomerMapper;
 import com.fiap.mechanical_hub.domain.entities.Customer;
-import com.fiap.mechanical_hub.domain.enums.DocumentType;
+import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 import com.fiap.mechanical_hub.domain.exceptions.DuplicateDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidTelephoneException;
@@ -57,7 +57,7 @@ class CustomerUseCaseTest {
 
         Customer customerDomain = Customer.create(
                 "João Silva",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 validCPF,
                 "55(11) 98765-4321",
                 "joao@example.com",
@@ -67,7 +67,7 @@ class CustomerUseCaseTest {
         Customer savedCustomer = new Customer(
                 UUID.randomUUID(),
                 "João Silva",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678909",
                 "5511987654321",
                 "joao@example.com",
@@ -79,7 +79,7 @@ class CustomerUseCaseTest {
         CustomerResponse expectedResponse = new CustomerResponse(
                 savedCustomer.getId(),
                 savedCustomer.getName(),
-                savedCustomer.getDocumentType().getValue(),
+                savedCustomer.getDocumentTypeEnum().getValue(),
                 "123.456.789-09",
                 "55(11) 9 8765-4321",
                 savedCustomer.getEmail(),
@@ -118,7 +118,7 @@ class CustomerUseCaseTest {
 
         Customer customerDomain = Customer.create(
                 "Empresa XYZ",
-                DocumentType.CNPJ,
+                DocumentTypeEnum.CNPJ,
                 validCNPJ,
                 "55 (11) 3456-7890",
                 "empresa@example.com",
@@ -128,7 +128,7 @@ class CustomerUseCaseTest {
         Customer savedCustomer = new Customer(
                 UUID.randomUUID(),
                 "Empresa XYZ",
-                DocumentType.CNPJ,
+                DocumentTypeEnum.CNPJ,
                 "11222333000181",
                 "55 1134567890",
                 "empresa@example.com",
@@ -140,7 +140,7 @@ class CustomerUseCaseTest {
         CustomerResponse expectedResponse = new CustomerResponse(
                 savedCustomer.getId(),
                 savedCustomer.getName(),
-                savedCustomer.getDocumentType().getValue(),
+                savedCustomer.getDocumentTypeEnum().getValue(),
                 "11.222.333/0001-81",
                 "55 (11) 3456-7890",
                 savedCustomer.getEmail(),
@@ -280,7 +280,7 @@ class CustomerUseCaseTest {
         Customer customer = new Customer(
                 customerId,
                 "João Silva",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678909",
                 "11987654321",
                 "joao@example.com",
@@ -330,7 +330,7 @@ class CustomerUseCaseTest {
         customers.add(new Customer(
                 UUID.randomUUID(),
                 "João Silva",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678909",
                 "11987654321",
                 "joao@example.com",
@@ -341,7 +341,7 @@ class CustomerUseCaseTest {
         customers.add(new Customer(
                 UUID.randomUUID(),
                 "Empresa XYZ",
-                DocumentType.CNPJ,
+                DocumentTypeEnum.CNPJ,
                 "11222333000181",
                 "1134567890",
                 "empresa@example.com",
@@ -355,7 +355,7 @@ class CustomerUseCaseTest {
             responses.add(new CustomerResponse(
                     customer.getId(),
                     customer.getName(),
-                    customer.getDocumentType().getValue(),
+                    customer.getDocumentTypeEnum().getValue(),
                     customer.getDocumentNumber(),
                     customer.getTelephone(),
                     customer.getEmail(),
@@ -396,7 +396,7 @@ class CustomerUseCaseTest {
         Customer existingCustomer = new Customer(
                 customerId,
                 "João Silva",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678909",
                 "5511987654321",
                 "joao@example.com",
@@ -417,7 +417,7 @@ class CustomerUseCaseTest {
         Customer updatedCustomer = new Customer(
                 customerId,
                 "João Silva Santos",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678909",
                 "5511999999999",
                 "joao.santos@example.com",
@@ -465,7 +465,7 @@ class CustomerUseCaseTest {
         Customer existingCustomer = new Customer(
                 customerId,
                 "João Silva",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678909",
                 "5511987654321",
                 "joao@example.com",
@@ -521,7 +521,7 @@ class CustomerUseCaseTest {
         Customer customer = new Customer(
                 customerId,
                 "João Silva",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678909",
                 "11987654321",
                 "joao@example.com",
@@ -559,7 +559,7 @@ class CustomerUseCaseTest {
         Customer customer = new Customer(
                 customerId,
                 "João Silva",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678909",
                 "11987654321",
                 "joao@example.com",
@@ -596,7 +596,7 @@ class CustomerUseCaseTest {
         Customer customer = new Customer(
                 customerId,
                 "Empresa XYZ",
-                DocumentType.CNPJ,
+                DocumentTypeEnum.CNPJ,
                 "11222333000181",
                 "1134567890",
                 "empresa@example.com",
@@ -633,7 +633,7 @@ class CustomerUseCaseTest {
         Customer customer = new Customer(
                 customerId,
                 "João Silva",
-                DocumentType.CPF,
+                DocumentTypeEnum.CPF,
                 "12345678909",
                 "11987654321",
                 "joao@example.com",

@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.database.models;
 
-import com.fiap.mechanical_hub.domain.enums.DocumentType;
+import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,7 +28,7 @@ public class CustomerModel {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type", nullable = false)
-    private DocumentType documentType;
+    private DocumentTypeEnum documentTypeEnum;
 
     @Column(name = "document_number", nullable = false, unique = true)
     private String documentNumber;

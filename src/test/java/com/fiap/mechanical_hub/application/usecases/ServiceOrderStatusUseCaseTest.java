@@ -5,7 +5,7 @@ import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryR
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
 import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
-import com.fiap.mechanical_hub.domain.enums.OrderStatus;
+import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidOrderStatusTransitionException;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.CustomerRepositoryAdapter;
@@ -89,7 +89,7 @@ public class ServiceOrderStatusUseCaseTest {
         useCase.updateStatus(orderId, "Em diagnóstico", "Mecânico");
 
         // Assert
-        assertEquals(OrderStatus.EM_DIAGNOSTICO, order.getStatus());
+        assertEquals(OrderStatusEnum.EM_DIAGNOSTICO, order.getStatus());
         assertNotNull(order.getOpenedAt());
     }
 
@@ -115,7 +115,7 @@ public class ServiceOrderStatusUseCaseTest {
         useCase.updateStatus(orderId, "Em diagnóstico", "Administrador");
 
         // Assert
-        assertEquals(OrderStatus.EM_DIAGNOSTICO, order.getStatus());
+        assertEquals(OrderStatusEnum.EM_DIAGNOSTICO, order.getStatus());
     }
 
     @Test

@@ -59,7 +59,7 @@ public class CustomerRepositoryAdapter implements CustomerRepository {
         return new CustomerModel(
                 customer.getId(),
                 customer.getName(),
-                customer.getDocumentType(),
+                customer.getDocumentTypeEnum(),
                 customer.getDocumentNumber(),
                 customer.getTelephone(),
                 customer.getEmail(),
@@ -73,7 +73,7 @@ public class CustomerRepositoryAdapter implements CustomerRepository {
         return new Customer(
                 entity.getId(),
                 entity.getName(),
-                entity.getDocumentType(),
+                entity.getDocumentTypeEnum(),
                 entity.getDocumentNumber(),
                 entity.getTelephone(),
                 entity.getEmail(),

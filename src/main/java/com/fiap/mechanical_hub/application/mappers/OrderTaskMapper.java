@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.application.mappers;
 
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
-import com.fiap.mechanical_hub.domain.enums.TaskStatus;
+import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
 import com.fiap.mechanical_hub.infrastructure.database.models.OrderTaskModel;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +24,7 @@ public class OrderTaskMapper {
                 entity.getId(),
                 entity.getServiceOrderId(),
                 entity.getServiceId(),
-                TaskStatus.valueOf(entity.getServiceStatus()),
+                TaskStatusEnum.valueOf(entity.getServiceStatus()),
                 entity.getStartedAt(),
                 entity.getFinishedAt()
         );

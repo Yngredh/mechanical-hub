@@ -4,7 +4,7 @@ import com.fiap.mechanical_hub.application.dto.customer.UpsertCustomerRequest;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.mappers.CustomerMapper;
 import com.fiap.mechanical_hub.domain.entities.Customer;
-import com.fiap.mechanical_hub.domain.enums.DocumentType;
+import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 import com.fiap.mechanical_hub.domain.exceptions.DuplicateDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
@@ -104,7 +104,7 @@ public class CustomerUseCase {
             return existingCustomer.get();
         }
 
-        DocumentType type = DocumentType.fromValue(documentType);
+        DocumentTypeEnum type = DocumentTypeEnum.fromValue(documentType);
         Customer newCustomer = Customer.create(name, type, documentNumber, telephone, email, address);
         return customerRepository.save(newCustomer);
     }

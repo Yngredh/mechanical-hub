@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.domain.entities;
 
-import com.fiap.mechanical_hub.domain.enums.OrderStatus;
+import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidOrderStatusTransitionException;
 import lombok.AllArgsConstructor;
@@ -21,7 +21,7 @@ public class ServiceOrder {
     private UUID id;
     private UUID vehicleId;
     private UUID customerId;
-    private OrderStatus status;
+    private OrderStatusEnum status;
     private UUID createdByUserId;
     private UUID responsibleUserId;
     private String orderNumber;
@@ -54,7 +54,7 @@ public class ServiceOrder {
         order.id = UUID.randomUUID();
         order.vehicleId = vehicleId;
         order.customerId = customerId;
-        order.status = OrderStatus.RECEBIDO;
+        order.status = OrderStatusEnum.RECEBIDO;
         order.createdByUserId = null;
         order.responsibleUserId = null;
         order.orderNumber = orderNumber;
@@ -81,31 +81,27 @@ public class ServiceOrder {
             throw new IllegalArgumentException("Apenas Mecânico ou superior pode iniciar o diagnóstico");
         }
 
-        if (status != OrderStatus.CRIADO) {
-            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatus.EM_DIAGNOSTICO.getDisplayName());
-        }
-
-        this.status = OrderStatus.EM_DIAGNOSTICO;
+        this.status = OrderStatusEnum.EM_DIAGNOSTICO;
         this.openedAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
     public void startExecution() {
-        if (status != OrderStatus.EM_DIAGNOSTICO) {
-            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatus.EM_EXECUCAO.getDisplayName());
+        if (status != OrderStatusEnum.EM_DIAGNOSTICO) {
+            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatusEnum.EM_EXECUCAO.getDisplayName());
         }
 
         if (hasStockPending) {
             throw new IllegalStateException("Não é possível executar a ordem com pendência de estoque");
         }
 
-        this.status = OrderStatus.EM_EXECUCAO;
+        this.status = OrderStatusEnum.EM_EXECUCAO;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void finalize(List<OrderTask> tasks) {
-        if (status != OrderStatus.EM_EXECUCAO) {
-            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatus.FINALIZADO.getDisplayName());
+        if (status != OrderStatusEnum.EM_EXECUCAO) {
+            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatusEnum.FINALIZADO.getDisplayName());
         }
 
         boolean allTasksFinished = tasks != null && !tasks.isEmpty() &&
@@ -115,17 +111,17 @@ public class ServiceOrder {
             throw new IllegalStateException("Todos os serviços devem estar finalizados para concluir a ordem");
         }
 
-        this.status = OrderStatus.FINALIZADO;
+        this.status = OrderStatusEnum.FINALIZADO;
         this.completedAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
     public void deliver() {
-        if (status != OrderStatus.FINALIZADO) {
-            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatus.ENTREGUE.getDisplayName());
+        if (status != OrderStatusEnum.FINALIZADO) {
+            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatusEnum.ENTREGUE.getDisplayName());
         }
 
-        this.status = OrderStatus.ENTREGUE;
+        this.status = OrderStatusEnum.ENTREGUE;
         this.deliveredAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -136,11 +132,11 @@ public class ServiceOrder {
     }
 
     public void approve() {
-        if (status != OrderStatus.AGUARDANDO_APROVACAO) {
-            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatus.APROVADO.getDisplayName());
+        if (status != OrderStatusEnum.AGUARDANDO_APROVACAO) {
+            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatusEnum.APROVADO.getDisplayName());
         }
 
-        this.status = OrderStatus.APROVADO;
+        this.status = OrderStatusEnum.APROVADO;
         this.updatedAt = LocalDateTime.now();
     }
 

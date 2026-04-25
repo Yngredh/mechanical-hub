@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.domain.entities;
 
-import com.fiap.mechanical_hub.domain.enums.DocumentType;
+import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidTelephoneException;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +24,7 @@ class CustomerTest {
 
             Customer customer = Customer.create(
                     "João Silva",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     validCPF,
                     "+55 (11) 98765-4321",
                     "joao@example.com",
@@ -33,7 +33,7 @@ class CustomerTest {
 
             assertThat(customer).isNotNull();
             assertThat(customer.getDocumentNumber()).isEqualTo("11144477735");
-            assertThat(customer.getDocumentType()).isEqualTo(DocumentType.CPF);
+            assertThat(customer.getDocumentTypeEnum()).isEqualTo(DocumentTypeEnum.CPF);
         }
 
         @ParameterizedTest
@@ -50,7 +50,7 @@ class CustomerTest {
         void shouldThrowExceptionWithInvalidCPF(String invalidCPF) {
             assertThatThrownBy(() -> Customer.create(
                     "João Silva",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     invalidCPF,
                     "+55 (11) 98765-4321",
                     "joao@example.com",
@@ -65,7 +65,7 @@ class CustomerTest {
         void shouldThrowExceptionWithNullCPF() {
             assertThatThrownBy(() -> Customer.create(
                     "João Silva",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     null,
                     "+55 (11) 98765-4321",
                     "joao@example.com",
@@ -79,7 +79,7 @@ class CustomerTest {
         void shouldValidateCorrectCPF() {
             assertThatCode(() -> Customer.create(
                     "Cliente",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     "111.444.777-35",
                     "+55 (11) 98765-4321",
                     "cliente@example.com",
@@ -92,7 +92,7 @@ class CustomerTest {
         void shouldRejectInvalidCPFCheckDigits() {
             assertThatThrownBy(() -> Customer.create(
                     "Cliente",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     "123.456.789-10",
                     "+55 (11) 98765-4321",
                     "cliente@example.com",
@@ -113,7 +113,7 @@ class CustomerTest {
 
             Customer customer = Customer.create(
                     "Empresa XYZ",
-                    DocumentType.CNPJ,
+                    DocumentTypeEnum.CNPJ,
                     validCNPJ,
                     "+55 (11) 3456-7890",
                     "empresa@example.com",
@@ -122,7 +122,7 @@ class CustomerTest {
 
             assertThat(customer).isNotNull();
             assertThat(customer.getDocumentNumber()).isEqualTo("11222333000181");
-            assertThat(customer.getDocumentType()).isEqualTo(DocumentType.CNPJ);
+            assertThat(customer.getDocumentTypeEnum()).isEqualTo(DocumentTypeEnum.CNPJ);
         }
 
         @Test
@@ -132,7 +132,7 @@ class CustomerTest {
 
             Customer customer = Customer.create(
                     "Empresa XYZ",
-                    DocumentType.CNPJ,
+                    DocumentTypeEnum.CNPJ,
                     validCNPJ,
                     "+55 (11) 3456-7890",
                     "empresa@example.com",
@@ -157,7 +157,7 @@ class CustomerTest {
         void shouldThrowExceptionWithInvalidCNPJ(String invalidCNPJ) {
             assertThatThrownBy(() -> Customer.create(
                     "Empresa XYZ",
-                    DocumentType.CNPJ,
+                    DocumentTypeEnum.CNPJ,
                     invalidCNPJ,
                     "(11) 3456-7890",
                     "empresa@example.com",
@@ -172,7 +172,7 @@ class CustomerTest {
         void shouldThrowExceptionWithNullCNPJ() {
             assertThatThrownBy(() -> Customer.create(
                     "Empresa XYZ",
-                    DocumentType.CNPJ,
+                    DocumentTypeEnum.CNPJ,
                     null,
                     "(11) 3456-7890",
                     "empresa@example.com",
@@ -186,7 +186,7 @@ class CustomerTest {
         void shouldValidateCorrectCNPJ() {
             assertThatCode(() -> Customer.create(
                     "Empresa",
-                    DocumentType.CNPJ,
+                    DocumentTypeEnum.CNPJ,
                     "11.222.333/0001-81",
                     "+55 (11) 98765-4321",
                     "empresa@example.com",
@@ -199,7 +199,7 @@ class CustomerTest {
         void shouldRejectInvalidCNPJCheckDigits() {
             assertThatThrownBy(() -> Customer.create(
                     "Empresa",
-                    DocumentType.CNPJ,
+                    DocumentTypeEnum.CNPJ,
                     "11.222.333/0001-00",
                     "+55 (11) 98765-4321",
                     "empresa@example.com",
@@ -226,7 +226,7 @@ class CustomerTest {
         void shouldCreateCustomerWithValidTelephone(String validTelephone) {
             assertThatCode(() -> Customer.create(
                     "João Silva",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     "111.444.777-35",
                     validTelephone,
                     "joao@example.com",
@@ -247,7 +247,7 @@ class CustomerTest {
         void shouldThrowExceptionWithInvalidTelephone(String invalidTelephone) {
             assertThatThrownBy(() -> Customer.create(
                     "João Silva",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     "111.444.777-35",
                     invalidTelephone,
                     "joao@example.com",
@@ -262,7 +262,7 @@ class CustomerTest {
         void shouldThrowExceptionWithNullTelephone() {
             assertThatThrownBy(() -> Customer.create(
                     "João Silva",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     "111.444.777-35",
                     null,
                     "joao@example.com",
@@ -281,7 +281,7 @@ class CustomerTest {
         void shouldUpdateWithSameDocument() {
             Customer customer = Customer.create(
                     "João Silva",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     "111.444.777-35",
                     "+55 (11) 98765-4321",
                     "joao@example.com",
@@ -292,7 +292,7 @@ class CustomerTest {
 
             customer.update(
                     "João Silva Santos",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     "111.444.777-35", // Mesmo documento
                     "+55 (11) 99999-9999",
                     "joao.santos@example.com",
@@ -311,7 +311,7 @@ class CustomerTest {
         void shouldThrowExceptionWhenUpdatingWithInvalidCPF() {
             Customer customer = Customer.create(
                     "João Silva",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     "111.444.777-35",
                     "+55 (11) 98765-4321",
                     "joao@example.com",
@@ -320,7 +320,7 @@ class CustomerTest {
 
             assertThatThrownBy(() -> customer.update(
                     "João Silva",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     "111.111.111-11",
                     "+55 (11) 98765-4321",
                     "joao@example.com",
@@ -334,7 +334,7 @@ class CustomerTest {
         void shouldThrowExceptionWhenUpdatingWithInvalidCNPJ() {
             Customer customer = Customer.create(
                     "Empresa",
-                    DocumentType.CNPJ,
+                    DocumentTypeEnum.CNPJ,
                     "11.222.333/0001-81",
                     "+55 (11) 98765-4321",
                     "empresa@example.com",
@@ -343,7 +343,7 @@ class CustomerTest {
 
             assertThatThrownBy(() -> customer.update(
                     "Empresa",
-                    DocumentType.CNPJ,
+                    DocumentTypeEnum.CNPJ,
                     "11.111.111/0001-11",
                     "+55 (11) 98765-4321",
                     "empresa@example.com",
@@ -357,7 +357,7 @@ class CustomerTest {
         void shouldThrowExceptionWhenUpdatingWithInvalidTelephone() {
             Customer customer = Customer.create(
                     "João Silva",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     "111.444.777-35",
                     "+55 (11) 98765-4321",
                     "joao@example.com",
@@ -366,7 +366,7 @@ class CustomerTest {
 
             assertThatThrownBy(() -> customer.update(
                     "João Silva",
-                    DocumentType.CPF,
+                    DocumentTypeEnum.CPF,
                     "111.444.777-35",
                     "123",
                     "joao@example.com",

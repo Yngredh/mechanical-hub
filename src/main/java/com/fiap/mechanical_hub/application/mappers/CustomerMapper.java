@@ -3,7 +3,7 @@ package com.fiap.mechanical_hub.application.mappers;
 import com.fiap.mechanical_hub.application.dto.customer.UpsertCustomerRequest;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.domain.entities.Customer;
-import com.fiap.mechanical_hub.domain.enums.DocumentType;
+import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 import org.springframework.stereotype.Component;
 
 import static com.fiap.mechanical_hub.shared.utils.document.DocumentFormatter.formatDocument;
@@ -13,10 +13,10 @@ import static com.fiap.mechanical_hub.shared.utils.telephone.TelephoneFormatter.
 public class CustomerMapper {
 
     public Customer toDomainEntity(UpsertCustomerRequest request) {
-        DocumentType documentType = DocumentType.fromValue(request.getDocumentType());
+        DocumentTypeEnum documentTypeEnum = DocumentTypeEnum.fromValue(request.getDocumentType());
         return Customer.create(
                 request.getName(),
-                documentType,
+                documentTypeEnum,
                 request.getDocumentNumber(),
                 request.getTelephone(),
                 request.getEmail(),
@@ -25,10 +25,10 @@ public class CustomerMapper {
     }
 
     public Customer toDomainEntity(UpsertCustomerRequest request, Customer existingCustomer) {
-        DocumentType documentType = DocumentType.fromValue(request.getDocumentType());
+        DocumentTypeEnum documentTypeEnum = DocumentTypeEnum.fromValue(request.getDocumentType());
         existingCustomer.update(
                 request.getName(),
-                documentType,
+                documentTypeEnum,
                 request.getDocumentNumber(),
                 request.getTelephone(),
                 request.getEmail(),
@@ -41,9 +41,9 @@ public class CustomerMapper {
         return new CustomerResponse(
                 customer.getId(),
                 customer.getName(),
-                customer.getDocumentType().getValue(),
+                customer.getDocumentTypeEnum().getValue(),
                 formatDocument(
-                        customer.getDocumentType().getValue(),
+                        customer.getDocumentTypeEnum().getValue(),
                         customer.getDocumentNumber()
                 ),
                 formatTelephone(customer.getTelephone()),

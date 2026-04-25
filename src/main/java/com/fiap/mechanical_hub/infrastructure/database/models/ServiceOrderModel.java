@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.database.models;
 
-import com.fiap.mechanical_hub.domain.enums.OrderStatus;
+import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,7 +37,7 @@ public class ServiceOrderModel {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
-    private OrderStatus orderStatus;
+    private OrderStatusEnum orderStatusEnum;
 
     @Column(name = "created_by_user_id", nullable = false)
     private UUID createdByUserId;

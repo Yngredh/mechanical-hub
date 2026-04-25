@@ -27,25 +27,24 @@ public interface ServiceOrderJpaRepository extends JpaRepository<ServiceOrderMod
            \s""")
     List<ServiceOrderModel> findSummaryByCustomerId(@Param("customerId") UUID customerId);
 
-    @Query("""
-                SELECT new com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse(
-                    so.id,
-                    so.orderNumber,
-                    so.orderStatus,\s
-                    c.name,
-                    CONCAT(v.brand, ' ', v.model, ' (', v.licensePlate, ')'),
-                    so.budget,
-                    so.createdAt
-                )
-                FROM ServiceOrderModel so
-                JOIN CustomerModel c ON so.customerId = c.id
-                JOIN VehicleModel v ON so.vehicleId = v.id
-                WHERE (:status IS NULL OR so.orderStatus = :status)
-                  AND (:customerId IS NULL OR so.customerId = :customerId)
-                  AND (:startDate IS NULL OR so.createdAt >= :startDate)
-                  AND (:endDate IS NULL OR so.createdAt <= :endDate)
-                ORDER BY so.createdAt DESC
-           \s""")
+    @Query(value = """
+            SELECT 
+                so.id,
+                so.order_number,
+                so.order_status,
+                c.name,
+                CONCAT(v.brand, ' ', v.model, ' (', v.license_plate, ')'),
+                so.budget,
+                so.created_at
+            FROM service_orders so
+            JOIN customers c ON so.customer_id = c.id
+            JOIN vehicles v ON so.vehicle_id = v.id
+            WHERE (:status IS NULL OR so.order_status = :status)
+              AND (:customerId IS NULL OR so.customer_id = :customerId)
+              AND (:startDate IS NULL OR so.created_at >= :startDate)
+              AND (:endDate IS NULL OR so.created_at <= :endDate)
+            ORDER BY so.created_at DESC
+            """, nativeQuery = true)
     List<ServiceOrderSummaryResponse> findAllSummaries(
             @Param("status") String status,
             @Param("customerId") UUID customerId,

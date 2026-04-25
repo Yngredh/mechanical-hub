@@ -8,7 +8,7 @@ import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.entities.Vehicle;
-import com.fiap.mechanical_hub.domain.enums.OrderStatus;
+import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.CustomerRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.OrderTaskRepositoryAdapter;
@@ -40,7 +40,7 @@ public class ServiceOrderStatusUseCase {
         ServiceOrder order = serviceOrderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Service order with id " + orderId + " not found"));
 
-        OrderStatus newStatus = OrderStatus.fromString(newStatusString);
+        OrderStatusEnum newStatus = OrderStatusEnum.fromString(newStatusString);
 
         switch (newStatus) {
             case RECEBIDO:

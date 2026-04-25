@@ -3,25 +3,24 @@ package com.fiap.mechanical_hub.domain.enums;
 import lombok.Getter;
 
 @Getter
-public enum OrderStatus {
+public enum OrderStatusEnum {
     RECEBIDO("Recebido"),
-    CRIADO("Criado"),
+    EM_DIAGNOSTICO("Em diagnóstico"),
     AGUARDANDO_APROVACAO("Aguardando aprovação"),
     APROVADO("Aprovado"),
     RECUSADO("Recusado"),
-    EM_DIAGNOSTICO("Em diagnóstico"),
     EM_EXECUCAO("Em execução"),
     FINALIZADO("Finalizado"),
     ENTREGUE("Entregue");
 
     private final String displayName;
 
-    OrderStatus(String displayName) {
+    OrderStatusEnum(String displayName) {
         this.displayName = displayName;
     }
 
-    public static OrderStatus fromString(String value) {
-        for (OrderStatus status : OrderStatus.values()) {
+    public static OrderStatusEnum fromString(String value) {
+        for (OrderStatusEnum status : OrderStatusEnum.values()) {
             if (status.displayName.equalsIgnoreCase(value) || status.name().equals(value)) {
                 return status;
             }
