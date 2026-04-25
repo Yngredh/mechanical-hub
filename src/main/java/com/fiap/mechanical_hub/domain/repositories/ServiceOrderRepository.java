@@ -12,4 +12,3 @@ public interface ServiceOrderRepository {
     List<ServiceOrder> findAll();
     void deleteById(UUID id);
 }
-

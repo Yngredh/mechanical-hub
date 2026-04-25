@@ -1,12 +1,18 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
+import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderDetailResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
+import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.UpdateOrderStatusRequest;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderStatusUseCase;
+import com.fiap.mechanical_hub.infrastructure.http.middlewares.RequireProfile;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -27,9 +33,21 @@ public class ServiceOrderController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping
+    @RequireProfile("Administrador")
+    public ResponseEntity<List<ServiceOrderSummaryResponse>> findAll(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) UUID customerId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        List<ServiceOrderSummaryResponse> response = serviceOrderStatusUseCase.findAll(status, customerId, startDate, endDate);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<ServiceOrderResponse> findById(@PathVariable UUID id) {
-        ServiceOrderResponse response = serviceOrderStatusUseCase.findById(id);
+    @RequireProfile("Administrador")
+    public ResponseEntity<ServiceOrderDetailResponse> findById(@PathVariable UUID id) {
+        ServiceOrderDetailResponse response = serviceOrderStatusUseCase.findById(id);
         return ResponseEntity.ok(response);
     }
 

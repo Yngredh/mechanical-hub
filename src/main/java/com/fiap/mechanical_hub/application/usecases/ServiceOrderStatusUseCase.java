@@ -1,17 +1,26 @@
 package com.fiap.mechanical_hub.application.usecases;
 
+import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderDetailResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
+import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
+import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
+import com.fiap.mechanical_hub.domain.entities.Vehicle;
 import com.fiap.mechanical_hub.domain.enums.OrderStatus;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
-import com.fiap.mechanical_hub.domain.repositories.OrderTaskRepository;
-import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceOrderJpaRepository;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.VehicleRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.CustomerRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.OrderTaskRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.ServiceOrderRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.integrations.whatsapp.WhatsAppMessenger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -19,10 +28,13 @@ import java.util.UUID;
 @Transactional
 public class ServiceOrderStatusUseCase {
 
-    private final ServiceOrderRepository serviceOrderRepository;
-    private final OrderTaskRepository orderTaskRepository;
+    private final ServiceOrderRepositoryAdapter serviceOrderRepository;
+    private final OrderTaskRepositoryAdapter orderTaskRepository;
     private final ServiceOrderMapper mapper;
     private final WhatsAppMessenger whatsAppMessenger;
+    private final ServiceOrderJpaRepository serviceOrderJpaRepository;
+    private final CustomerRepositoryAdapter customerRepository;
+    private final VehicleRepositoryAdapter vehicleRepository;
 
     public ServiceOrderResponse updateStatus(UUID orderId, String newStatusString, String userProfile) {
         ServiceOrder order = serviceOrderRepository.findById(orderId)
@@ -63,14 +75,18 @@ public class ServiceOrderStatusUseCase {
     }
 
     @Transactional(readOnly = true)
-    public ServiceOrderResponse findById(UUID id) {
+    public ServiceOrderDetailResponse findById(UUID id) {
+
         ServiceOrder order = serviceOrderRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Service order with id " + id + " not found"));
 
+        var customer = customerRepository.findById(order.getCustomerId()).orElse(null);
+        var vehicle = vehicleRepository.findById(order.getVehicleId()).orElse(null);
         var tasks = orderTaskRepository.findByServiceOrderId(id);
+
         order.setOrderTasks(tasks);
 
-        return mapper.toResponse(order);
+        return mapper.toDetailResponse(order, customer, vehicle);
     }
 
     public ServiceOrderResponse approve(UUID serviceOrderId) {
@@ -88,5 +104,22 @@ public class ServiceOrderStatusUseCase {
         return mapper.toResponse(updatedOrder);
     }
 
+    @Transactional(readOnly = true)
+    public List<ServiceOrderSummaryResponse> findByCustomerId(UUID customerId) {
+        List<ServiceOrder> orders = serviceOrderJpaRepository.findSummaryByCustomerId(customerId);
 
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new NotFoundException("Customer not found"));
+
+        return orders.stream()
+                .map(order -> {
+                    Vehicle vehicle = vehicleRepository.findById(order.getVehicleId()).orElse(null);
+                    return mapper.toSummaryResponsee(order, customer, vehicle);
+                })
+                .toList();
+    }
+
+    public List<ServiceOrderSummaryResponse> findAll(String status, UUID customerId, LocalDateTime startDate, LocalDateTime endDate) {
+        return serviceOrderJpaRepository.findAllSummaries(status,customerId,startDate,endDate);
+    }
 }

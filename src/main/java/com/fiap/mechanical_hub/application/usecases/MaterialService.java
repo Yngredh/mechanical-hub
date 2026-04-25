@@ -1,18 +1,18 @@
 package com.fiap.mechanical_hub.application.usecases;
 
-import com.fiap.mechanical_hub.application.dto.material.UpsertMaterialRequest;
 import com.fiap.mechanical_hub.application.dto.material.MaterialResponse;
+import com.fiap.mechanical_hub.application.dto.material.UpsertMaterialRequest;
 import com.fiap.mechanical_hub.application.mappers.MaterialMapper;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
-import com.fiap.mechanical_hub.domain.repositories.MaterialRepository;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.MaterialRepositoryAdapter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class MaterialService {
 
-    private final MaterialRepository materialRepository;
+    private final MaterialRepositoryAdapter materialRepository;
     private final MaterialMapper materialMapper;
     private final StockUseCase stockUseCase;
 

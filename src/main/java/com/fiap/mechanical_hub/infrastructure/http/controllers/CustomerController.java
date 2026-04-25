@@ -2,7 +2,9 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.dto.customer.UpsertCustomerRequest;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
+import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
 import com.fiap.mechanical_hub.application.usecases.CustomerService;
+import com.fiap.mechanical_hub.application.usecases.ServiceOrderStatusUseCase;
 import com.fiap.mechanical_hub.infrastructure.http.middlewares.RequireProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import java.util.UUID;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final ServiceOrderStatusUseCase serviceOrderStatusUseCase;
 
     @PostMapping
     @RequireProfile("Administrador")
@@ -40,6 +43,14 @@ public class CustomerController {
         return ResponseEntity.ok(customer);
     }
 
+    @GetMapping("/{id}/orders")
+    @RequireProfile("Administrador")
+    public ResponseEntity<List<ServiceOrderSummaryResponse>> findOrdersByCustomerId(@PathVariable UUID id) {
+        customerService.findById(id);
+        List<ServiceOrderSummaryResponse> orders = serviceOrderStatusUseCase.findByCustomerId(id);
+        return ResponseEntity.ok(orders);
+    }
+
     @PutMapping("/{id}")
     @RequireProfile("Administrador")
     public ResponseEntity<CustomerResponse> update(@PathVariable UUID id, @RequestBody UpsertCustomerRequest request) {
@@ -54,4 +65,3 @@ public class CustomerController {
         return ResponseEntity.noContent().build();
     }
 }
-
