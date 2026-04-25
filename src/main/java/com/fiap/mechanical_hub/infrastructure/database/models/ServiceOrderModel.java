@@ -29,25 +29,23 @@ public class ServiceOrderModel {
     @Column(name = "id", columnDefinition = "UUID")
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "vehicle_id", nullable = false)
-    private VehicleModel vehicle;
+    @Column(name = "vehicle_id", nullable = false)
+    private UUID vehicleId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "customer_id", nullable = false)
-    private CustomerModel customer;
+    @Column(name = "customer_id", nullable = false)
+    private UUID customerId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "order_status", nullable = false, length = 100)
+    @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
 
-    @Column(name = "created_by_user_id")
+    @Column(name = "created_by_user_id", nullable = false)
     private UUID createdByUserId;
 
     @Column(name = "responsible_user_id")
     private UUID responsibleUserId;
 
-    @Column(name = "order_number", nullable = false, unique = true, length = 50)
+    @Column(name = "order_number", nullable = false, unique = true)
     private String orderNumber;
 
     @Column(name = "request_description", nullable = false, length = 255)

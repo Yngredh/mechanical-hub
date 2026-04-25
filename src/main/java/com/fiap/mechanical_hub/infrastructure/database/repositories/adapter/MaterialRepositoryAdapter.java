@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.application.mappers.MaterialMapper;
 import com.fiap.mechanical_hub.domain.entities.Material;
-import com.fiap.mechanical_hub.domain.repositories.MaterialRepository;
+import com.fiap.mechanical_hub.application.repositories.MaterialRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.MaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.MaterialJpaRepository;
 import lombok.RequiredArgsConstructor;

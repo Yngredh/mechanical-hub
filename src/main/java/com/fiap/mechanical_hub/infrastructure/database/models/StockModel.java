@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.database.models;
 
-import com.fiap.mechanical_hub.domain.enums.StockStatus;
+import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +25,7 @@ public class StockModel {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StockStatus status;
+    private StockStatusEnum status;
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
@@ -33,7 +33,7 @@ public class StockModel {
     public StockModel() {
     }
 
-    public StockModel(UUID id, UUID materialId, Integer quantity, StockStatus status, LocalDateTime updatedAt) {
+    public StockModel(UUID id, UUID materialId, Integer quantity, StockStatusEnum status, LocalDateTime updatedAt) {
         this.id = id;
         this.materialId = materialId;
         this.quantity = quantity;

@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.domain.repositories;
+package com.fiap.mechanical_hub.application.repositories;
 
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 
@@ -7,12 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ServiceOrderRepository {
-
     ServiceOrder save(ServiceOrder serviceOrder);
-
-    Optional<ServiceOrder> findById(UUID id);
-
-    List<ServiceOrder> findAll();
-
     Optional<String> findLastOrderNumberByYearMonth(String yearMonth);
+    Optional<ServiceOrder> findById(UUID id);
+    List<ServiceOrder> findAll();
+    void deleteById(UUID id);
 }

@@ -9,7 +9,7 @@ import com.fiap.mechanical_hub.domain.exceptions.DuplicateDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidTelephoneException;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
-import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
+import com.fiap.mechanical_hub.application.repositories.CustomerRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

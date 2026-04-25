@@ -3,10 +3,10 @@ package com.fiap.mechanical_hub.application.usecases;
 import com.fiap.mechanical_hub.application.dto.serviceorder.CreateServiceOrderRequest;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
+import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.entities.Vehicle;
-import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.shared.utils.OrderNumberGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +50,6 @@ public class ServiceOrderService {
         ServiceOrder serviceOrder = ServiceOrder.create(vehicle.getId(), customer.getId(), orderNumber, request.getRequestDescription());
         ServiceOrder saved = serviceOrderRepository.save(serviceOrder);
 
-        return serviceOrderMapper.toResponse(saved, customer, vehicle);
+        return serviceOrderMapper.toResponse(saved);
     }
 }

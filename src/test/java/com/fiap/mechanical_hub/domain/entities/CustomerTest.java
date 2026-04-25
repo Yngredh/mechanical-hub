@@ -278,7 +278,7 @@ class CustomerTest {
 
         @Test
         @DisplayName("Deve atualizar informações mantendo o documento igual")
-        void shouldUpdateCustomerInfoWithSameDocument() {
+        void shouldUpdateWithSameDocument() {
             Customer customer = Customer.create(
                     "João Silva",
                     DocumentType.CPF,
@@ -290,7 +290,7 @@ class CustomerTest {
 
             String originalDocument = customer.getDocumentNumber();
 
-            customer.updateCustomerInfo(
+            customer.update(
                     "João Silva Santos",
                     DocumentType.CPF,
                     "111.444.777-35", // Mesmo documento
@@ -318,7 +318,7 @@ class CustomerTest {
                     "Rua A, 123"
             );
 
-            assertThatThrownBy(() -> customer.updateCustomerInfo(
+            assertThatThrownBy(() -> customer.update(
                     "João Silva",
                     DocumentType.CPF,
                     "111.111.111-11",
@@ -341,7 +341,7 @@ class CustomerTest {
                     "Av. B, 456"
             );
 
-            assertThatThrownBy(() -> customer.updateCustomerInfo(
+            assertThatThrownBy(() -> customer.update(
                     "Empresa",
                     DocumentType.CNPJ,
                     "11.111.111/0001-11",
@@ -364,7 +364,7 @@ class CustomerTest {
                     "Rua A, 123"
             );
 
-            assertThatThrownBy(() -> customer.updateCustomerInfo(
+            assertThatThrownBy(() -> customer.update(
                     "João Silva",
                     DocumentType.CPF,
                     "111.444.777-35",

@@ -7,7 +7,7 @@ import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.Service;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
-import com.fiap.mechanical_hub.domain.repositories.MaterialRepository;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.MaterialRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.ServiceRepositoryAdapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ import java.util.UUID;
 public class ServiceUseCase {
 
     private final ServiceRepositoryAdapter serviceRepository;
-    private final MaterialRepository materialRepository;
+    private final MaterialRepositoryAdapter materialRepository;
 
     public ServiceResponse create(UpsertServiceRequest request) {
         List<ServiceMaterial> materials = request.getMaterials().stream()

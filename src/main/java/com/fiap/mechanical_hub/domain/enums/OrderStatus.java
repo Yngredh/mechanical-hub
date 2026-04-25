@@ -4,19 +4,28 @@ import lombok.Getter;
 
 @Getter
 public enum OrderStatus {
-    RECEBIDA("Recebida"),
-    EM_DIAGNOSTICO("Em Diagnóstico"),
-    AGUARDANDO_APROVACAO("Aguardando Aprovação"),
+    RECEBIDO("Recebido"),
+    CRIADO("Criado"),
+    AGUARDANDO_APROVACAO("Aguardando aprovação"),
     APROVADO("Aprovado"),
     RECUSADO("Recusado"),
-    EM_EXECUCAO("Em Execução"),
-    FINALIZADA("Finalizada"),
-    ENTREGUE("Entregue"),
-    CANCELADA("Cancelada");
+    EM_DIAGNOSTICO("Em diagnóstico"),
+    EM_EXECUCAO("Em execução"),
+    FINALIZADO("Finalizado"),
+    ENTREGUE("Entregue");
 
-    private final String value;
+    private final String displayName;
 
-    OrderStatus(String value) {
-        this.value = value;
+    OrderStatus(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public static OrderStatus fromString(String value) {
+        for (OrderStatus status : OrderStatus.values()) {
+            if (status.displayName.equalsIgnoreCase(value) || status.name().equals(value)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Invalid order status: " + value);
     }
 }

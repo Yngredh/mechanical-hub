@@ -1,13 +1,14 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.Stock;
-import com.fiap.mechanical_hub.domain.enums.StockStatus;
-import com.fiap.mechanical_hub.domain.repositories.StockRepository;
+import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
+import com.fiap.mechanical_hub.application.repositories.StockRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.StockModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.StockJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,8 +31,22 @@ public class StockRepositoryAdapter implements StockRepository {
     }
 
     @Override
-    public Optional<Stock> findByMaterialIdAndStatus(UUID materialId, StockStatus status) {
+    public Optional<Stock> findByMaterialIdAndStatus(UUID materialId, StockStatusEnum status) {
         return jpaRepository.findByMaterialIdAndStatus(materialId, status).map(this::toDomainEntity);
+    }
+
+    @Override
+    public List<Stock> findAll() {
+        return jpaRepository.findAll().stream()
+                .map(this::toDomainEntity)
+                .toList();
+    }
+
+    @Override
+    public List<Stock> findAllByMaterialId(UUID materialId) {
+        return jpaRepository.findAllByMaterialId(materialId).stream()
+                .map(this::toDomainEntity)
+                .toList();
     }
 
     @Override
