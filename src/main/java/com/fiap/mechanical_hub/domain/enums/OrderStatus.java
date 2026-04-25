@@ -4,15 +4,15 @@ import lombok.Getter;
 
 @Getter
 public enum OrderStatus {
-    RECEBIDA("Recebida"),
-    CRIADA("Criada"),
-    EM_DIAGNOSTICO("Em diagnóstico"),
-    EM_EXECUCAO("Em execução"),
+    RECEBIDO("Recebido"),
+    CRIADO("Criado"),
+    AGUARDANDO_APROVACAO("Aguardando aprovação"),
     APROVADO("Aprovado"),
     RECUSADO("Recusado"),
+    EM_DIAGNOSTICO("Em diagnóstico"),
+    EM_EXECUCAO("Em execução"),
     FINALIZADO("Finalizado"),
-    ENTREGUE("Entregue"),
-    CANCELADO("Cancelado");
+    ENTREGUE("Entregue");
 
     private final String displayName;
 
@@ -29,4 +29,3 @@ public enum OrderStatus {
         throw new IllegalArgumentException("Invalid order status: " + value);
     }
 }
-

@@ -49,7 +49,7 @@ public class ServiceOrder {
         order.id = UUID.randomUUID();
         order.vehicleId = vehicleId;
         order.customerId = customerId;
-        order.status = OrderStatus.CRIADA;
+        order.status = OrderStatus.CRIADO;
         order.createdByUserId = createdByUserId;
         order.orderNumber = orderNumber;
         order.requestDescription = requestDescription;
@@ -74,7 +74,7 @@ public class ServiceOrder {
             throw new IllegalArgumentException("Apenas Mecânico ou superior pode iniciar o diagnóstico");
         }
 
-        if (status != OrderStatus.CRIADA) {
+        if (status != OrderStatus.CRIADO) {
             throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatus.EM_DIAGNOSTICO.getDisplayName());
         }
 
@@ -125,6 +125,15 @@ public class ServiceOrder {
 
     public void updateStockPendingStatus(boolean hasStockPending) {
         this.hasStockPending = hasStockPending;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void approve() {
+        if (status != OrderStatus.AGUARDANDO_APROVACAO) {
+            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatus.APROVADO.getDisplayName());
+        }
+
+        this.status = OrderStatus.APROVADO;
         this.updatedAt = LocalDateTime.now();
     }
 
