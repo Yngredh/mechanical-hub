@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.application.mappers.StockMovementMapper;
 import com.fiap.mechanical_hub.domain.entities.StockMovement;
-import com.fiap.mechanical_hub.domain.repositories.StockMovementRepository;
+import com.fiap.mechanical_hub.application.repositories.StockMovementRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.StockMovementModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.StockMovementJpaRepository;
 import lombok.RequiredArgsConstructor;

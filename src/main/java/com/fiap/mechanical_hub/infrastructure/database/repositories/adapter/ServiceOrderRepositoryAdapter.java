@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.enums.OrderStatus;
-import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
+import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceOrderModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceOrderJpaRepository;
 import lombok.RequiredArgsConstructor;
