@@ -58,7 +58,7 @@ public class OrderTask {
 
     public void finish() {
         if (status != TaskStatus.INICIADO) {
-            throw new IllegalStateException("Task must be in INICIADO status to finish");
+            throw new IllegalStateException("Tarefa precisa estar em status INICIADO para ser finalizada");
         }
         this.status = TaskStatus.FINALIZADO;
         this.finishedAt = LocalDateTime.now();

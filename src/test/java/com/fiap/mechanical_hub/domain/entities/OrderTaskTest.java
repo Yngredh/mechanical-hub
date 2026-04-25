@@ -170,7 +170,7 @@ public class OrderTaskTest {
 
         // Act & Assert
         IllegalStateException exception = assertThrows(IllegalStateException.class, task::finish);
-        assertEquals("Task must be in INICIADO status to finish", exception.getMessage());
+        assertEquals("Tarefa precisa estar em status INICIADO para ser finalizada", exception.getMessage());
     }
 
     @Test
@@ -182,7 +182,7 @@ public class OrderTaskTest {
 
         // Act & Assert
         IllegalStateException exception = assertThrows(IllegalStateException.class, task::finish);
-        assertEquals("Task must be in INICIADO status to finish", exception.getMessage());
+        assertEquals("Tarefa precisa estar em status INICIADO para ser finalizada", exception.getMessage());
     }
 
     @Test

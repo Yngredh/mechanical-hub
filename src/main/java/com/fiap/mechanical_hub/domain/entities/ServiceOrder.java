@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Getter @Setter
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ServiceOrder {
@@ -63,11 +64,11 @@ public class ServiceOrder {
         return order;
     }
 
-        public void receive(String userProfile) {
-            if (!isValidProfileForDiagnosis(userProfile)) {
-                throw new IllegalArgumentException("Apenas Mecânico ou superior pode iniciar a ordem");
-            }
+    public void receive(String userProfile) {
+        if (!isValidProfileForDiagnosis(userProfile)) {
+            throw new IllegalArgumentException("Apenas Mecânico ou superior pode iniciar a ordem");
         }
+    }
 
     public void startDiagnosis(String userProfile) {
         if (!isValidProfileForDiagnosis(userProfile)) {
@@ -84,7 +85,7 @@ public class ServiceOrder {
     }
 
     public void startExecution() {
-        if (status != OrderStatus.EM_DIAGNOSTICO) {
+        if (status != OrderStatus.EM_DIAGNOSTICO && status != OrderStatus.APROVADO) {
             throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatus.EM_EXECUCAO.getDisplayName());
         }
 
@@ -102,7 +103,7 @@ public class ServiceOrder {
         }
 
         boolean allTasksFinished = tasks != null && !tasks.isEmpty() &&
-                                   tasks.stream().allMatch(OrderTask::isFinished);
+                tasks.stream().allMatch(OrderTask::isFinished);
 
         if (!allTasksFinished) {
             throw new IllegalStateException("Todos os serviços devem estar finalizados para concluir a ordem");
@@ -139,8 +140,8 @@ public class ServiceOrder {
 
     private boolean isValidProfileForDiagnosis(String userProfile) {
         return userProfile != null &&
-               (userProfile.equals("Mecânico") ||
-                userProfile.equals("Gerente") ||
-                userProfile.equals("Administrador"));
+                (userProfile.equals("Mecânico") ||
+                        userProfile.equals("Gerente") ||
+                        userProfile.equals("Administrador"));
     }
 }

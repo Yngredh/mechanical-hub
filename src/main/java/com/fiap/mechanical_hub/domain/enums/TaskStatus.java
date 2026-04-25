@@ -16,5 +16,12 @@ public enum TaskStatus {
         this.displayName = displayName;
     }
 
+    public static TaskStatus fromString(String value) {
+        for (TaskStatus status : TaskStatus.values()) {
+            if (status.displayName.equalsIgnoreCase(value) || status.name().equals(value)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Invalid task status: " + value);
+    }
 }
-
