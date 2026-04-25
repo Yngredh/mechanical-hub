@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.application.mappers.ServiceMapper;
 import com.fiap.mechanical_hub.domain.entities.Service;
-import com.fiap.mechanical_hub.domain.repositories.ServiceRepository;
+import com.fiap.mechanical_hub.application.repositories.ServiceRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceJpaRepository;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceMaterialJpaRepository;

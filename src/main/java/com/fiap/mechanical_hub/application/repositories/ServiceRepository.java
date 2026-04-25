@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.domain.repositories;
+package com.fiap.mechanical_hub.application.repositories;
 
 import com.fiap.mechanical_hub.domain.entities.Service;
 

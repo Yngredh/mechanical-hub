@@ -8,7 +8,7 @@ import com.fiap.mechanical_hub.domain.enums.DocumentType;
 import com.fiap.mechanical_hub.domain.exceptions.DuplicateDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
-import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
+import com.fiap.mechanical_hub.application.repositories.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

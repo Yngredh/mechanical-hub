@@ -10,7 +10,7 @@ import com.fiap.mechanical_hub.domain.entities.Vehicle;
 import com.fiap.mechanical_hub.domain.enums.OrderStatus;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceOrderJpaRepository;
-import com.fiap.mechanical_hub.infrastructure.database.repositories.VehicleRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.VehicleRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.CustomerRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.OrderTaskRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.ServiceOrderRepositoryAdapter;

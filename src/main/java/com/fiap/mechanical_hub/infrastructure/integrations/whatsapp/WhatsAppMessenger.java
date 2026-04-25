@@ -4,16 +4,11 @@ import com.fiap.mechanical_hub.application.interfaces.BudgetApprovalTrigger;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
 @Component
 @Slf4j
 public class WhatsAppMessenger implements BudgetApprovalTrigger {
 
-    public WhatsAppMessenger(UUID serviceOrderId, String customerPhone, BigDecimal budget) {
-        // Lógica para enviar a mensagem via WhatsApp
-    }
+    public WhatsAppMessenger() {}
 
     @Override
     public void sendBudgetApprovalRequest(String customerId, String orderNumber) {
