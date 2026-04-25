@@ -45,6 +45,11 @@ public class OrderTaskRepositoryAdapter implements OrderTaskRepository {
     }
 
     @Override
+    public List<Object[]> findAverageExecutionTimeByService() {
+        return jpaRepository.findAverageExecutionTimeByService();
+    }
+
+    @Override
     public void deleteById(UUID id) {
         jpaRepository.deleteById(id);
     }
