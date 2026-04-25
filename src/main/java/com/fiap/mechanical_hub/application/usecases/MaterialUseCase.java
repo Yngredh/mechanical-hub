@@ -18,7 +18,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
-public class MaterialService {
+public class MaterialUseCase {
 
     private final MaterialRepositoryAdapter materialRepository;
     private final MaterialMapper materialMapper;
@@ -41,11 +41,15 @@ public class MaterialService {
         return materialMapper.toResponse(savedMaterial);
     }
 
-    @Transactional(readOnly = true)
-    public MaterialResponse findById(UUID id) {
-        log.info("Finding material with id: {}", id);
-        Material material = materialRepository.findById(id)
+    public Material findById(UUID id) {
+        return materialRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Material não encontrado para o id: " + id));
+    }
+    
+    @Transactional(readOnly = true)
+    public MaterialResponse findMaterialById(UUID id) {
+        log.info("Finding material with id: {}", id);
+        Material material = findById(id);
         log.info("Material found: {}", material.getName());
         return materialMapper.toResponse(material);
     }

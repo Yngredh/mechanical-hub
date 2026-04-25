@@ -3,34 +3,30 @@ package com.fiap.mechanical_hub.application.usecases;
 import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.application.dto.service.UpsertServiceRequest;
 import com.fiap.mechanical_hub.application.mappers.ServiceMapper;
+import com.fiap.mechanical_hub.application.repositories.ServiceRepository;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.Service;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
-import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.MaterialRepositoryAdapter;
-import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.ServiceRepositoryAdapter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Component
+@org.springframework.stereotype.Service
 @RequiredArgsConstructor
 @Transactional
 public class ServiceUseCase {
 
-    private final ServiceRepositoryAdapter serviceRepository;
-    private final MaterialRepositoryAdapter materialRepository;
+    private final MaterialUseCase materialUseCase;
+    private final ServiceRepository serviceRepository;
 
     public ServiceResponse create(UpsertServiceRequest request) {
         List<ServiceMaterial> materials = request.getMaterials().stream()
                 .map(m -> {
-                    Material material = materialRepository.findById(m.getMaterialId())
-                            .orElseThrow(() -> new NotFoundException("Material not found"));
-
+                    Material material = materialUseCase.findById(m.getMaterialId());
                     return new ServiceMaterial(material, m.getQuantity());
                 })
                 .toList();
@@ -54,8 +50,7 @@ public class ServiceUseCase {
 
         List<ServiceMaterial> materials = request.getMaterials().stream()
                 .map(m -> {
-                    Material material = materialRepository.findById(m.getMaterialId())
-                            .orElseThrow(() -> new NotFoundException("Material not found"));
+                    Material material = materialUseCase.findById(m.getMaterialId());
 
                     return new ServiceMaterial(material, m.getQuantity());
                 })
