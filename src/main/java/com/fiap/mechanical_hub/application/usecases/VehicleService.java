@@ -90,9 +90,10 @@ public class VehicleService {
         vehicleRepository.deleteById(id);
     }
 
-    public Vehicle findByLicensePlateOrCreate(UUID customerId, UpsertVehicleRequest request) {
-        validateLicensePlate(request.getLicensePlate());
-        String normalizedPlate = normalize(request.getLicensePlate());
+    public Vehicle findByLicensePlateOrCreate(UUID customerId, String licensePlate, String brand,
+                                               String model, Integer year, String color) {
+        validateLicensePlate(licensePlate);
+        String normalizedPlate = normalize(licensePlate);
 
         Optional<Vehicle> existingVehicle = vehicleRepository.findByLicensePlate(normalizedPlate);
 
@@ -100,7 +101,7 @@ public class VehicleService {
             return existingVehicle.get();
         }
 
-        Vehicle newVehicle = Vehicle.create(customerId, normalizedPlate, request.getBrand(), request.getModel(), request.getYear(), request.getColor());
+        Vehicle newVehicle = Vehicle.create(customerId, normalizedPlate, brand, model, year, color);
         return vehicleRepository.save(newVehicle);
     }
 
