@@ -8,6 +8,7 @@ import com.fiap.mechanical_hub.domain.exceptions.InvalidOrderStatusTransitionExc
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.domain.repositories.OrderTaskRepository;
 import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
+import com.fiap.mechanical_hub.infrastructure.integrations.whatsapp.WhatsAppMessenger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +37,9 @@ public class ServiceOrderStatusUseCaseTest {
     @Mock
     private ServiceOrderMapper mapper;
 
+    @Mock
+    private WhatsAppMessenger whatsAppMessenger;
+
     private ServiceOrderStatusUseCase useCase;
     private UUID orderId;
     private UUID customerId;
@@ -44,7 +48,7 @@ public class ServiceOrderStatusUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        useCase = new ServiceOrderStatusUseCase(serviceOrderRepository, orderTaskRepository, mapper);
+        useCase = new ServiceOrderStatusUseCase(serviceOrderRepository, orderTaskRepository, mapper, whatsAppMessenger);
         orderId = UUID.randomUUID();
         customerId = UUID.randomUUID();
         vehicleId = UUID.randomUUID();
@@ -201,6 +205,90 @@ public class ServiceOrderStatusUseCaseTest {
         assertNotNull(order.getOpenedAt());
         assertTrue(order.getOpenedAt().isAfter(beforeUpdate) || order.getOpenedAt().isEqual(beforeUpdate));
         assertTrue(order.getOpenedAt().isBefore(afterUpdate) || order.getOpenedAt().isEqual(afterUpdate));
+    }
+
+    @Test
+    void testApproveOrderInAguardandoAprovacaoStatus() {
+        // Arrange
+        ServiceOrder order = ServiceOrder.create(
+                vehicleId,
+                customerId,
+                createdByUserId,
+                "OS-001",
+                "Aprovação de serviço",
+                BigDecimal.valueOf(500),
+                LocalDateTime.now().plusDays(7)
+        );
+        // Manually set status to AGUARDANDO_APROVACAO for testing
+        order = new ServiceOrder(
+                order.getId(),
+                order.getVehicleId(),
+                order.getCustomerId(),
+                OrderStatus.AGUARDANDO_APROVACAO,
+                order.getCreatedByUserId(),
+                order.getResponsibleUserId(),
+                order.getOrderNumber(),
+                order.getRequestDescription(),
+                order.getBudget(),
+                order.isHasStockPending(),
+                order.getEstimatedCompletionAt(),
+                order.getOpenedAt(),
+                order.getCompletedAt(),
+                order.getDeliveredAt(),
+                order.getCreatedAt(),
+                order.getUpdatedAt(),
+                List.of()
+        );
+
+        when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(serviceOrderRepository.save(any())).thenReturn(order);
+        when(orderTaskRepository.findByServiceOrderId(orderId)).thenReturn(List.of());
+        when(mapper.toResponse(any())).thenReturn(new ServiceOrderResponse());
+
+        // Act
+        ServiceOrderResponse response = useCase.approve(orderId);
+
+        // Assert
+        assertEquals(OrderStatus.APROVADO, order.getStatus());
+        assertNotNull(order.getUpdatedAt());
+    }
+
+    @Test
+    void testApproveOrderInOtherStatus_ShouldFail() {
+        // Arrange
+        ServiceOrder order = ServiceOrder.create(
+                vehicleId,
+                customerId,
+                createdByUserId,
+                "OS-002",
+                "Tentativa de aprovação em status errado",
+                BigDecimal.valueOf(500),
+                LocalDateTime.now().plusDays(7)
+        );
+        // Status permanece CRIADA (não AGUARDANDO_APROVACAO)
+
+        when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        // Act & Assert
+        InvalidOrderStatusTransitionException exception = assertThrows(
+                InvalidOrderStatusTransitionException.class,
+                () -> useCase.approve(orderId)
+        );
+        assertTrue(exception.getMessage().contains("Criado"));
+        assertTrue(exception.getMessage().contains("Aprovado"));
+    }
+
+    @Test
+    void testApproveOrderNotFound_ShouldFail() {
+        // Arrange
+        when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> useCase.approve(orderId)
+        );
+        assertTrue(exception.getMessage().contains(orderId.toString()));
     }
 
 }

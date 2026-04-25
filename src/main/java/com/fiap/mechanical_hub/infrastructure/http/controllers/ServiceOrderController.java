@@ -32,4 +32,10 @@ public class ServiceOrderController {
         ServiceOrderResponse response = serviceOrderStatusUseCase.findById(id);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<ServiceOrderResponse> approve(@PathVariable UUID id) {
+        ServiceOrderResponse response = serviceOrderStatusUseCase.approve(id);
+        return ResponseEntity.ok(response);
+    }
 }

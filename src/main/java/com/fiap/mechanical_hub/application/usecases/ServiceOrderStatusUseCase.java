@@ -7,6 +7,7 @@ import com.fiap.mechanical_hub.domain.enums.OrderStatus;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.domain.repositories.OrderTaskRepository;
 import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
+import com.fiap.mechanical_hub.infrastructure.integrations.whatsapp.WhatsAppMessenger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ public class ServiceOrderStatusUseCase {
     private final ServiceOrderRepository serviceOrderRepository;
     private final OrderTaskRepository orderTaskRepository;
     private final ServiceOrderMapper mapper;
+    private final WhatsAppMessenger whatsAppMessenger;
 
     public ServiceOrderResponse updateStatus(UUID orderId, String newStatusString, String userProfile) {
         ServiceOrder order = serviceOrderRepository.findById(orderId)
@@ -29,8 +31,11 @@ public class ServiceOrderStatusUseCase {
         OrderStatus newStatus = OrderStatus.fromString(newStatusString);
 
         switch (newStatus) {
-            case RECEBIDA:
+            case RECEBIDO:
                 order.receive(userProfile);
+                break;
+            case APROVADO:
+                order.approve();
                 break;
             case EM_DIAGNOSTICO:
                 order.startDiagnosis(userProfile);
@@ -67,5 +72,21 @@ public class ServiceOrderStatusUseCase {
 
         return mapper.toResponse(order);
     }
-}
 
+    public ServiceOrderResponse approve(UUID serviceOrderId) {
+        ServiceOrder order = serviceOrderRepository.findById(serviceOrderId)
+                .orElseThrow(() -> new NotFoundException("Service order with id " + serviceOrderId + " not found"));
+
+        whatsAppMessenger.budgetApprovalReceived(order.getOrderNumber()); //TODO: Implementar lógica de aprovação via WhatsApp
+        order.approve();
+
+        ServiceOrder updatedOrder = serviceOrderRepository.save(order);
+
+        var orderTasks = orderTaskRepository.findByServiceOrderId(serviceOrderId);
+        updatedOrder.setOrderTasks(orderTasks);
+
+        return mapper.toResponse(updatedOrder);
+    }
+
+
+}
