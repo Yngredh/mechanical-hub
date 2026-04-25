@@ -4,6 +4,7 @@ import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryR
 import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
 
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
+import com.fiap.mechanical_hub.domain.enums.OrderStatus;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceOrderModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceOrderJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,18 @@ import java.util.UUID;
 public class ServiceOrderRepositoryAdapter implements ServiceOrderRepository {
 
     private final ServiceOrderJpaRepository jpaRepository;
+
+    public List<ServiceOrderSummaryResponse> findAllSummaries(String status, UUID customerId, LocalDateTime startDate, LocalDateTime endDate){
+
+        return jpaRepository.findAllSummaries(status, customerId, startDate, endDate);
+    }
+
+    public List<ServiceOrder> findSummaryByCustomerId(UUID customerId) {
+        return jpaRepository.findSummaryByCustomerId(customerId)
+                .stream()
+                .map(this::toDomainEntity)
+                .toList();
+    }
 
     @Override
     public ServiceOrder save(ServiceOrder order) {

@@ -81,19 +81,14 @@ public class ServiceOrderMapper {
         );
     }
 
-    public ServiceOrderSummaryResponse toSummaryResponsee(ServiceOrder order, Customer customer, Vehicle vehicle) {
-
-        String customerName = (customer != null) ? customer.getName() : "Unknown";
-        String vehicleInfo = (vehicle != null)
-                ? vehicle.getBrand() + " " + vehicle.getModel() + " (" + vehicle.getLicensePlate() + ")"
-                : "Unknown";
+    public ServiceOrderSummaryResponse toSummaryResponse(ServiceOrder order, Customer customer, Vehicle vehicle) {
 
         return new ServiceOrderSummaryResponse(
                 order.getId(),
                 order.getOrderNumber(),
                 order.getStatus().getDisplayName(),
-                customerName,
-                vehicleInfo,
+                customer,
+                vehicle,
                 order.getBudget(),
                 order.getCreatedAt()
         );

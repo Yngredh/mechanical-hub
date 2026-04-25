@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
-import com.fiap.mechanical_hub.application.dto.customer.UpsertCustomerRequest;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
+import com.fiap.mechanical_hub.application.dto.customer.UpsertCustomerRequest;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
 import com.fiap.mechanical_hub.application.usecases.CustomerService;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderStatusUseCase;
@@ -46,7 +46,6 @@ public class CustomerController {
     @GetMapping("/{id}/orders")
     @RequireProfile("Administrador")
     public ResponseEntity<List<ServiceOrderSummaryResponse>> findOrdersByCustomerId(@PathVariable UUID id) {
-        customerService.findById(id);
         List<ServiceOrderSummaryResponse> orders = serviceOrderStatusUseCase.findByCustomerId(id);
         return ResponseEntity.ok(orders);
     }
