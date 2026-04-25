@@ -1,9 +1,8 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
-import com.fiap.mechanical_hub.application.usecases.ServiceOrderService;
+import com.fiap.mechanical_hub.application.usecases.ServiceOrderUseCase;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderStatusUseCase;
-import com.fiap.mechanical_hub.infrastructure.http.middlewares.RequireProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -19,13 +18,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ServiceOrderController {
 
-    private final ServiceOrderService serviceOrderService;
+    private final ServiceOrderUseCase serviceOrderUseCase;
     private final ServiceOrderStatusUseCase serviceOrderStatusUseCase;
 
     @PostMapping
-    @RequireProfile("Administrador")
     public ResponseEntity<ServiceOrderResponse> create(@RequestBody CreateServiceOrderRequest request) {
-        ServiceOrderResponse response = serviceOrderService.create(request);
+        ServiceOrderResponse response = serviceOrderUseCase.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -41,7 +39,6 @@ public class ServiceOrderController {
     }
 
     @GetMapping
-    @RequireProfile("Administrador")
     public ResponseEntity<List<ServiceOrderSummaryResponse>> findAll(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) UUID customerId,
@@ -52,7 +49,6 @@ public class ServiceOrderController {
     }
 
     @GetMapping("/{id}")
-    @RequireProfile("Administrador")
     public ResponseEntity<ServiceOrderDetailResponse> findById(@PathVariable UUID id) {
         ServiceOrderDetailResponse response = serviceOrderStatusUseCase.findById(id);
         return ResponseEntity.ok(response);

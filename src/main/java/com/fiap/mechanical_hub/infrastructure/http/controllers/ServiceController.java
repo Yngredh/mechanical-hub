@@ -3,7 +3,6 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.application.dto.service.UpsertServiceRequest;
 import com.fiap.mechanical_hub.application.usecases.ServiceUseCase;
-import com.fiap.mechanical_hub.infrastructure.http.middlewares.RequireProfile;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +20,6 @@ public class ServiceController {
     private final ServiceUseCase serviceUseCase;
 
     @PostMapping
-    @RequireProfile("Administrador")
     public ResponseEntity<ServiceResponse> create(
             @RequestBody @Valid UpsertServiceRequest request
     ) {
@@ -30,21 +28,18 @@ public class ServiceController {
     }
 
     @GetMapping
-    @RequireProfile("Administrador")
     public ResponseEntity<List<ServiceResponse>> findAll() {
         List<ServiceResponse> services = serviceUseCase.findAll();
         return ResponseEntity.ok(services);
     }
 
     @GetMapping("/{id}")
-    @RequireProfile("Administrador")
     public ResponseEntity<ServiceResponse> findById(@PathVariable UUID id) {
         ServiceResponse response = serviceUseCase.findById(id);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    @RequireProfile("Administrador")
     public ResponseEntity<ServiceResponse> update(
             @PathVariable UUID id,
             @RequestBody @Valid UpsertServiceRequest request
@@ -54,7 +49,6 @@ public class ServiceController {
     }
 
     @DeleteMapping("/{id}")
-    @RequireProfile("Administrador")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         serviceUseCase.delete(id);
         return ResponseEntity.noContent().build();

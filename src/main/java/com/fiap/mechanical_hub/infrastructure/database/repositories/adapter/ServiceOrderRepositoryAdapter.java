@@ -44,17 +44,6 @@ public class ServiceOrderRepositoryAdapter implements ServiceOrderRepository {
         return jpaRepository.findLastOrderNumberByYearMonth(yearMonth);
     }
 
-    public List<ServiceOrderSummaryResponse> findAllSummaries(String status, UUID customerId, LocalDateTime startDate, LocalDateTime endDate){
-        return jpaRepository.findAllSummaries(status, customerId, startDate, endDate);
-    }
-
-    public List<ServiceOrder> findSummaryByCustomerId(UUID customerId) {
-        return jpaRepository.findSummaryByCustomerId(customerId)
-                .stream()
-                .map(this::toDomainEntity)
-                .toList();
-    }
-
     @Override
     public Optional<ServiceOrder> findById(UUID id) {
         return jpaRepository.findById(id).map(this::toDomainEntity);

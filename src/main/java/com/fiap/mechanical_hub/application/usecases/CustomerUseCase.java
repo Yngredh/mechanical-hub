@@ -24,7 +24,7 @@ import static com.fiap.mechanical_hub.shared.utils.Formatter.removeFormatting;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
-public class CustomerService {
+public class CustomerUseCase {
 
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;

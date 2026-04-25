@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Testes do CRUD de Clientes - CustomerService")
-class CustomerServiceTest {
+class CustomerUseCaseTest {
 
     @Mock
     private CustomerRepository customerRepository;
@@ -40,7 +40,7 @@ class CustomerServiceTest {
     private CustomerMapper customerMapper;
 
     @InjectMocks
-    private CustomerService customerService;
+    private CustomerUseCase customerUseCase;
 
     @Test
     @DisplayName("Deve criar cliente com CPF válido com sucesso")
@@ -93,7 +93,7 @@ class CustomerServiceTest {
         when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
         when(customerMapper.toResponse(savedCustomer)).thenReturn(expectedResponse);
 
-        CustomerResponse response = customerService.create(request);
+        CustomerResponse response = customerUseCase.create(request);
 
         assertThat(response).isNotNull();
         assertThat(response.getName()).isEqualTo("João Silva");
@@ -154,7 +154,7 @@ class CustomerServiceTest {
         when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
         when(customerMapper.toResponse(savedCustomer)).thenReturn(expectedResponse);
 
-        CustomerResponse response = customerService.create(request);
+        CustomerResponse response = customerUseCase.create(request);
 
         assertThat(response).isNotNull();
         assertThat(response.getName()).isEqualTo("Empresa XYZ");
@@ -179,7 +179,7 @@ class CustomerServiceTest {
         when(customerMapper.toDomainEntity(request))
                 .thenThrow(new InvalidDocumentException("Inválido CPF: 111.111.111-11"));
 
-        assertThatThrownBy(() -> customerService.create(request))
+        assertThatThrownBy(() -> customerUseCase.create(request))
                 .isInstanceOf(InvalidDocumentException.class)
                 .hasMessageContaining("Inválido CPF");
 
@@ -201,7 +201,7 @@ class CustomerServiceTest {
         when(customerMapper.toDomainEntity(request))
                 .thenThrow(new InvalidDocumentException("Inválido CNPJ: 11.111.111/0001-81"));
 
-        assertThatThrownBy(() -> customerService.create(request))
+        assertThatThrownBy(() -> customerUseCase.create(request))
                 .isInstanceOf(InvalidDocumentException.class)
                 .hasMessageContaining("Inválido CNPJ");
 
@@ -224,7 +224,7 @@ class CustomerServiceTest {
         when(customerMapper.toDomainEntity(request))
                 .thenThrow(new InvalidTelephoneException("Telefone inválido: após remover a formatação, deve conter pelo menos 12 dígitos"));
 
-        assertThatThrownBy(() -> customerService.create(request))
+        assertThatThrownBy(() -> customerUseCase.create(request))
                 .isInstanceOf(InvalidTelephoneException.class)
                 .hasMessageContaining("inválido");
 
@@ -245,7 +245,7 @@ class CustomerServiceTest {
 
         when(customerRepository.existsByDocumentNumber("12345678909")).thenReturn(true);
 
-        assertThatThrownBy(() -> customerService.create(request))
+        assertThatThrownBy(() -> customerUseCase.create(request))
                 .isInstanceOf(DuplicateDocumentException.class)
                 .hasMessageContaining("já existe");
 
@@ -266,7 +266,7 @@ class CustomerServiceTest {
 
         when(customerRepository.existsByDocumentNumber("11222333000181")).thenReturn(true);
 
-        assertThatThrownBy(() -> customerService.create(request))
+        assertThatThrownBy(() -> customerUseCase.create(request))
                 .isInstanceOf(DuplicateDocumentException.class)
                 .hasMessageContaining("já existe");
 
@@ -304,7 +304,7 @@ class CustomerServiceTest {
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
         when(customerMapper.toResponse(customer)).thenReturn(expectedResponse);
 
-        CustomerResponse response = customerService.findById(customerId);
+        CustomerResponse response = customerUseCase.findById(customerId);
 
         assertThat(response).isNotNull();
         assertThat(response.getId()).isEqualTo(customerId);
@@ -318,7 +318,7 @@ class CustomerServiceTest {
         UUID customerId = UUID.randomUUID();
         when(customerRepository.findById(customerId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> customerService.findById(customerId))
+        assertThatThrownBy(() -> customerUseCase.findById(customerId))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("não encontrado");
     }
@@ -370,7 +370,7 @@ class CustomerServiceTest {
             when(customerMapper.toResponse(customers.get(i))).thenReturn(responses.get(i));
         }
 
-        List<CustomerResponse> result = customerService.findAll();
+        List<CustomerResponse> result = customerUseCase.findAll();
 
         assertThat(result).hasSize(2);
         assertThat(result).extracting(CustomerResponse::getName).containsExactly("João Silva", "Empresa XYZ");
@@ -382,7 +382,7 @@ class CustomerServiceTest {
     void shouldReturnEmptyListWhenNoCustomersExist() {
         when(customerRepository.findAll()).thenReturn(new ArrayList<>());
 
-        List<CustomerResponse> result = customerService.findAll();
+        List<CustomerResponse> result = customerUseCase.findAll();
 
         assertThat(result).isEmpty();
         verify(customerRepository).findAll();
@@ -444,7 +444,7 @@ class CustomerServiceTest {
         when(customerRepository.save(updatedCustomer)).thenReturn(updatedCustomer);
         when(customerMapper.toResponse(updatedCustomer)).thenReturn(expectedResponse);
 
-        CustomerResponse response = customerService.update(customerId, updateRequest);
+        CustomerResponse response = customerUseCase.update(customerId, updateRequest);
 
         assertThat(response).isNotNull();
         assertThat(response.getId()).isEqualTo(customerId);
@@ -485,7 +485,7 @@ class CustomerServiceTest {
 
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(existingCustomer));
 
-        assertThatThrownBy(() -> customerService.update(customerId, updateRequest))
+        assertThatThrownBy(() -> customerUseCase.update(customerId, updateRequest))
                 .isInstanceOf(DuplicateDocumentException.class)
                 .hasMessageContaining("Não é permitido alterar o documento do cliente");
 
@@ -507,7 +507,7 @@ class CustomerServiceTest {
 
         when(customerRepository.findById(customerId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> customerService.update(customerId, updateRequest))
+        assertThatThrownBy(() -> customerUseCase.update(customerId, updateRequest))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("não encontrado");
 
@@ -533,7 +533,7 @@ class CustomerServiceTest {
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
         doNothing().when(customerRepository).deleteById(customerId);
 
-        customerService.delete(customerId);
+        customerUseCase.delete(customerId);
 
         verify(customerRepository).findById(customerId);
         verify(customerRepository).deleteById(customerId);
@@ -545,7 +545,7 @@ class CustomerServiceTest {
         UUID customerId = UUID.randomUUID();
         when(customerRepository.findById(customerId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> customerService.delete(customerId))
+        assertThatThrownBy(() -> customerUseCase.delete(customerId))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("não encontrado");
 
@@ -583,7 +583,7 @@ class CustomerServiceTest {
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
         when(customerMapper.toResponse(customer)).thenReturn(expectedResponse);
 
-        CustomerResponse response = customerService.findById(customerId);
+        CustomerResponse response = customerUseCase.findById(customerId);
 
         assertThat(response.getDocumentNumber()).isEqualTo("123.456.789-09");
         assertThat(response.getDocumentNumber()).contains(".", "-");
@@ -620,7 +620,7 @@ class CustomerServiceTest {
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
         when(customerMapper.toResponse(customer)).thenReturn(expectedResponse);
 
-        CustomerResponse response = customerService.findById(customerId);
+        CustomerResponse response = customerUseCase.findById(customerId);
 
         assertThat(response.getDocumentNumber()).isEqualTo("11.222.333/0001-81");
         assertThat(response.getDocumentNumber()).contains(".", "/", "-");
@@ -657,7 +657,7 @@ class CustomerServiceTest {
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
         when(customerMapper.toResponse(customer)).thenReturn(expectedResponse);
 
-        CustomerResponse response = customerService.findById(customerId);
+        CustomerResponse response = customerUseCase.findById(customerId);
 
         assertThat(response.getTelephone()).isEqualTo("(11) 9 8765-4321");
         assertThat(response.getTelephone()).contains("(", ")", "-", " ");

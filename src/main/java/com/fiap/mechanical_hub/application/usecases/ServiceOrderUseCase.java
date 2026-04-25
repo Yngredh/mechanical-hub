@@ -17,17 +17,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
-public class ServiceOrderService {
+public class ServiceOrderUseCase {
 
     private final ServiceOrderRepository serviceOrderRepository;
-    private final CustomerService customerService;
-    private final VehicleService vehicleService;
+    private final CustomerUseCase customerUseCase;
+    private final VehicleUseCase vehicleUseCase;
     private final OrderNumberGenerator orderNumberGenerator;
     private final ServiceOrderMapper serviceOrderMapper;
 
     public ServiceOrderResponse create(CreateServiceOrderRequest request) {
         var customerData = request.getCustomer();
-        Customer customer = customerService.findByDocumentOrCreate(
+        Customer customer = customerUseCase.findByDocumentOrCreate(
                 customerData.getName(),
                 customerData.getDocumentType(),
                 customerData.getDocumentNumber(),
@@ -37,7 +37,7 @@ public class ServiceOrderService {
         );
 
         var vehicleData = request.getVehicle();
-        Vehicle vehicle = vehicleService.findByLicensePlateOrCreate(
+        Vehicle vehicle = vehicleUseCase.findByLicensePlateOrCreate(
                 customer.getId(),
                 vehicleData.getLicensePlate(),
                 vehicleData.getBrand(),

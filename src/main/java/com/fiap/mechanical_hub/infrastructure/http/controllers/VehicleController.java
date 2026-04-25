@@ -2,8 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.dto.vehicle.UpsertVehicleRequest;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
-import com.fiap.mechanical_hub.application.usecases.VehicleService;
-import com.fiap.mechanical_hub.infrastructure.http.middlewares.RequireProfile;
+import com.fiap.mechanical_hub.application.usecases.VehicleUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,43 +16,38 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class VehicleController {
 
-	private final VehicleService vehicleService;
+	private final VehicleUseCase vehicleUseCase;
 
 	@PostMapping
-	@RequireProfile("Administrador")
 	public ResponseEntity<VehicleResponse> create(
 			@RequestParam("customer_id") UUID customerId,
 			@RequestBody UpsertVehicleRequest request
 	) {
-		VehicleResponse response = vehicleService.create(customerId, request);
+		VehicleResponse response = vehicleUseCase.create(customerId, request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 	@GetMapping
-	@RequireProfile("Administrador")
 	public ResponseEntity<List<VehicleResponse>> findAll() {
-		List<VehicleResponse> vehicles = vehicleService.findAll();
+		List<VehicleResponse> vehicles = vehicleUseCase.findAll();
 		return ResponseEntity.ok(vehicles);
 	}
 
 	@GetMapping("/{id}")
-	@RequireProfile("Administrador")
 	public ResponseEntity<VehicleResponse> findById(@PathVariable UUID id) {
-		VehicleResponse vehicle = vehicleService.findById(id);
+		VehicleResponse vehicle = vehicleUseCase.findById(id);
 		return ResponseEntity.ok(vehicle);
 	}
 
 	@PutMapping("/{id}")
-	@RequireProfile("Administrador")
 	public ResponseEntity<VehicleResponse> update(@PathVariable UUID id, @RequestBody UpsertVehicleRequest request) {
-		VehicleResponse response = vehicleService.update(id, request);
+		VehicleResponse response = vehicleUseCase.update(id, request);
 		return ResponseEntity.ok(response);
 	}
 
 	@DeleteMapping("/{id}")
-	@RequireProfile("Administrador")
 	public ResponseEntity<Void> delete(@PathVariable UUID id) {
-		vehicleService.delete(id);
+		vehicleUseCase.delete(id);
 		return ResponseEntity.noContent().build();
 	}
 }

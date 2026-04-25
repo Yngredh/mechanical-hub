@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
-import com.fiap.mechanical_hub.application.usecases.CustomerService;
+import com.fiap.mechanical_hub.application.usecases.CustomerUseCase;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderStatusUseCase;
 import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.entities.Vehicle;
@@ -34,7 +34,7 @@ class CustomerControllerTest {
     private ServiceOrderStatusUseCase serviceOrderStatusUseCase;
 
     @MockBean
-    private CustomerService customerService;
+    private CustomerUseCase customerUseCase;
 
     @Test
     @DisplayName("Deve retornar lista de ordens de serviço do cliente com sucesso")

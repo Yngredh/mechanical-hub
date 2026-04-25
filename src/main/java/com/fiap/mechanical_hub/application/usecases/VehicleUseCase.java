@@ -23,7 +23,7 @@ import static com.fiap.mechanical_hub.shared.utils.license_plate.LicensePlateVal
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class VehicleService {
+public class VehicleUseCase {
 
     private final VehicleRepository vehicleRepository;
     private final CustomerRepository customerRepository;
