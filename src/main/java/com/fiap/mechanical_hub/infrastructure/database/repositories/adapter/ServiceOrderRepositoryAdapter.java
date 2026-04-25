@@ -2,6 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
 import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
+
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.enums.OrderStatus;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceOrderModel;
@@ -33,15 +34,30 @@ public class ServiceOrderRepositoryAdapter implements ServiceOrderRepository {
     }
 
     @Override
-    public Optional<ServiceOrder> findById(UUID id) {
-        return jpaRepository.findById(id).map(this::toDomainEntity);
-    }
-
-    @Override
     public ServiceOrder save(ServiceOrder order) {
         ServiceOrderModel entity = toJpaEntity(order);
         ServiceOrderModel saved = jpaRepository.save(entity);
         return toDomainEntity(saved);
+    }
+    @Override
+    public Optional<String> findLastOrderNumberByYearMonth(String yearMonth) {
+        return jpaRepository.findLastOrderNumberByYearMonth(yearMonth);
+    }
+
+    public List<ServiceOrderSummaryResponse> findAllSummaries(String status, UUID customerId, LocalDateTime startDate, LocalDateTime endDate){
+        return jpaRepository.findAllSummaries(status, customerId, startDate, endDate);
+    }
+
+    public List<ServiceOrder> findSummaryByCustomerId(UUID customerId) {
+        return jpaRepository.findSummaryByCustomerId(customerId)
+                .stream()
+                .map(this::toDomainEntity)
+                .toList();
+    }
+
+    @Override
+    public Optional<ServiceOrder> findById(UUID id) {
+        return jpaRepository.findById(id).map(this::toDomainEntity);
     }
 
     @Override
@@ -62,7 +78,7 @@ public class ServiceOrderRepositoryAdapter implements ServiceOrderRepository {
                 order.getId(),
                 order.getVehicleId(),
                 order.getCustomerId(),
-                order.getStatus().name(),
+                order.getStatus(),
                 order.getCreatedByUserId(),
                 order.getResponsibleUserId(),
                 order.getOrderNumber(),
@@ -79,23 +95,24 @@ public class ServiceOrderRepositoryAdapter implements ServiceOrderRepository {
     }
 
     private ServiceOrder toDomainEntity(ServiceOrderModel entity) {
-        ServiceOrder order = new ServiceOrder();
-        order.setId(entity.getId());
-        order.setVehicleId(entity.getVehicleId());
-        order.setCustomerId(entity.getCustomerId());
-        order.setStatus(OrderStatus.fromString(entity.getOrderStatus()));
-        order.setCreatedByUserId(entity.getCreatedByUserId());
-        order.setResponsibleUserId(entity.getResponsibleUserId());
-        order.setOrderNumber(entity.getOrderNumber());
-        order.setRequestDescription(entity.getRequestDescription());
-        order.setBudget(entity.getBudget());
-        order.setHasStockPending(entity.isHasStockPending());
-        order.setEstimatedCompletionAt(entity.getEstimatedCompletionAt());
-        order.setOpenedAt(entity.getOpenedAt());
-        order.setCompletedAt(entity.getCompletedAt());
-        order.setDeliveredAt(entity.getDeliveredAt());
-        order.setCreatedAt(entity.getCreatedAt());
-        order.setUpdatedAt(entity.getUpdatedAt());
-        return order;
+        return new ServiceOrder(
+                entity.getId(),
+                entity.getVehicleId(),
+                entity.getCustomerId(),
+                entity.getOrderStatus(),
+                entity.getCreatedByUserId(),
+                entity.getResponsibleUserId(),
+                entity.getOrderNumber(),
+                entity.getRequestDescription(),
+                entity.getBudget(),
+                entity.isHasStockPending(),
+                entity.getEstimatedCompletionAt(),
+                entity.getOpenedAt(),
+                entity.getCompletedAt(),
+                entity.getDeliveredAt(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt(),
+                null
+        );
     }
 }

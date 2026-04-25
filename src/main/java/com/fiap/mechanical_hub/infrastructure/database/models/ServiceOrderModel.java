@@ -1,5 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.database.models;
 
+import com.fiap.mechanical_hub.domain.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,8 +35,9 @@ public class ServiceOrderModel {
     @Column(name = "customer_id", nullable = false)
     private UUID customerId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
-    private String orderStatus;
+    private OrderStatus orderStatus;
 
     @Column(name = "created_by_user_id", nullable = false)
     private UUID createdByUserId;
@@ -46,10 +48,10 @@ public class ServiceOrderModel {
     @Column(name = "order_number", nullable = false, unique = true)
     private String orderNumber;
 
-    @Column(name = "request_description", nullable = false)
+    @Column(name = "request_description", nullable = false, length = 255)
     private String requestDescription;
 
-    @Column(name = "budget")
+    @Column(name = "budget", precision = 12, scale = 2)
     private BigDecimal budget;
 
     @Column(name = "has_stock_pending", nullable = false)

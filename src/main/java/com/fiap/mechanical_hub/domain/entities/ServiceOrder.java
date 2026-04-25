@@ -1,6 +1,7 @@
 package com.fiap.mechanical_hub.domain.entities;
 
 import com.fiap.mechanical_hub.domain.enums.OrderStatus;
+import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidOrderStatusTransitionException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,35 +40,41 @@ public class ServiceOrder {
     public static ServiceOrder create(
             UUID vehicleId,
             UUID customerId,
-            UUID createdByUserId,
             String orderNumber,
-            String requestDescription,
-            BigDecimal budget,
-            LocalDateTime estimatedCompletionAt
+            String requestDescription
     ) {
+        if (requestDescription == null || requestDescription.isBlank()) {
+            throw new BusinessRuleException("A descrição da solicitação é obrigatória");
+        }
+        if (requestDescription.length() > 255) {
+            throw new BusinessRuleException("A descrição da solicitação não pode ultrapassar 255 caracteres");
+        }
+
         ServiceOrder order = new ServiceOrder();
         order.id = UUID.randomUUID();
         order.vehicleId = vehicleId;
         order.customerId = customerId;
-        order.status = OrderStatus.CRIADO;
-        order.createdByUserId = createdByUserId;
+        order.status = OrderStatus.RECEBIDO;
+        order.createdByUserId = null;
+        order.responsibleUserId = null;
         order.orderNumber = orderNumber;
         order.requestDescription = requestDescription;
-        order.budget = budget;
+        order.budget = null;
         order.hasStockPending = false;
-        order.estimatedCompletionAt = estimatedCompletionAt;
+        order.estimatedCompletionAt = null;
+        order.openedAt = null;
+        order.completedAt = null;
+        order.deliveredAt = null;
         order.createdAt = LocalDateTime.now();
         order.updatedAt = LocalDateTime.now();
-        order.orderTasks = List.of();
-
         return order;
     }
 
-        public void receive(String userProfile) {
-            if (!isValidProfileForDiagnosis(userProfile)) {
-                throw new IllegalArgumentException("Apenas Mecânico ou superior pode iniciar a ordem");
-            }
+    public void receive(String userProfile) {
+        if (!isValidProfileForDiagnosis(userProfile)) {
+            throw new IllegalArgumentException("Apenas Mecânico ou superior pode iniciar a ordem");
         }
+    }
 
     public void startDiagnosis(String userProfile) {
         if (!isValidProfileForDiagnosis(userProfile)) {
@@ -102,7 +109,7 @@ public class ServiceOrder {
         }
 
         boolean allTasksFinished = tasks != null && !tasks.isEmpty() &&
-                                   tasks.stream().allMatch(OrderTask::isFinished);
+                tasks.stream().allMatch(OrderTask::isFinished);
 
         if (!allTasksFinished) {
             throw new IllegalStateException("Todos os serviços devem estar finalizados para concluir a ordem");
@@ -139,8 +146,8 @@ public class ServiceOrder {
 
     private boolean isValidProfileForDiagnosis(String userProfile) {
         return userProfile != null &&
-               (userProfile.equals("Mecânico") ||
-                userProfile.equals("Gerente") ||
-                userProfile.equals("Administrador"));
+                (userProfile.equals("Mecânico") ||
+                        userProfile.equals("Gerente") ||
+                        userProfile.equals("Administrador"));
     }
 }

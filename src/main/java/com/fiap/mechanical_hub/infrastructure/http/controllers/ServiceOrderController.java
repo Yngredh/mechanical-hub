@@ -1,13 +1,12 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
-import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderDetailResponse;
-import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
-import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
-import com.fiap.mechanical_hub.application.dto.serviceorder.UpdateOrderStatusRequest;
+import com.fiap.mechanical_hub.application.dto.serviceorder.*;
+import com.fiap.mechanical_hub.application.usecases.ServiceOrderService;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderStatusUseCase;
 import com.fiap.mechanical_hub.infrastructure.http.middlewares.RequireProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +19,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ServiceOrderController {
 
+    private final ServiceOrderService serviceOrderService;
     private final ServiceOrderStatusUseCase serviceOrderStatusUseCase;
+
+    @PostMapping
+    @RequireProfile("Administrador")
+    public ResponseEntity<ServiceOrderResponse> create(@RequestBody CreateServiceOrderRequest request) {
+        ServiceOrderResponse response = serviceOrderService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
     @PatchMapping("/{id}/status")
     // TODO: Add @PreAuthorize when Spring Security is configured

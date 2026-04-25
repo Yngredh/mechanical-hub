@@ -19,16 +19,15 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class ServiceOrderMapper {
-
     private final CustomerMapper customerMapper;
     private final VehicleMapper vehicleMapper;
 
     public ServiceOrderResponse toResponse(ServiceOrder order) {
-        List<OrderTaskResponse> orderTasks = order.getOrderTasks() != null 
-            ? order.getOrderTasks().stream()
-                .map(this::toTaskResponse)
-                .collect(Collectors.toList())
-            : List.of();
+        List<OrderTaskResponse> orderTasks = order.getOrderTasks() != null
+                ? order.getOrderTasks().stream()
+                  .map(this::toTaskResponse)
+                  .collect(Collectors.toList())
+                : List.of();
 
         return new ServiceOrderResponse(
                 order.getId(),

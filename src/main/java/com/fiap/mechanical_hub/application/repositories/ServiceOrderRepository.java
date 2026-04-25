@@ -7,8 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ServiceOrderRepository {
+    ServiceOrder save(ServiceOrder serviceOrder);
+    Optional<String> findLastOrderNumberByYearMonth(String yearMonth);
     Optional<ServiceOrder> findById(UUID id);
-    ServiceOrder save(ServiceOrder order);
     List<ServiceOrder> findAll();
     void deleteById(UUID id);
 }

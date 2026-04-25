@@ -13,7 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ServiceOrderResponse {
-
     private UUID id;
     private UUID vehicleId;
     private UUID customerId;
@@ -32,4 +31,3 @@ public class ServiceOrderResponse {
     private LocalDateTime updatedAt;
     private List<OrderTaskResponse> orderTasks;
 }
-
