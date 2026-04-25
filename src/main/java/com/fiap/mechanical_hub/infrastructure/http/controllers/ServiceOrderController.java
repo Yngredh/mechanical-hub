@@ -1,12 +1,15 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
+import com.fiap.mechanical_hub.application.UserSecurityAdapter;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderUseCase;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderStatusUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -16,6 +19,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/service-orders")
 @RequiredArgsConstructor
+@Slf4j
 public class ServiceOrderController {
 
     private final ServiceOrderUseCase serviceOrderUseCase;
@@ -28,8 +32,6 @@ public class ServiceOrderController {
     }
 
     @PatchMapping("/{id}/status")
-    // TODO: Add @PreAuthorize when Spring Security is configured
-    // @PreAuthorize("hasRole('MECHANICAL') or hasRole('MANAGER') or hasRole('ADMINISTRATOR')")
     public ResponseEntity<ServiceOrderResponse> updateStatus(
             @PathVariable UUID id,
             @RequestBody UpdateOrderStatusRequest request) {
