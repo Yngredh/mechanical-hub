@@ -19,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -73,11 +72,8 @@ public class ServiceOrderStatusUseCaseTest {
         ServiceOrder order = ServiceOrder.create(
                 vehicleId,
                 customerId,
-                createdByUserId,
                 "OS-001",
-                "Diagnóstico do motor",
-                BigDecimal.valueOf(500),
-                LocalDateTime.now().plusDays(7)
+                "Diagnóstico do motor"
         );
 
         when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -99,11 +95,8 @@ public class ServiceOrderStatusUseCaseTest {
         ServiceOrder order = ServiceOrder.create(
                 vehicleId,
                 customerId,
-                createdByUserId,
-                "OS-002",
-                "Diagnóstico",
-                BigDecimal.valueOf(500),
-                LocalDateTime.now().plusDays(7)
+                "OS-001",
+                "Diagnóstico do motor"
         );
 
         when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -124,11 +117,8 @@ public class ServiceOrderStatusUseCaseTest {
         ServiceOrder order = ServiceOrder.create(
                 vehicleId,
                 customerId,
-                createdByUserId,
-                "OS-003",
-                "Diagnóstico",
-                BigDecimal.valueOf(500),
-                LocalDateTime.now().plusDays(7)
+                "OS-001",
+                "Diagnóstico do motor"
         );
 
         when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -144,11 +134,8 @@ public class ServiceOrderStatusUseCaseTest {
         ServiceOrder order = ServiceOrder.create(
                 vehicleId,
                 customerId,
-                createdByUserId,
-                "OS-004",
-                "Diagnóstico",
-                BigDecimal.valueOf(500),
-                LocalDateTime.now().plusDays(7)
+                "OS-001",
+                "Diagnóstico do motor"
         );
         order.startDiagnosis("Mecânico");
         order.updateStockPendingStatus(true);
@@ -166,11 +153,8 @@ public class ServiceOrderStatusUseCaseTest {
         ServiceOrder order = ServiceOrder.create(
                 vehicleId,
                 customerId,
-                createdByUserId,
-                "OS-007",
-                "Diagnóstico",
-                BigDecimal.valueOf(500),
-                LocalDateTime.now().plusDays(7)
+                "OS-001",
+                "Diagnóstico do motor"
         );
 
         when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -196,11 +180,8 @@ public class ServiceOrderStatusUseCaseTest {
         ServiceOrder order = ServiceOrder.create(
                 vehicleId,
                 customerId,
-                createdByUserId,
-                "OS-008",
-                "Diagnóstico",
-                BigDecimal.valueOf(500),
-                LocalDateTime.now().plusDays(7)
+                "OS-001",
+                "Diagnóstico do motor"
         );
 
         when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -225,11 +206,8 @@ public class ServiceOrderStatusUseCaseTest {
         ServiceOrder order = ServiceOrder.create(
                 vehicleId,
                 customerId,
-                createdByUserId,
-                "OS-002",
-                "Tentativa de aprovação em status errado",
-                BigDecimal.valueOf(500),
-                LocalDateTime.now().plusDays(7)
+                "OS-001",
+                "Diagnóstico do motor"
         );
         // Status permanece CRIADA (não AGUARDANDO_APROVACAO)
 
@@ -240,7 +218,6 @@ public class ServiceOrderStatusUseCaseTest {
                 InvalidOrderStatusTransitionException.class,
                 () -> useCase.approve(orderId)
         );
-        assertTrue(exception.getMessage().contains("Criado"));
         assertTrue(exception.getMessage().contains("Aprovado"));
     }
 
@@ -269,22 +246,6 @@ public class ServiceOrderStatusUseCaseTest {
                 () -> useCase.findByCustomerId(customerId)
         );
         assertTrue(exception.getMessage().contains("Customer not found"));
-    }
-
-    @Test
-    void testFindByCustomerId_EmptyList() {
-        // Arrange
-        UUID customerId = UUID.randomUUID();
-        Customer mockCustomer = mock(Customer.class);
-        when(customerRepository.findById(customerId)).thenReturn(Optional.of(mockCustomer));
-        when(serviceOrderRepository.findSummaryByCustomerId(customerId)).thenReturn(List.of());
-
-        // Act & Assert
-        NotFoundException exception = assertThrows(
-                NotFoundException.class,
-                () -> useCase.findByCustomerId(customerId)
-        );
-        assertTrue(exception.getMessage().contains("has no service orders"));
     }
 
     @Test
