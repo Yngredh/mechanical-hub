@@ -10,9 +10,9 @@ import com.fiap.mechanical_hub.domain.entities.Stock;
 import com.fiap.mechanical_hub.domain.entities.StockMovement;
 import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
-import com.fiap.mechanical_hub.domain.repositories.MaterialRepository;
-import com.fiap.mechanical_hub.domain.repositories.StockMovementRepository;
-import com.fiap.mechanical_hub.domain.repositories.StockRepository;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.MaterialRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.StockMovementRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.StockRepositoryAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StockUseCase {
     private final StockMovementUseCase stockMovementUseCase;
-    private final MaterialRepository materialRepository;
-    private final StockRepository stockRepository;
-    private final StockMovementRepository stockMovementRepository;
+    private final MaterialRepositoryAdapter materialRepository;
+    private final StockRepositoryAdapter stockRepository;
+    private final StockMovementRepositoryAdapter stockMovementRepository;
 
     @Transactional
     public void setStockForNewMaterial(UUID materialId) {

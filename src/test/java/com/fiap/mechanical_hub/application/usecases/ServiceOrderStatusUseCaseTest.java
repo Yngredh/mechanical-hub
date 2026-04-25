@@ -6,8 +6,8 @@ import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.enums.OrderStatus;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidOrderStatusTransitionException;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
-import com.fiap.mechanical_hub.domain.repositories.OrderTaskRepository;
-import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.OrderTaskRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.ServiceOrderRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.integrations.whatsapp.WhatsAppMessenger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,10 +29,10 @@ import static org.mockito.Mockito.when;
 public class ServiceOrderStatusUseCaseTest {
 
     @Mock
-    private ServiceOrderRepository serviceOrderRepository;
+    private ServiceOrderRepositoryAdapter serviceOrderRepository;
 
     @Mock
-    private OrderTaskRepository orderTaskRepository;
+    private OrderTaskRepositoryAdapter orderTaskRepository;
 
     @Mock
     private ServiceOrderMapper mapper;
@@ -244,9 +244,6 @@ public class ServiceOrderStatusUseCaseTest {
         when(serviceOrderRepository.save(any())).thenReturn(order);
         when(orderTaskRepository.findByServiceOrderId(orderId)).thenReturn(List.of());
         when(mapper.toResponse(any())).thenReturn(new ServiceOrderResponse());
-
-        // Act
-        ServiceOrderResponse response = useCase.approve(orderId);
 
         // Assert
         assertEquals(OrderStatus.APROVADO, order.getStatus());
