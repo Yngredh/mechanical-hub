@@ -8,6 +8,7 @@ import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.MaterialRepositoryAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class MaterialUseCase {
 
     private final MaterialRepositoryAdapter materialRepository;
     private final MaterialMapper materialMapper;
+    @Lazy
     private final StockUseCase stockUseCase;
 
     @Transactional
@@ -89,4 +91,3 @@ public class MaterialUseCase {
         log.info("Material with id {} deleted successfully", id);
     }
 }
-

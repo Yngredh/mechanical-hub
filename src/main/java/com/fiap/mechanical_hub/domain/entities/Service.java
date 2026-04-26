@@ -82,8 +82,8 @@ public class Service {
 
     private void recalculateTotalPrice() {
         BigDecimal materialsCost = materials.stream()
-                .map(m -> m.material().getUnitPrice()
-                        .multiply(BigDecimal.valueOf(m.quantity())))
+                .map(m -> m.getMaterial().getUnitPrice()
+                        .multiply(BigDecimal.valueOf(m.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         this.totalPrice = laborCost.add(materialsCost);

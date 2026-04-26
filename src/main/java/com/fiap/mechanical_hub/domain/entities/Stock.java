@@ -26,6 +26,17 @@ public class Stock {
         this.updatedAt = updatedAt;
     }
 
+    public static Stock createReservedStock(UUID materialId, Integer quantity) {
+        Stock stock = new Stock();
+        stock.id = UUID.randomUUID();
+        stock.materialId = materialId;
+        stock.quantity = quantity;
+        stock.status = StockStatusEnum.RESERVED;
+        stock.updatedAt = LocalDateTime.now();
+
+        return stock;
+    }
+
     public static Stock setStockForNewMaterial(UUID materialId) {
         Stock stock = new Stock();
         stock.id = UUID.randomUUID();
@@ -60,6 +71,10 @@ public class Stock {
         if (quantity > this.quantity) { throw new IllegalArgumentException("Quantidade insuficiente"); }
         this.quantity -= quantity;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean checkMaterialAvailability(Integer quantity) {
+        return this.getStatus().equals(StockStatusEnum.AVAILABLE) && this.quantity < quantity;
     }
 
 }

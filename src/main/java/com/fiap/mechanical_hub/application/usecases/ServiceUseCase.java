@@ -9,6 +9,7 @@ import com.fiap.mechanical_hub.domain.entities.Service;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class ServiceUseCase {
 
     private final MaterialUseCase materialUseCase;
@@ -27,7 +29,7 @@ public class ServiceUseCase {
         List<ServiceMaterial> materials = request.getMaterials().stream()
                 .map(m -> {
                     Material material = materialUseCase.findById(m.getMaterialId());
-                    return new ServiceMaterial(material, m.getQuantity());
+                    return ServiceMaterial.create(material, m.getQuantity());
                 })
                 .toList();
 
@@ -51,8 +53,7 @@ public class ServiceUseCase {
         List<ServiceMaterial> materials = request.getMaterials().stream()
                 .map(m -> {
                     Material material = materialUseCase.findById(m.getMaterialId());
-
-                    return new ServiceMaterial(material, m.getQuantity());
+                    return ServiceMaterial.create(material, m.getQuantity());
                 })
                 .toList();
 
@@ -74,6 +75,11 @@ public class ServiceUseCase {
         Optional<Service> service = serviceRepository.findById(id);
         if (service.isEmpty()) { throw new NotFoundException("Service with id " + id + " not found"); }
         return ServiceMapper.toResponse(service.get());
+    }
+
+    public Service findServiceById(UUID id) {
+        return serviceRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Service not found"));
     }
 
     @Transactional(readOnly = true)

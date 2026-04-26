@@ -1,29 +1,43 @@
 package com.fiap.mechanical_hub.domain.entities;
 
 import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public record ServiceMaterial(UUID id, Material material, int quantity) {
+@Getter
+@NoArgsConstructor
+public class ServiceMaterial {
 
-    public ServiceMaterial {
+    private UUID id;
+    private UUID serviceId;
+    private Material material;
+    private int quantity;
+
+    public ServiceMaterial(UUID id, UUID serviceId, Material material, int quantity) {
         validate(material, quantity);
 
+        this.id = id;
+        this.serviceId = serviceId;
+        this.material = material;
+        this.quantity = quantity;
     }
 
-    public ServiceMaterial(Material material, int quantity) {
-        this(UUID.randomUUID(), material, quantity);
+    public static ServiceMaterial create(Material material, int quantity) {
+        ServiceMaterial serviceMaterial = new ServiceMaterial();
+        validate(material, quantity);
+
+        serviceMaterial.material = material;
+        serviceMaterial.quantity = quantity;
+
+        return serviceMaterial;
     }
 
-    private void validate(Material material, int quantity) {
-        if (material == null) {
-            throw new BusinessRuleException("Material is required");
-        }
-
-        if (quantity <= 0) {
-            throw new BusinessRuleException("Quantity must be greater than zero");
-        }
+    private static void validate(Material material, int quantity) {
+        if (material == null) { throw new BusinessRuleException("Material is required"); }
+        if (quantity <= 0) { throw new BusinessRuleException("Quantity must be greater than zero"); }
     }
 
     public BigDecimal calculateCost() {

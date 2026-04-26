@@ -6,6 +6,7 @@ import com.fiap.mechanical_hub.application.repositories.StockMovementRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -19,5 +20,10 @@ public class StockMovementUseCase {
         StockMovement register = stockMovementRepository.save(movement);
         log.info("Stock entry movement registered: materialId {}, quantity {}, movementType {}",
                 register.getMaterialId(), register.getQuantity(), register.getMovementType());
+    }
+
+    public void registerStockReservationMovement(UUID materialId, UUID serviceOrderId, Integer quantity) {
+        StockMovement movement = StockMovement.registerReservation(materialId, serviceOrderId, quantity);
+        stockMovementRepository.save(movement);
     }
 }

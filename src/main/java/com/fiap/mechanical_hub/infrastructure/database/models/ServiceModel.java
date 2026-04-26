@@ -64,4 +64,8 @@ public class ServiceModel {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
+    public ServiceModel(UUID serviceId) {
+        this.id = serviceId;
+    }
 }

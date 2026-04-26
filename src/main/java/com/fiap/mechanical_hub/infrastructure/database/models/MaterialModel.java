@@ -47,5 +47,9 @@ public class MaterialModel {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
+    public MaterialModel(UUID id) {
+        this.id = id;
+    }
 }
 

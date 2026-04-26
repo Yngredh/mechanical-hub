@@ -1,11 +1,11 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.UserSecurityAdapter;
-import com.fiap.mechanical_hub.application.UserSecurityAdapter;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderUseCase;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderStatusUseCase;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -64,5 +64,14 @@ public class ServiceOrderController {
     public ResponseEntity<ServiceOrderResponse> approve(@PathVariable UUID id) {
         ServiceOrderResponse response = serviceOrderStatusUseCase.approve(id);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/services")
+    public ResponseEntity<Void> addServices(
+            @PathVariable("id") UUID serviceOrderId,
+            @Valid @RequestBody AddServicesToOrderRequest request
+    ) {
+        serviceOrderUseCase.addServicesToOrder(serviceOrderId, request);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -2,16 +2,14 @@ package com.fiap.mechanical_hub.application.usecases;
 
 import com.fiap.mechanical_hub.application.dto.notification.NotificationMessage;
 import com.fiap.mechanical_hub.application.interfaces.AlertNotificationTrigger;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class NotificationUseCase {
 
     private final AlertNotificationTrigger alertNotificationTrigger;
-
-    public NotificationUseCase(AlertNotificationTrigger alertNotificationTrigger) {
-        this.alertNotificationTrigger = alertNotificationTrigger;
-    }
 
     public void sendLowStockAlert(String materialName, Integer minStockQuantity) {
         String subject = "[ALERTA ESTOQUE] Estoque Baixo para o item {}";
@@ -28,7 +26,7 @@ public class NotificationUseCase {
     public void sendStockShortageAlert(String materialName, String orderNumber) {
         String subject = "[ALERTA ESTOQUE] Material sem disponibilidade: " + materialName;
         String body = """
-    O estoque do material %s foi esgotado durante o processamento da Ordem de Serviço %s.
+    O estoque do material %s disponível para a ordem %s..
 
 Não há unidades disponíveis para atender a demanda atual, e a ordem foi marcada com pendência de estoque.
 

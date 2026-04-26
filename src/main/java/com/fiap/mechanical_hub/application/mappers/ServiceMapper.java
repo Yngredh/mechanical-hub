@@ -5,7 +5,6 @@ import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.Service;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
-import com.fiap.mechanical_hub.infrastructure.database.models.MaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,7 @@ public class ServiceMapper {
             materials = model.getMaterials().stream()
                     .map(sm -> {
                         Material material = MaterialMapper.toDomainEntity(sm.getMaterial());
-                        return new ServiceMaterial(sm.getId(), material, sm.getQuantity());
+                        return ServiceMaterial.create(material, sm.getQuantity());
                     })
                     .toList();
         }
@@ -59,31 +58,12 @@ public class ServiceMapper {
 
         if (service.getMaterials() != null) {
             List<ServiceMaterialModel> materials = service.getMaterials().stream()
-                    .map(sm -> toServiceMaterialModel(sm, model))
+                    .map(ServiceMaterialMapper::toModel)
                     .toList();
             model.setMaterials(new ArrayList<>(materials));
         }
 
         return model;
-    }
-
-    public static ServiceMaterialModel toServiceMaterialModel(ServiceMaterial serviceMaterial, ServiceModel serviceModel) {
-        MaterialModel materialModel = new MaterialModel(
-                serviceMaterial.material().getId(),
-                serviceMaterial.material().getName(),
-                serviceMaterial.material().getDescription(),
-                serviceMaterial.material().getUnitPrice(),
-                serviceMaterial.material().getMinStockQuantity(),
-                serviceMaterial.material().getCreatedAt(),
-                serviceMaterial.material().getUpdatedAt()
-        );
-
-        return new ServiceMaterialModel(
-                serviceMaterial.id(),
-                serviceModel,
-                materialModel,
-                serviceMaterial.quantity()
-        );
     }
 
     public static ServiceResponse toResponse(Service service) {
@@ -92,11 +72,11 @@ public class ServiceMapper {
         if (service.getMaterials() != null) {
             materialsResponse = service.getMaterials().stream()
                     .map(sm -> new ServiceMaterialResponse(
-                            sm.material().getId(),
-                            sm.material().getName(),
-                            sm.material().getDescription(),
-                            sm.material().getUnitPrice(),
-                            sm.quantity(),
+                            sm.getId(),
+                            sm.getMaterial().getName(),
+                            sm.getMaterial().getDescription(),
+                            sm.getMaterial().getUnitPrice(),
+                            sm.getQuantity(),
                             sm.calculateCost()
                     ))
                     .toList();

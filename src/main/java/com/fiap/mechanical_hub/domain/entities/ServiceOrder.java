@@ -147,4 +147,20 @@ public class ServiceOrder {
                         userProfile.equals("Gerente") ||
                         userProfile.equals("Administrador"));
     }
+
+    public void isAddingServiceAvailable() {
+        if (!this.getStatus().equals(OrderStatusEnum.EM_DIAGNOSTICO)) {
+            throw new BusinessRuleException("Serviços só podem ser adicionados enquanto a OS está em 'Em diagnóstico'.");
+        }
+    }
+
+    public void updateBudget(BigDecimal newBudget) {
+        this.budget = newBudget;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void setHasStockPending(Boolean hasPending) {
+        this.hasStockPending = hasPending;
+        this.updatedAt = LocalDateTime.now();
+    }
 }
