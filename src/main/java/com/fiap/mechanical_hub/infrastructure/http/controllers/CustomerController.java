@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -43,6 +44,13 @@ public class CustomerController {
     public ResponseEntity<List<ServiceOrderSummaryResponse>> findOrdersByCustomerId(@PathVariable UUID id) {
         List<ServiceOrderSummaryResponse> orders = serviceOrderStatusUseCase.findByCustomerId(id);
         return ResponseEntity.ok(orders);
+    }
+
+    //TODO: Revisar endpoint publico para o customer
+    @GetMapping("/{id}/order")
+    public ResponseEntity<Optional<ServiceOrderSummaryResponse>> findOrderByCustomerId(@PathVariable UUID id) {
+        Optional<ServiceOrderSummaryResponse> order = serviceOrderStatusUseCase.findOrderByCustomerId(id);
+        return ResponseEntity.ok(order);
     }
 
     @PutMapping("/{id}")

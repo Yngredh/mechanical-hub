@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -135,6 +136,17 @@ public class ServiceOrderStatusUseCase {
                     return mapper.toSummaryResponse(order, customer, vehicle);
                 })
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<ServiceOrderSummaryResponse> findOrderByCustomerId(UUID customerId) {
+
+        var customer = getCustomerById(customerId);
+        var vehicle = getVehicleById(customerId);
+        ServiceOrder order = serviceOrderRepository.findById(customerId)
+                .orElseThrow(() -> new NotFoundException("Service order with id " + customerId + " not found"));
+
+        return mapper.toSummaryResponseOptional(order, customer, vehicle);
     }
 
     public List<ServiceOrderSummaryResponse> findAll(String status, UUID customerId, LocalDateTime startDate, LocalDateTime endDate) {
