@@ -3,15 +3,12 @@ package com.fiap.mechanical_hub.application.usecases;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
-import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidOrderStatusTransitionException;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
-import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.CustomerRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.OrderTaskRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.ServiceOrderRepositoryAdapter;
-import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.VehicleRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.integrations.whatsapp.WhatsAppMessenger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 public class ServiceOrderStatusUseCaseTest {
@@ -43,10 +39,10 @@ public class ServiceOrderStatusUseCaseTest {
     private ServiceOrderMapper mapper;
 
     @Mock
-    private CustomerRepositoryAdapter customerRepository;
+    private CustomerUseCase customerUseCase;
 
     @Mock
-    private VehicleRepositoryAdapter vehicleRepository;
+    private VehicleUseCase vehicleUseCase;
 
     @Mock
     private WhatsAppMessenger whatsAppMessenger;
@@ -55,15 +51,14 @@ public class ServiceOrderStatusUseCaseTest {
     private UUID orderId;
     private UUID customerId;
     private UUID vehicleId;
-    private UUID createdByUserId;
 
     @BeforeEach
     void setUp() {
-        useCase = new ServiceOrderStatusUseCase(serviceOrderRepository, orderTaskRepository, mapper, whatsAppMessenger, customerRepository, vehicleRepository);
+        useCase = new ServiceOrderStatusUseCase(serviceOrderRepository, orderTaskRepository, mapper, whatsAppMessenger, customerUseCase, vehicleUseCase);
         orderId = UUID.randomUUID();
         customerId = UUID.randomUUID();
         vehicleId = UUID.randomUUID();
-        createdByUserId = UUID.randomUUID();
+
     }
 
     @Test
@@ -245,7 +240,7 @@ public class ServiceOrderStatusUseCaseTest {
     void testFindByCustomerId_CustomerNotFound() {
         // Arrange
         UUID customerId = UUID.randomUUID();
-        when(customerRepository.findById(customerId)).thenReturn(Optional.empty());
+        when(customerUseCase.findById(customerId)).thenReturn(null);
 
         // Act & Assert
         NotFoundException exception = assertThrows(
@@ -295,6 +290,6 @@ public class ServiceOrderStatusUseCaseTest {
                 () -> useCase.findAll(null, null, null, null)
         );
         assertTrue(exception.getMessage().contains("Error retrieving service orders"));
-        assertTrue(exception.getCause() instanceof RuntimeException);
+        assertInstanceOf(RuntimeException.class, exception.getCause());
     }
 }

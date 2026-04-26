@@ -6,10 +6,8 @@ import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderDetailRe
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
-import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
-import com.fiap.mechanical_hub.domain.entities.Vehicle;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +17,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class ServiceOrderMapper {
-    private final CustomerMapper customerMapper;
-    private final VehicleMapper vehicleMapper;
 
     public ServiceOrderResponse toResponse(ServiceOrder order) {
         List<OrderTaskResponse> orderTasks = order.getOrderTasks() != null
@@ -50,9 +46,7 @@ public class ServiceOrderMapper {
         );
     }
 
-    public ServiceOrderDetailResponse toDetailResponse(ServiceOrder order, Customer customer, Vehicle vehicle) {
-        CustomerResponse customerResponse = customer != null ? customerMapper.toResponse(customer) : null;
-        VehicleResponse vehicleResponse = vehicle != null ? vehicleMapper.toResponse(vehicle) : null;
+    public ServiceOrderDetailResponse toDetailResponse(ServiceOrder order, CustomerResponse customer, VehicleResponse vehicle) {
 
         List<OrderTaskResponse> orderTasks = order.getOrderTasks() != null
                 ? order.getOrderTasks().stream().map(this::toTaskResponse).toList()
@@ -75,13 +69,13 @@ public class ServiceOrderMapper {
                 order.getDeliveredAt(),
                 order.getCreatedAt(),
                 order.getUpdatedAt(),
-                customerResponse,
-                vehicleResponse,
+                customer,
+                vehicle,
                 orderTasks
         );
     }
 
-    public ServiceOrderSummaryResponse toSummaryResponse(ServiceOrder order, Customer customer, Vehicle vehicle) {
+    public ServiceOrderSummaryResponse toSummaryResponse(ServiceOrder order, CustomerResponse customer, VehicleResponse vehicle) {
 
         return new ServiceOrderSummaryResponse(
                 order.getId(),

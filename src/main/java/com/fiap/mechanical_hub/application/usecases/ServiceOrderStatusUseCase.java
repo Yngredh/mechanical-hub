@@ -1,19 +1,17 @@
 package com.fiap.mechanical_hub.application.usecases;
 
+import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderDetailResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
+import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
-import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
-import com.fiap.mechanical_hub.domain.entities.Vehicle;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
-import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.CustomerRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.OrderTaskRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.ServiceOrderRepositoryAdapter;
-import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.VehicleRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.integrations.whatsapp.WhatsAppMessenger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -32,9 +30,8 @@ public class ServiceOrderStatusUseCase {
     private final OrderTaskRepositoryAdapter orderTaskRepository;
     private final ServiceOrderMapper mapper;
     private final WhatsAppMessenger whatsAppMessenger;
-
-    private final CustomerRepositoryAdapter customerRepository;
-    private final VehicleRepositoryAdapter vehicleRepository;
+    private final CustomerUseCase customerUseCase;
+    private final VehicleUseCase vehicleUseCase;
 
     public ServiceOrderResponse updateStatus(UUID orderId, String newStatusString, String userProfile) {
         ServiceOrder order = serviceOrderRepository.findById(orderId)
@@ -80,8 +77,8 @@ public class ServiceOrderStatusUseCase {
         ServiceOrder order = serviceOrderRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Service order with id " + id + " not found"));
 
-        var customer = customerRepository.findById(order.getCustomerId()).orElse(null);
-        var vehicle = vehicleRepository.findById(order.getVehicleId()).orElse(null);
+        var customer = getCustomerById(id);
+        var vehicle = getVehicleById(id);
         var tasks = findOrderTasksByServiceOrderId(id);
 
         order.setOrderTasks(tasks);
@@ -92,9 +89,17 @@ public class ServiceOrderStatusUseCase {
     private List<OrderTask> findOrderTasksByServiceOrderId(UUID serviceOrderId) {
         try {
             return orderTaskRepository.findByServiceOrderId(serviceOrderId);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("Error retrieving order tasks for service order with id " + serviceOrderId + ": " + e.getMessage(), e);
         }
+    }
+
+    private CustomerResponse getCustomerById(UUID customerId) {
+        return customerUseCase.findById(customerId);
+    }
+
+    private VehicleResponse getVehicleById(UUID vehicleId) {
+        return vehicleUseCase.findById(vehicleId);
     }
 
     public ServiceOrderResponse approve(UUID serviceOrderId) {
@@ -115,19 +120,18 @@ public class ServiceOrderStatusUseCase {
     @Transactional(readOnly = true)
     public List<ServiceOrderSummaryResponse> findByCustomerId(UUID customerId) {
 
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new NotFoundException("Customer not found"));
+        CustomerResponse customer = getCustomerById(customerId);
 
         List<ServiceOrder> orders;
         try {
             orders = serviceOrderRepository.findSummaryByCustomerId(customerId);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("Error retrieving service orders for customer with id " + customerId + ": " + e.getMessage(), e);
         }
 
         return orders.stream()
                 .map(order -> {
-                    Vehicle vehicle = vehicleRepository.findById(order.getVehicleId()).orElse(null);
+                    VehicleResponse vehicle = getVehicleById(order.getVehicleId());
                     return mapper.toSummaryResponse(order, customer, vehicle);
                 })
                 .toList();
