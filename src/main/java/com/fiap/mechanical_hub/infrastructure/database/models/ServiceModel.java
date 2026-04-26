@@ -1,7 +1,9 @@
 package com.fiap.mechanical_hub.infrastructure.database.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -14,6 +16,8 @@ import java.util.UUID;
 @Table(name = "services")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ServiceModel {
 
     @Id
@@ -50,22 +54,4 @@ public class ServiceModel {
     )
     private List<ServiceMaterialModel> materials = new ArrayList<>();
 
-    public ServiceModel() {}
-
-    public ServiceModel(UUID id, String name, String description, BigDecimal laborCost, BigDecimal basePrice,
-                        BigDecimal totalPrice, boolean active, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.laborCost = laborCost;
-        this.basePrice = basePrice;
-        this.totalPrice = totalPrice;
-        this.active = active;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    public ServiceModel(UUID serviceId) {
-        this.id = serviceId;
-    }
 }

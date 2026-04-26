@@ -61,6 +61,7 @@ public class StockPendingItemRepositoryAdapter implements StockPendingItemReposi
                 stockPendingItem.getId(),
                 stockPendingItem.getServiceOrderId(),
                 stockPendingItem.getMaterialId(),
+                stockPendingItem.getQuantity(),
                 stockPendingItem.getCreatedAt()
         );
     }
@@ -70,6 +71,7 @@ public class StockPendingItemRepositoryAdapter implements StockPendingItemReposi
                 model.getId(),
                 model.getServiceOrderId(),
                 model.getMaterialId(),
+                model.getQuantity(),
                 model.getCreatedAt()
         );
     }

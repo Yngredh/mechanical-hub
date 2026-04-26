@@ -1,15 +1,9 @@
 package com.fiap.mechanical_hub.application.usecases;
 
-import com.fiap.mechanical_hub.application.dto.stock.StockDetailResponse;
-import com.fiap.mechanical_hub.application.dto.stock.StockEntryItem;
-import com.fiap.mechanical_hub.application.dto.stock.StockMovementResponse;
-import com.fiap.mechanical_hub.application.dto.stock.StockSummaryResponse;
+import com.fiap.mechanical_hub.application.dto.stock.*;
 import com.fiap.mechanical_hub.application.mappers.StockMapper;
 import com.fiap.mechanical_hub.application.mappers.StockMovementMapper;
-import com.fiap.mechanical_hub.domain.entities.Material;
-import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
-import com.fiap.mechanical_hub.domain.entities.Stock;
-import com.fiap.mechanical_hub.domain.entities.StockMovement;
+import com.fiap.mechanical_hub.domain.entities.*;
 import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.application.repositories.StockMovementRepository;
@@ -42,27 +36,84 @@ public class StockUseCase {
     }
 
     @Transactional
-    public void registerStockEntry(List<StockEntryItem> items) {
-        log.info("Registering stock entry");
+    public void registerStockEntry(StockEntryRequest stockEntry) {
+        log.info("Registering stock entry for material ID: {}", stockEntry.materialId());
 
-        for (StockEntryItem item : items) {
-            Stock stock = stockRepository.findByMaterialIdAndStatus(item.materialId(), StockStatusEnum.AVAILABLE)
-                    .orElseThrow(() -> {
-                        log.error("Stock not found for material ID: {}", item.materialId());
-                        return new NotFoundException(
-                                "Estoque não encontrado para o material id: " + item.materialId()
-                        );
-                    });
-            stock.addQuantity(item.quantity());
+        Stock stock = stockRepository.findByMaterialIdAndStatus(stockEntry.materialId(), StockStatusEnum.AVAILABLE)
+                .orElseThrow(() -> {
+                    log.error("Stock not found for material ID: {}", stockEntry.materialId());
+                    return new NotFoundException("Estoque não encontrado para o material id: " + stockEntry.materialId());
+                });
 
-            stockRepository.save(stock);
+        stock.addQuantity(stockEntry.quantity());
+        Stock updatedStock = stockRepository.save(stock);
+        stockMovementUseCase.registerStockEntryMovement(stockEntry);
 
-            stockMovementUseCase.registerStockEntryMovement(item);
+        log.info("Checking stock pendings for material ID: {}", stockEntry.materialId());
 
-            // TODO: Implementar validação de pendências de estoque
+        List<StockPendingItem> pendings = stockPendingUseCase.findMaterialStockPendency(stockEntry.materialId());
+
+        for (StockPendingItem pending : pendings) {
+            int available = updatedStock.getQuantity();
+
+            if (available <= 0) {
+                log.info("No more available stock for material ID: {}, stopping pending resolution", stockEntry.materialId());
+                break;
+            }
+
+            int pendingQuantity = pending.getQuantity();
+            int reservedQuantity = Math.min(available, pendingQuantity);
+
+            log.info("Resolving pending for service order ID: {} | needed: {} | reserving: {}",
+                    pending.getServiceOrderId(), pendingQuantity, reservedQuantity);
+
+            reserve(pending.getServiceOrderId(), pending.getMaterialId(), reservedQuantity, updatedStock, null);
+
+            updatedStock.subtractQuantity(reservedQuantity);
+
+            if (reservedQuantity == pendingQuantity) {
+                stockPendingUseCase.removePendency(pending);
+                // TODO validate if all OS pendency are solved
+                log.info("Pending fully resolved for service order ID: {}", pending.getServiceOrderId());
+            }
+        }
+        log.info("Stock entry registration completed for material ID: {}", stockEntry.materialId());
+    }
+
+
+    private void reserve(UUID serviceOrderId, UUID materialId, Integer reservationQuantity, Stock availableStock, Stock reservedStock) {
+        Stock newAvailableStock = availableStock;
+
+        if (newAvailableStock == null) {
+            newAvailableStock = stockRepository
+                    .findByMaterialIdAndStatus(
+                            materialId,
+                            StockStatusEnum.AVAILABLE
+                    )
+                    .orElseThrow(() ->
+                            new NotFoundException(
+                                    "Estoque não encontrado para o material id: " + materialId
+                            )
+                    );
+        }
+        newAvailableStock.subtractQuantity(reservationQuantity);
+        stockRepository.save(newAvailableStock);
+
+        Stock newReservedStock = reservedStock;
+
+        if (newReservedStock == null) {
+            newReservedStock = stockRepository
+                    .findByMaterialIdAndStatus(materialId, StockStatusEnum.RESERVED)
+                    .orElse(null);
         }
 
-        log.info("Stock entry registration completed");
+        if (newReservedStock == null) {
+            newReservedStock = Stock.createReservedStock(materialId, reservationQuantity);
+        } else newReservedStock.addQuantity(reservationQuantity);
+
+        stockRepository.save(newReservedStock);
+
+        stockMovementRepository.save(StockMovement.registerReservation(materialId, serviceOrderId, reservationQuantity));
     }
 
     @Transactional(readOnly = true)
@@ -110,7 +161,7 @@ public class StockUseCase {
     }
 
     @Transactional
-    public boolean reserveMaterials(ServiceOrder order, Material material, Integer quantity) {
+    public boolean reserveMaterial(ServiceOrder order, Material material, Integer quantity) {
         boolean hasStockPending = false;
         UUID materialId = material.getId();
         UUID serviceOrderId = order.getId();
@@ -123,7 +174,7 @@ public class StockUseCase {
 
         if (availableStock.isEmpty() || availableStock.get().checkMaterialAvailability(quantity)) {
             log.warn("No available stock found for material ID: {}", materialId);
-            stockPendingUseCase.createStockPendency(order, material);
+            stockPendingUseCase.createStockPendency(order, material, quantity);
             return true;
         }
 

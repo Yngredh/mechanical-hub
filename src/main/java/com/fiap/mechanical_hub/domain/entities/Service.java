@@ -36,24 +36,11 @@ public class Service {
         this.updatedAt = updatedAt;
     }
 
-    public static Service create(
-            String name,
-            String description,
-            BigDecimal laborCost,
-            BigDecimal basePrice,
-            List<ServiceMaterial> materials
-    ) {
+    public static Service create(String name, String description, BigDecimal laborCost,
+                                 BigDecimal basePrice, List<ServiceMaterial> materials) {
         Service service = new Service(
-                UUID.randomUUID(),
-                name,
-                description,
-                laborCost,
-                basePrice,
-                BigDecimal.ZERO,
-                materials,
-                true,
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                UUID.randomUUID(), name, description, laborCost, basePrice,BigDecimal.ZERO, materials, true,
+                LocalDateTime.now(), LocalDateTime.now()
         );
 
         service.validateInputs();

@@ -26,9 +26,10 @@ public class ServiceMaterial {
     }
 
     public static ServiceMaterial create(Material material, int quantity) {
-        ServiceMaterial serviceMaterial = new ServiceMaterial();
         validate(material, quantity);
 
+        ServiceMaterial serviceMaterial = new ServiceMaterial();
+        serviceMaterial.id = UUID.randomUUID();
         serviceMaterial.material = material;
         serviceMaterial.quantity = quantity;
 

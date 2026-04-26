@@ -1,13 +1,15 @@
 package com.fiap.mechanical_hub.application.dto.stock;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
-
-import java.util.List;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import java.util.UUID;
 
 public record StockEntryRequest(
-        @NotEmpty(message = "Lista de itens não pode estar vazia")
-        @Valid
-        List<StockEntryItem> items
+        @NotNull(message = "Material ID é obrigatório")
+        UUID materialId,
+
+        @NotNull(message = "Quantidade é obrigatória")
+        @Positive(message = "Quantidade deve ser maior que zero")
+        Integer quantity
 ) { }
 

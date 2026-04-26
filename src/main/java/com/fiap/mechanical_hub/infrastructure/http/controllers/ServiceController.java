@@ -20,9 +20,7 @@ public class ServiceController {
     private final ServiceUseCase serviceUseCase;
 
     @PostMapping
-    public ResponseEntity<ServiceResponse> create(
-            @RequestBody @Valid UpsertServiceRequest request
-    ) {
+    public ResponseEntity<ServiceResponse> create(@RequestBody @Valid UpsertServiceRequest request) {
         ServiceResponse response = serviceUseCase.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
