@@ -1,6 +1,7 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.UserSecurityAdapter;
+import com.fiap.mechanical_hub.application.UserSecurityAdapter;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderUseCase;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderStatusUseCase;
@@ -26,8 +27,11 @@ public class ServiceOrderController {
     private final ServiceOrderStatusUseCase serviceOrderStatusUseCase;
 
     @PostMapping
-    public ResponseEntity<ServiceOrderResponse> create(@RequestBody CreateServiceOrderRequest request) {
-        ServiceOrderResponse response = serviceOrderUseCase.create(request);
+    public ResponseEntity<ServiceOrderResponse> create(
+            @RequestBody CreateServiceOrderRequest request,
+            @AuthenticationPrincipal UserSecurityAdapter userDetails) {
+        UUID createdByUserId = userDetails.user().getId();
+        ServiceOrderResponse response = serviceOrderUseCase.create(request, createdByUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

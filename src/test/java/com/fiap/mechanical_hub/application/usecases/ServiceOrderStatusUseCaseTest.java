@@ -73,7 +73,8 @@ public class ServiceOrderStatusUseCaseTest {
                 vehicleId,
                 customerId,
                 "OS-001",
-                "Diagnóstico do motor"
+                "Diagnóstico do motor",
+                createdByUserId
         );
 
         when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -96,7 +97,8 @@ public class ServiceOrderStatusUseCaseTest {
                 vehicleId,
                 customerId,
                 "OS-001",
-                "Diagnóstico do motor"
+                "Diagnóstico do motor",
+                createdByUserId
         );
 
         when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -118,7 +120,8 @@ public class ServiceOrderStatusUseCaseTest {
                 vehicleId,
                 customerId,
                 "OS-001",
-                "Diagnóstico do motor"
+                "Diagnóstico do motor",
+                createdByUserId
         );
 
         when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -135,7 +138,8 @@ public class ServiceOrderStatusUseCaseTest {
                 vehicleId,
                 customerId,
                 "OS-001",
-                "Diagnóstico do motor"
+                "Diagnóstico do motor",
+                createdByUserId
         );
         order.startDiagnosis("Mecânico");
         order.updateStockPendingStatus(true);
@@ -154,7 +158,8 @@ public class ServiceOrderStatusUseCaseTest {
                 vehicleId,
                 customerId,
                 "OS-001",
-                "Diagnóstico do motor"
+                "Diagnóstico do motor",
+                createdByUserId
         );
 
         when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -181,7 +186,8 @@ public class ServiceOrderStatusUseCaseTest {
                 vehicleId,
                 customerId,
                 "OS-001",
-                "Diagnóstico do motor"
+                "Diagnóstico do motor",
+                createdByUserId
         );
 
         when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -207,7 +213,8 @@ public class ServiceOrderStatusUseCaseTest {
                 vehicleId,
                 customerId,
                 "OS-001",
-                "Diagnóstico do motor"
+                "Diagnóstico do motor",
+                createdByUserId
         );
         // Status permanece CRIADA (não AGUARDANDO_APROVACAO)
 

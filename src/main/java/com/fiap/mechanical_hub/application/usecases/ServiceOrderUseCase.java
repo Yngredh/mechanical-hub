@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class ServiceOrderUseCase {
     private final OrderNumberGenerator orderNumberGenerator;
     private final ServiceOrderMapper serviceOrderMapper;
 
-    public ServiceOrderResponse create(CreateServiceOrderRequest request) {
+    public ServiceOrderResponse create(CreateServiceOrderRequest request, UUID createdByUserId) {
         var customerData = request.getCustomer();
         Customer customer = customerUseCase.findByDocumentOrCreate(
                 customerData.getName(),
@@ -47,7 +49,7 @@ public class ServiceOrderUseCase {
         );
 
         String orderNumber = orderNumberGenerator.generate();
-        ServiceOrder serviceOrder = ServiceOrder.create(vehicle.getId(), customer.getId(), orderNumber, request.getRequestDescription());
+        ServiceOrder serviceOrder = ServiceOrder.create(vehicle.getId(), customer.getId(), orderNumber, request.getRequestDescription(), createdByUserId);
         ServiceOrder saved = serviceOrderRepository.save(serviceOrder);
 
         return serviceOrderMapper.toResponse(saved);
