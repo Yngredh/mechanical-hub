@@ -41,7 +41,8 @@ public class ServiceOrder {
             UUID vehicleId,
             UUID customerId,
             String orderNumber,
-            String requestDescription
+            String requestDescription,
+            UUID createdByUserId
     ) {
         if (requestDescription == null || requestDescription.isBlank()) {
             throw new BusinessRuleException("A descrição da solicitação é obrigatória");
@@ -55,7 +56,7 @@ public class ServiceOrder {
         order.vehicleId = vehicleId;
         order.customerId = customerId;
         order.status = OrderStatusEnum.RECEBIDO;
-        order.createdByUserId = null;
+        order.createdByUserId = createdByUserId;
         order.responsibleUserId = null;
         order.orderNumber = orderNumber;
         order.requestDescription = requestDescription;
