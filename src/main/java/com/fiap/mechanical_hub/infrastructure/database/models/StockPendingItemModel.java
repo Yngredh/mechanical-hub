@@ -22,6 +22,9 @@ public class StockPendingItemModel {
     @Column(name = "material_id", nullable = false)
     private UUID materialId;
 
+    @Column(nullable = false)
+    private int quantity;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
