@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -86,6 +87,22 @@ public class ServiceOrderMapper {
                 order.getBudget(),
                 order.getCreatedAt()
         );
+    }
+
+    public Optional<ServiceOrderSummaryResponse> toSummaryResponseOptional(ServiceOrder order, CustomerResponse customer, VehicleResponse vehicle) {
+
+        var summary = new ServiceOrderSummaryResponse(
+                order.getId(),
+                order.getOrderNumber(),
+                order.getStatus().getDisplayName(),
+                customer,
+                vehicle,
+                order.getBudget(),
+                order.getCreatedAt()
+        );
+
+        return Optional.of(summary);
+
     }
 
     public OrderTaskResponse toTaskResponse(OrderTask task) {
