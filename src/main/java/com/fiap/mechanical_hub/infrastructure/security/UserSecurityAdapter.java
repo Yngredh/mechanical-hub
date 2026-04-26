@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.application;
+package com.fiap.mechanical_hub.infrastructure.security;
 
 import com.fiap.mechanical_hub.domain.entities.User;
 import org.springframework.security.core.GrantedAuthority;

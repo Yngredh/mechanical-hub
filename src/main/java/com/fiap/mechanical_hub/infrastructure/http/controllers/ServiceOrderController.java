@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
-import com.fiap.mechanical_hub.application.UserSecurityAdapter;
+import com.fiap.mechanical_hub.infrastructure.security.UserSecurityAdapter;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderUseCase;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderStatusUseCase;

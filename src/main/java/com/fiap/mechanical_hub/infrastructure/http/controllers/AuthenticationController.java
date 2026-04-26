@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
-import com.fiap.mechanical_hub.application.UserSecurityAdapter;
+import com.fiap.mechanical_hub.infrastructure.security.UserSecurityAdapter;
 import com.fiap.mechanical_hub.application.dto.authentication.AuthenticationRequest;
 import com.fiap.mechanical_hub.application.dto.authentication.RegisterRequest;
 import com.fiap.mechanical_hub.application.dto.authentication.LoginResponse;

@@ -1,6 +1,5 @@
 package com.fiap.mechanical_hub.infrastructure.security;
 
-import com.fiap.mechanical_hub.application.UserSecurityAdapter;
 import com.fiap.mechanical_hub.application.mappers.UserMapper;
 import com.fiap.mechanical_hub.domain.entities.User;
 import com.fiap.mechanical_hub.infrastructure.database.models.UserModel;
