@@ -14,6 +14,7 @@ public class StockPendingItemMapper {
                 model.getId(),
                 model.getServiceOrderId(),
                 model.getMaterialId(),
+                model.getQuantity(),
                 model.getCreatedAt()
         );
     }
@@ -23,6 +24,7 @@ public class StockPendingItemMapper {
                 domain.getId(),
                 domain.getServiceOrderId(),
                 domain.getMaterialId(),
+                domain.getQuantity(),
                 domain.getCreatedAt()
         );
     }

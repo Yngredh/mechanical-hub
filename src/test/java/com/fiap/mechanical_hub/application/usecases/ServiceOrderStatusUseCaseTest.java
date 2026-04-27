@@ -51,6 +51,7 @@ public class ServiceOrderStatusUseCaseTest {
     private UUID orderId;
     private UUID customerId;
     private UUID vehicleId;
+    private UUID createdByUserId;
 
     @BeforeEach
     void setUp() {
@@ -58,7 +59,7 @@ public class ServiceOrderStatusUseCaseTest {
         orderId = UUID.randomUUID();
         customerId = UUID.randomUUID();
         vehicleId = UUID.randomUUID();
-
+        createdByUserId = UUID.randomUUID();
     }
 
     @Test

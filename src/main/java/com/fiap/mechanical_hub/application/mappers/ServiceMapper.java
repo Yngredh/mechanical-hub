@@ -44,23 +44,25 @@ public class ServiceMapper {
     }
 
     public static ServiceModel toJpaEntity(Service service) {
-        ServiceModel model = new ServiceModel(
-                service.getId(),
-                service.getName(),
-                service.getDescription(),
-                service.getLaborCost(),
-                service.getBasePrice(),
-                service.getTotalPrice(),
-                service.isActive(),
-                service.getCreatedAt(),
-                service.getUpdatedAt()
-        );
+        ServiceModel model = new ServiceModel();
 
-        if (service.getMaterials() != null) {
-            List<ServiceMaterialModel> materials = service.getMaterials().stream()
-                    .map(ServiceMaterialMapper::toModel)
-                    .toList();
-            model.setMaterials(new ArrayList<>(materials));
+        model.setId(service.getId());
+        model.setName(service.getName());
+        model.setDescription(service.getDescription());
+        model.setLaborCost(service.getLaborCost());
+        model.setBasePrice(service.getBasePrice());
+        model.setTotalPrice(service.getTotalPrice());
+        model.setCreatedAt(service.getCreatedAt());
+        model.setUpdatedAt(service.getUpdatedAt());
+        model.setActive(service.isActive());
+
+        for (ServiceMaterial item : service.getMaterials()) {
+            ServiceMaterialModel child = new ServiceMaterialModel();
+            child.setId(item.getId());
+            child.setMaterial(MaterialMapper.toJpaEntity(item.getMaterial()));
+            child.setQuantity(item.getQuantity());
+            child.setService(model);
+            model.getMaterials().add(child);
         }
 
         return model;

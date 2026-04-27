@@ -2,17 +2,17 @@ package com.fiap.mechanical_hub.application.mappers;
 
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
-import com.fiap.mechanical_hub.infrastructure.database.models.MaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
+import lombok.NoArgsConstructor;
 
 public class ServiceMaterialMapper {
 
-    public static ServiceMaterialModel toModel(ServiceMaterial entity) {
+    public static ServiceMaterialModel toJpaEntity(ServiceMaterial entity, ServiceModel parentService) {
         return new ServiceMaterialModel(
                 entity.getId(),
-                new ServiceModel(entity.getServiceId()),
-                new MaterialModel(entity.getMaterial().getId()),
+                parentService,
+                MaterialMapper.toJpaEntity(entity.getMaterial()),
                 entity.getQuantity()
         );
     }

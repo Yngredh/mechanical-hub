@@ -16,7 +16,7 @@ public record UpsertMaterialRequest(
         BigDecimal unitPrice,
 
         @NotNull(message = "Quantidade mínima é obrigatória")
-        @Min(value = 0, message = "Quantidade mínima não pode ser negativa")
+        @Min(value = 1, message = "Quantidade mínima não pode ser negativa")
         Integer minStockQuantity
 
 ) { }

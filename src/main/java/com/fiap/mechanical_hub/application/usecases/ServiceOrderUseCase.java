@@ -85,7 +85,7 @@ public class ServiceOrderUseCase {
 
                 log.info("Reserving {} units of material {} for service {}", quantity, materialId, serviceId);
 
-                hasStockPending = stockUseCase.reserveMaterials(order, serviceMaterial.getMaterial(), quantity);
+                hasStockPending = stockUseCase.reserveMaterial(order, serviceMaterial.getMaterial(), quantity);
             }
 
             totalBudget = totalBudget.add(service.getTotalPrice());

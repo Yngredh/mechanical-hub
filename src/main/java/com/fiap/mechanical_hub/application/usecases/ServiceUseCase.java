@@ -26,6 +26,7 @@ public class ServiceUseCase {
     private final ServiceRepository serviceRepository;
 
     public ServiceResponse create(UpsertServiceRequest request) {
+        log.info("Creating new service with name: {}", request.getName());
         List<ServiceMaterial> materials = request.getMaterials().stream()
                 .map(m -> {
                     Material material = materialUseCase.findById(m.getMaterialId());

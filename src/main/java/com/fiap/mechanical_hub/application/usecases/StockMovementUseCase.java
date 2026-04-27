@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.application.usecases;
 
-import com.fiap.mechanical_hub.application.dto.stock.StockEntryItem;
+import com.fiap.mechanical_hub.application.dto.stock.StockEntryRequest;
 import com.fiap.mechanical_hub.domain.entities.StockMovement;
 import com.fiap.mechanical_hub.application.repositories.StockMovementRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ public class StockMovementUseCase {
 
     private final StockMovementRepository stockMovementRepository;
 
-    public void registerStockEntryMovement(StockEntryItem item) {
+    public void registerStockEntryMovement(StockEntryRequest item) {
         StockMovement movement = StockMovement.buildStockEntryMovement(item.materialId(), item.quantity());
         StockMovement register = stockMovementRepository.save(movement);
         log.info("Stock entry movement registered: materialId {}, quantity {}, movementType {}",

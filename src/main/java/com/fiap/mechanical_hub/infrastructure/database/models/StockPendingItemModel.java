@@ -1,7 +1,9 @@
 package com.fiap.mechanical_hub.infrastructure.database.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -11,6 +13,8 @@ import java.util.UUID;
 @Table(name = "stock_pending_items")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class StockPendingItemModel {
 
     @Id
@@ -22,17 +26,11 @@ public class StockPendingItemModel {
     @Column(name = "material_id", nullable = false)
     private UUID materialId;
 
+    @Column(nullable = false)
+    private int quantity;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    public StockPendingItemModel() {
-    }
-
-    public StockPendingItemModel(UUID id, UUID serviceOrderId, UUID materialId, LocalDateTime createdAt) {
-        this.id = id;
-        this.serviceOrderId = serviceOrderId;
-        this.materialId = materialId;
-        this.createdAt = createdAt;
-    }
 }
 
