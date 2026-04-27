@@ -41,9 +41,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/vehicles/**").hasRole(administrator)
                         .requestMatchers("/services/**").hasRole(administrator)
                         .requestMatchers("/materials/**").hasRole(administrator)
-                        .requestMatchers("/service-orders/**").hasAnyRole(
-                                mechanical, administrator
-                        )
+                        .requestMatchers("/service-orders", "/service-orders/**").hasAnyRole(mechanical, administrator)
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

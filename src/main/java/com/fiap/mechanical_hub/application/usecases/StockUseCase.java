@@ -213,4 +213,8 @@ public class StockUseCase {
             notificationUseCase.sendLowStockAlert(material.getName(), material.getMinStockQuantity());
         }
     }
+
+    public void restoreReservedItems(ServiceOrder order) {
+        // TODO
+    }
 }

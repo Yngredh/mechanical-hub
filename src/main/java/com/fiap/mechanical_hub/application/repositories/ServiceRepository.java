@@ -11,4 +11,5 @@ public interface ServiceRepository {
     Service save(Service service);
     List<Service> findAll();
     void deleteById(UUID id);
+    List<Service> findByIds(List<UUID> serviceIds);
 }

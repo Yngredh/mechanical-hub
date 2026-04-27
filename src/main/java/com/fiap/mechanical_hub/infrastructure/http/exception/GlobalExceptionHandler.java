@@ -94,4 +94,15 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(InvalidOrderTransitionException.class)
+    public ResponseEntity<Object> handleInvalidOrderTransition(InvalidOrderTransitionException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put(STATUS, HttpStatus.BAD_REQUEST.value());
+        body.put(ERROR, "Bad Request");
+        body.put(MESSAGE, ex.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
 }

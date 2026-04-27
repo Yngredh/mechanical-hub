@@ -1,19 +1,17 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
+import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
+import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.infrastructure.security.UserSecurityAdapter;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderUseCase;
-import com.fiap.mechanical_hub.application.usecases.ServiceOrderStatusUseCase;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,7 +22,6 @@ import java.util.UUID;
 public class ServiceOrderController {
 
     private final ServiceOrderUseCase serviceOrderUseCase;
-    private final ServiceOrderStatusUseCase serviceOrderStatusUseCase;
 
     @PostMapping
     public ResponseEntity<ServiceOrderResponse> create(
@@ -36,33 +33,26 @@ public class ServiceOrderController {
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<ServiceOrderResponse> updateStatus(
-            @PathVariable UUID id,
-            @RequestBody UpdateOrderStatusRequest request) {
-
-        ServiceOrderResponse response = serviceOrderStatusUseCase.updateStatus(id, request.getStatus(), request.getResponsibleUserId());
+    public ResponseEntity<ServiceOrder> updateStatus(@PathVariable UUID id,
+                                                     @RequestBody UpdateOrderStatusRequest request) {
+        ServiceOrder response = serviceOrderUseCase.updateOrderStatus(id, OrderStatusEnum.fromString(request.getStatus()));
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<ServiceOrderSummaryResponse>> findAll(
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) UUID customerId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
-        List<ServiceOrderSummaryResponse> response = serviceOrderStatusUseCase.findAll(status, customerId, startDate, endDate);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<List<ServiceOrderSummaryResponse>> findAll() {
+        return ResponseEntity.ok(serviceOrderUseCase.findAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ServiceOrderDetailResponse> findById(@PathVariable UUID id) {
-        ServiceOrderDetailResponse response = serviceOrderStatusUseCase.findById(id);
+        ServiceOrderDetailResponse response = serviceOrderUseCase.findById(id);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{id}/approve")
     public ResponseEntity<ServiceOrderResponse> approve(@PathVariable UUID id) {
-        ServiceOrderResponse response = serviceOrderStatusUseCase.approve(id);
+        ServiceOrderResponse response = serviceOrderUseCase.approve(id);
         return ResponseEntity.ok(response);
     }
 

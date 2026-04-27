@@ -1,10 +1,10 @@
 package com.fiap.mechanical_hub.application.mappers;
 
+import com.fiap.mechanical_hub.application.dto.servicematerials.ServiceMaterialResponse;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
-import lombok.NoArgsConstructor;
 
 public class ServiceMaterialMapper {
 
@@ -31,6 +31,16 @@ public class ServiceMaterialMapper {
                         model.getService().getUpdatedAt()
                 ),
                 model.getQuantity()
+        );
+    }
+
+    public static ServiceMaterialResponse toResponse(ServiceMaterial sm) {
+        return new ServiceMaterialResponse(
+                sm.getId(),
+                sm.getMaterial().getName(),
+                sm.getMaterial().getDescription(),
+                sm.getMaterial().getUnitPrice(),
+                sm.getQuantity()
         );
     }
 }
