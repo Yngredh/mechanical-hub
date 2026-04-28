@@ -1,17 +1,20 @@
 package com.fiap.mechanical_hub.application.usecases;
 
-import com.fiap.mechanical_hub.application.dto.serviceorder.AddServicesToOrderRequest;
-import com.fiap.mechanical_hub.application.dto.serviceorder.CreateServiceOrderRequest;
-import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
+import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
+import com.fiap.mechanical_hub.application.dto.serviceorder.*;
+import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
+import com.fiap.mechanical_hub.application.interfaces.SendBudgetApproval;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
+import com.fiap.mechanical_hub.application.repositories.OrderTaskRepository;
 import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.domain.entities.*;
+import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
+import com.fiap.mechanical_hub.domain.strategies.os_status_transition.OrderStatusTransitionFactory;
 import com.fiap.mechanical_hub.shared.utils.OrderNumberGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -22,14 +25,19 @@ import java.util.UUID;
 @Transactional
 public class ServiceOrderUseCase {
 
-    private final ServiceOrderRepository serviceOrderRepository;
+    private final ServiceOrderRepository repository;
+    private final OrderTaskRepository orderTaskRepository;
+
     private final ServiceMaterialUseCase serviceMaterialUseCase;
     private final StockUseCase stockUseCase;
     private final CustomerUseCase customerUseCase;
     private final VehicleUseCase vehicleUseCase;
     private final ServiceUseCase serviceUseCase;
+
     private final OrderNumberGenerator orderNumberGenerator;
-    private final ServiceOrderMapper serviceOrderMapper;
+    private final ServiceOrderMapper mapper;
+    private final OrderStatusTransitionFactory factory;
+    private final SendBudgetApproval sendBudgetApprovalApprovalRequest;
 
     public ServiceOrderResponse create(CreateServiceOrderRequest request, UUID createdByUserId) {
         var customerData = request.getCustomer();
@@ -53,17 +61,18 @@ public class ServiceOrderUseCase {
         );
 
         String orderNumber = orderNumberGenerator.generate();
-        ServiceOrder serviceOrder = ServiceOrder.create(vehicle.getId(), customer.getId(), orderNumber, request.getRequestDescription(), createdByUserId);
-        ServiceOrder saved = serviceOrderRepository.save(serviceOrder);
+        ServiceOrder serviceOrder = ServiceOrder.create(
+                vehicle.getId(), customer.getId(), orderNumber, request.getRequestDescription(), createdByUserId);
+        ServiceOrder saved = repository.save(serviceOrder);
 
-        return serviceOrderMapper.toResponse(saved);
+        return mapper.toResponse(saved);
     }
 
     @Transactional
-    public void addServicesToOrder(UUID serviceOrderId, AddServicesToOrderRequest request) {
+    public void addServices(UUID serviceOrderId, AddServicesToOrderRequest request) {
         log.info("Adding {} services to service order {}", request.serviceIds().size(), serviceOrderId);
 
-        ServiceOrder order = serviceOrderRepository.findById(serviceOrderId)
+        ServiceOrder order = repository.findById(serviceOrderId)
                 .orElseThrow(() -> new NotFoundException("Ordem de serviço não encontrada com ID: " + serviceOrderId));
 
         order.isAddingServiceAvailable();
@@ -73,30 +82,81 @@ public class ServiceOrderUseCase {
         BigDecimal totalBudget = order.getBudget() != null ? order.getBudget() : BigDecimal.ZERO;
 
         for (UUID serviceId : request.serviceIds()) {
+            if (order.validateTaskNotDuplicated(serviceId)) break;
+
             Service service = serviceUseCase.findServiceById(serviceId);
 
             log.info("Processing service {} for order {}", serviceId, serviceOrderId);
 
             List<ServiceMaterial> serviceMaterials = serviceMaterialUseCase.getServiceMaterials(serviceId);
 
-            for (ServiceMaterial serviceMaterial : serviceMaterials) {
-                UUID materialId = serviceMaterial.getMaterial().getId();
-                int quantity = serviceMaterial.getQuantity();
+            for (ServiceMaterial sm : serviceMaterials) {
+                UUID materialId = sm.getMaterial().getId();
+                int quantity = sm.getQuantity();
 
                 log.info("Reserving {} units of material {} for service {}", quantity, materialId, serviceId);
 
-                hasStockPending = stockUseCase.reserveMaterial(order, serviceMaterial.getMaterial(), quantity);
+                hasStockPending = hasStockPending || stockUseCase.reserveMaterial(order, sm.getMaterial(), sm.getQuantity());
             }
 
             totalBudget = totalBudget.add(service.getTotalPrice());
+            order.addTask(OrderTask.create(order.getId(), service));
         }
 
         order.updateBudget(totalBudget);
         order.setHasStockPending(hasStockPending);
-
-        serviceOrderRepository.save(order);
+        repository.save(order);
 
         log.info("Successfully added services to service order {}. Has pending items: {}", serviceOrderId, hasStockPending);
+    }
+
+    public ServiceOrder updateOrderStatus(UUID orderId, OrderStatusEnum targetStatus) {
+        ServiceOrder order = repository.findById(orderId).orElseThrow();
+        factory.get(targetStatus).execute(order);
+        return repository.save(order);
+    }
+
+    public void submitOrder(UUID orderId){
+        ServiceOrder order = repository.findById(orderId).orElseThrow();
+        order.submitForApproval();
+        sendBudgetApprovalApprovalRequest.sendBudgetApprovalRequest(order);
+        repository.save(order);
+    }
+
+    public List<ServiceOrderSummaryResponse> findAll() {
+        return repository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(ServiceOrderMapper::toSummaryResponse).toList();
+    }
+
+     public ServiceOrderDetailResponse findById(UUID id) {
+        ServiceOrder order = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Ordem de serviço não encontrada com ID: " + id));
+
+        VehicleResponse vehicle = vehicleUseCase.findById(order.getVehicleId());
+        CustomerResponse customer = customerUseCase.findById(order.getCustomerId());
+         List<Service> services = order.getOrderTasks()
+                 .stream()
+                 .map(OrderTask::getService)
+                 .toList();
+
+        return ServiceOrderMapper.toDetailResponse(order, vehicle, customer, services);
+    }
+
+    public void approve(UUID serviceOrderId) {
+        ServiceOrder order = repository.findById(serviceOrderId)
+                .orElseThrow(() -> new NotFoundException("Service order with id " + serviceOrderId + " not found"));
+
+        factory.get(OrderStatusEnum.APROVADO).execute(order);
+        repository.save(order);
+    }
+
+    public void reject(UUID serviceOrderId) {
+        ServiceOrder order = repository.findById(serviceOrderId)
+                .orElseThrow(() -> new NotFoundException("Service order with id " + serviceOrderId + " not found"));
+
+        factory.get(OrderStatusEnum.RECUSADO).execute(order);
+        repository.save(order);
     }
 
 }

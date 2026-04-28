@@ -2,12 +2,12 @@ package com.fiap.mechanical_hub.infrastructure.database.models;
 
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -23,6 +23,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 public class ServiceOrderModel {
 
     @Id
@@ -74,4 +75,18 @@ public class ServiceOrderModel {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @OneToMany(
+            mappedBy = "serviceOrder",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<OrderTaskModel> orderTasks = new ArrayList<>();
+
+    public void addOrderTask(OrderTaskModel task) {
+        orderTasks.add(task);
+        task.setServiceOrder(this);
+    }
+
 }

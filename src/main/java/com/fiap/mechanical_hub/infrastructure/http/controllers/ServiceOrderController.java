@@ -1,19 +1,17 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
+import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
+import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.infrastructure.security.UserSecurityAdapter;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderUseCase;
-import com.fiap.mechanical_hub.application.usecases.ServiceOrderStatusUseCase;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,55 +21,46 @@ import java.util.UUID;
 @Slf4j
 public class ServiceOrderController {
 
-    private final ServiceOrderUseCase serviceOrderUseCase;
-    private final ServiceOrderStatusUseCase serviceOrderStatusUseCase;
+    private final ServiceOrderUseCase useCase;
 
     @PostMapping
     public ResponseEntity<ServiceOrderResponse> create(
             @RequestBody CreateServiceOrderRequest request,
             @AuthenticationPrincipal UserSecurityAdapter userDetails) {
         UUID createdByUserId = userDetails.user().getId();
-        ServiceOrderResponse response = serviceOrderUseCase.create(request, createdByUserId);
+        ServiceOrderResponse response = useCase.create(request, createdByUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<ServiceOrderResponse> updateStatus(
-            @PathVariable UUID id,
-            @RequestBody UpdateOrderStatusRequest request) {
-
-        ServiceOrderResponse response = serviceOrderStatusUseCase.updateStatus(id, request.getStatus(), request.getResponsibleUserId());
+    public ResponseEntity<ServiceOrder> updateStatus(
+            @PathVariable UUID id, @RequestBody UpdateOrderStatusRequest request) {
+        ServiceOrder response = useCase.updateOrderStatus(
+                id, OrderStatusEnum.fromString(request.getStatus()));
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<ServiceOrderSummaryResponse>> findAll(
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) UUID customerId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
-        List<ServiceOrderSummaryResponse> response = serviceOrderStatusUseCase.findAll(status, customerId, startDate, endDate);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<List<ServiceOrderSummaryResponse>> findAll() {
+        return ResponseEntity.ok(useCase.findAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ServiceOrderDetailResponse> findById(@PathVariable UUID id) {
-        ServiceOrderDetailResponse response = serviceOrderStatusUseCase.findById(id);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/{id}/approve")
-    public ResponseEntity<ServiceOrderResponse> approve(@PathVariable UUID id) {
-        ServiceOrderResponse response = serviceOrderStatusUseCase.approve(id);
+        ServiceOrderDetailResponse response = useCase.findById(id);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{id}/services")
     public ResponseEntity<Void> addServices(
-            @PathVariable("id") UUID serviceOrderId,
-            @Valid @RequestBody AddServicesToOrderRequest request
-    ) {
-        serviceOrderUseCase.addServicesToOrder(serviceOrderId, request);
+            @PathVariable("id") UUID serviceOrderId, @Valid @RequestBody AddServicesToOrderRequest request) {
+        useCase.addServices(serviceOrderId, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/submit-approval")
+    public ResponseEntity<Void> submitForApproval(@PathVariable UUID id) {
+        useCase.submitOrder(id);
         return ResponseEntity.noContent().build();
     }
 }

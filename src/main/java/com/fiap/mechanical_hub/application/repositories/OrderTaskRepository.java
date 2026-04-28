@@ -8,7 +8,6 @@ import java.util.UUID;
 
 public interface OrderTaskRepository {
     Optional<OrderTask> findById(UUID id);
-    OrderTask save(OrderTask task);
     List<OrderTask> findAll();
     List<OrderTask> findByServiceOrderId(UUID serviceOrderId);
     void deleteById(UUID id);

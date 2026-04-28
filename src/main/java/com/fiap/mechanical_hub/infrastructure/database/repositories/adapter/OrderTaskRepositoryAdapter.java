@@ -26,13 +26,6 @@ public class OrderTaskRepositoryAdapter implements OrderTaskRepository {
     }
 
     @Override
-    public OrderTask save(OrderTask task) {
-        OrderTaskModel entity = OrderTaskMapper.toJpaEntity(task);
-        OrderTaskModel saved = jpaRepository.save(entity);
-        return toDomainEntity(saved);
-    }
-
-    @Override
     public List<OrderTask> findAll() {
         return jpaRepository.findAll().stream()
                 .map(OrderTaskMapper::toDomainEntity)

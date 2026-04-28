@@ -93,4 +93,8 @@ public class ServiceUseCase {
     public void delete(UUID id) {
         serviceRepository.deleteById(id);
     }
+
+    public List<Service> findAll(List<UUID> serviceIds) {
+        return serviceRepository.findByIds(serviceIds);
+    }
 }

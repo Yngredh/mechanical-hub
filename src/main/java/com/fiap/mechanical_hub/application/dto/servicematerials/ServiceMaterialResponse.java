@@ -15,6 +15,5 @@ public class ServiceMaterialResponse {
     private String materialDescription;
     private BigDecimal unitPrice;
     private Integer quantity;
-    private BigDecimal totalCost;
 }
 

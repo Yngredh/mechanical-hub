@@ -4,14 +4,12 @@ import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.dto.customer.UpsertCustomerRequest;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
 import com.fiap.mechanical_hub.application.usecases.CustomerUseCase;
-import com.fiap.mechanical_hub.application.usecases.ServiceOrderStatusUseCase;
+import com.fiap.mechanical_hub.application.usecases.ServiceOrderUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -20,7 +18,7 @@ import java.util.UUID;
 public class CustomerController {
 
     private final CustomerUseCase customerUseCase;
-    private final ServiceOrderStatusUseCase serviceOrderStatusUseCase;
+    private final ServiceOrderUseCase serviceOrderUseCase;
 
     @PostMapping
     public ResponseEntity<CustomerResponse> create(@RequestBody UpsertCustomerRequest request) {
@@ -40,18 +38,21 @@ public class CustomerController {
         return ResponseEntity.ok(customer);
     }
 
+    /*
     @GetMapping("/{id}/orders")
     public ResponseEntity<List<ServiceOrderSummaryResponse>> findOrdersByCustomerId(@PathVariable UUID id) {
-        List<ServiceOrderSummaryResponse> orders = serviceOrderStatusUseCase.findByCustomerId(id);
+        List<ServiceOrderSummaryResponse> orders = serviceOrderUseCase.findByCustomerId(id);
         return ResponseEntity.ok(orders);
     }
 
     //TODO: Revisar endpoint publico para o customer
     @GetMapping("/{id}/order")
     public ResponseEntity<Optional<ServiceOrderSummaryResponse>> findOrderByCustomerId(@PathVariable UUID id) {
-        Optional<ServiceOrderSummaryResponse> order = serviceOrderStatusUseCase.findOrderByCustomerId(id);
+        Optional<ServiceOrderSummaryResponse> order = serviceOrderUseCase.findOrderByCustomerId(id);
         return ResponseEntity.ok(order);
     }
+
+     */
 
     @PutMapping("/{id}")
     public ResponseEntity<CustomerResponse> update(@PathVariable UUID id, @RequestBody UpsertCustomerRequest request) {

@@ -5,8 +5,6 @@ import lombok.Getter;
 @Getter
 public enum TaskStatusEnum {
     PENDENTE("Pendente"),
-    APROVADO("Aprovado"),
-    RECUSADO("Recusado"),
     INICIADO("Iniciado"),
     FINALIZADO("Finalizado");
 

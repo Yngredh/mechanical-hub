@@ -43,6 +43,12 @@ public class ServiceRepositoryAdapter implements ServiceRepository {
     public void deleteById(UUID id) {
         jpaRepository.deleteById(id);
     }
+
+    @Override
+    public List<Service> findByIds(List<UUID> serviceIds) {
+         return jpaRepository.findByIdIn(serviceIds)
+                 .stream().map(ServiceMapper::toDomainEntity).toList();
+    }
 }
 
 

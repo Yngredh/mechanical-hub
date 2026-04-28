@@ -69,21 +69,6 @@ public class ServiceMapper {
     }
 
     public static ServiceResponse toResponse(Service service) {
-        List<ServiceMaterialResponse> materialsResponse = new ArrayList<>();
-
-        if (service.getMaterials() != null) {
-            materialsResponse = service.getMaterials().stream()
-                    .map(sm -> new ServiceMaterialResponse(
-                            sm.getId(),
-                            sm.getMaterial().getName(),
-                            sm.getMaterial().getDescription(),
-                            sm.getMaterial().getUnitPrice(),
-                            sm.getQuantity(),
-                            sm.calculateCost()
-                    ))
-                    .toList();
-        }
-
         return new ServiceResponse(
                 service.getId(),
                 service.getName(),
@@ -91,7 +76,7 @@ public class ServiceMapper {
                 service.getLaborCost(),
                 service.getBasePrice(),
                 service.getTotalPrice(),
-                materialsResponse,
+                service.getMaterials().stream().map(ServiceMaterialMapper::toResponse).toList(),
                 service.isActive(),
                 service.getCreatedAt(),
                 service.getUpdatedAt()

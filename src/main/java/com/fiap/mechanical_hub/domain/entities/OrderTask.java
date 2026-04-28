@@ -15,16 +15,16 @@ public class OrderTask {
 
     private UUID id;
     private UUID serviceOrderId;
-    private UUID serviceId;
+    private Service service;
     private TaskStatusEnum status;
     private LocalDateTime startedAt;
     private LocalDateTime finishedAt;
 
-    public static OrderTask create(UUID serviceOrderId, UUID serviceId) {
+    public static OrderTask create(UUID serviceOrderId, Service service) {
         OrderTask task = new OrderTask();
         task.id = UUID.randomUUID();
         task.serviceOrderId = serviceOrderId;
-        task.serviceId = serviceId;
+        task.service = service;
         task.status = TaskStatusEnum.PENDENTE;
         task.startedAt = null;
         task.finishedAt = null;
@@ -37,22 +37,6 @@ public class OrderTask {
             throw new IllegalStateException("Tarefa precisa estar em status PENDENTE para ser iniciada");
         }
         this.status = TaskStatusEnum.INICIADO;
-        this.startedAt = LocalDateTime.now();
-    }
-
-    public void approve() {
-        if (status != TaskStatusEnum.INICIADO) {
-            throw new IllegalStateException("Tarefa precisa estar em status INICIADO para ser aprovada");
-        }
-        this.status = TaskStatusEnum.APROVADO;
-        this.startedAt = LocalDateTime.now();
-    }
-
-    public void refuse() {
-        if (status != TaskStatusEnum.INICIADO) {
-            throw new IllegalStateException("Tarefa precisa estar em status INICIADO para ser recusada");
-        }
-        this.status = TaskStatusEnum.RECUSADO;
         this.startedAt = LocalDateTime.now();
     }
 

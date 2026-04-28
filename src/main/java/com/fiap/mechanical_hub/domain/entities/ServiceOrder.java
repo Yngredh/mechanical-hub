@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.domain.entities;
 
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
-import com.fiap.mechanical_hub.domain.exceptions.InvalidOrderStatusTransitionException;
+import com.fiap.mechanical_hub.domain.exceptions.InvalidOrderTransitionException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,8 +35,7 @@ public class ServiceOrder {
     private LocalDateTime deliveredAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    @Setter
-    private List<OrderTask> orderTasks;
+    private List<OrderTask> orderTasks = new ArrayList<>();
 
     public static ServiceOrder create(
             UUID vehicleId,
@@ -71,81 +71,79 @@ public class ServiceOrder {
         return order;
     }
 
-    public void receive(String userProfile) {
-        if (!isValidProfileForDiagnosis(userProfile)) {
-            throw new IllegalArgumentException("Apenas Mecânico ou superior pode iniciar a ordem");
-        }
-    }
-
-    public void startDiagnosis(String userProfile) {
-        if (!isValidProfileForDiagnosis(userProfile)) {
-            throw new IllegalArgumentException("Apenas Mecânico ou superior pode iniciar o diagnóstico");
-        }
+    public void startDiagnosis() {
+        validateCurrentStatus(OrderStatusEnum.RECEBIDO);
 
         this.status = OrderStatusEnum.EM_DIAGNOSTICO;
         this.openedAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void submitForApproval() {
+        validateCurrentStatus(OrderStatusEnum.EM_DIAGNOSTICO);
+
+        if (budget == null || budget.equals(BigDecimal.ZERO)) {
+            throw new BusinessRuleException("Order budget not generated");
+        }
+
+        this.status = OrderStatusEnum.AGUARDANDO_APROVACAO;
+    }
+
+    public void approve() {
+        validateCurrentStatus(OrderStatusEnum.AGUARDANDO_APROVACAO);
+
+        this.status = OrderStatusEnum.APROVADO;
+    }
+
+    public void reject() {
+        validateCurrentStatus(OrderStatusEnum.AGUARDANDO_APROVACAO);
+
+        this.status = OrderStatusEnum.RECUSADO;
     }
 
     public void startExecution() {
-        if (status != OrderStatusEnum.EM_DIAGNOSTICO) {
-            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatusEnum.EM_EXECUCAO.getDisplayName());
-        }
+        validateCurrentStatus(OrderStatusEnum.APROVADO);
 
-        if (hasStockPending) {
-            throw new IllegalStateException("Não é possível executar a ordem com pendência de estoque");
-        }
-
+        if (hasStockPending) {throw new InvalidOrderTransitionException("Cannot execute order with pending stock");}
         this.status = OrderStatusEnum.EM_EXECUCAO;
-        this.updatedAt = LocalDateTime.now();
     }
 
-    public void finalize(List<OrderTask> tasks) {
-        if (status != OrderStatusEnum.EM_EXECUCAO) {
-            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatusEnum.FINALIZADO.getDisplayName());
-        }
+    public void finish() {
+        validateCurrentStatus(OrderStatusEnum.EM_EXECUCAO);
 
-        boolean allTasksFinished = tasks != null && !tasks.isEmpty() &&
-                tasks.stream().allMatch(OrderTask::isFinished);
+        boolean allFinished = orderTasks.stream().allMatch(OrderTask::isFinished);
 
-        if (!allTasksFinished) {
-            throw new IllegalStateException("Todos os serviços devem estar finalizados para concluir a ordem");
-        }
+        if (!allFinished) { throw new InvalidOrderTransitionException("Cannot finish order with pending services"); }
 
         this.status = OrderStatusEnum.FINALIZADO;
         this.completedAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public void deliver() {
-        if (status != OrderStatusEnum.FINALIZADO) {
-            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatusEnum.ENTREGUE.getDisplayName());
-        }
+        validateCurrentStatus(OrderStatusEnum.FINALIZADO);
 
         this.status = OrderStatusEnum.ENTREGUE;
         this.deliveredAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
+
+    private void validateCurrentStatus(OrderStatusEnum expected) {
+        if (status != expected) { throw new InvalidOrderTransitionException("Invalid transition from " + status); }
+    }
+
+    public void addTask(OrderTask task) {
+        if (this.orderTasks == null) { this.orderTasks = new ArrayList<>(); }
+        this.orderTasks.add(task);
+    }
+
+    public boolean validateTaskNotDuplicated(UUID serviceId) {
+        return this.orderTasks.stream()
+                .anyMatch(ot -> ot.getService().getId().equals(serviceId));
+    }
+
+    //
 
     public void updateStockPendingStatus(boolean hasStockPending) {
         this.hasStockPending = hasStockPending;
         this.updatedAt = LocalDateTime.now();
-    }
-
-    public void approve() {
-        if (status != OrderStatusEnum.AGUARDANDO_APROVACAO) {
-            throw new InvalidOrderStatusTransitionException(status.getDisplayName(), OrderStatusEnum.APROVADO.getDisplayName());
-        }
-
-        this.status = OrderStatusEnum.APROVADO;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    private boolean isValidProfileForDiagnosis(String userProfile) {
-        return userProfile != null &&
-                (userProfile.equals("Mecânico") ||
-                        userProfile.equals("Gerente") ||
-                        userProfile.equals("Administrador"));
     }
 
     public void isAddingServiceAvailable() {
