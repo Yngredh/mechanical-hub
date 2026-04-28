@@ -78,8 +78,12 @@ public class ServiceOrder {
         this.openedAt = LocalDateTime.now();
     }
 
-    public void sendToApproval() {
+    public void submitForApproval() {
         validateCurrentStatus(OrderStatusEnum.EM_DIAGNOSTICO);
+
+        if (budget == null || budget.equals(BigDecimal.ZERO)) {
+            throw new BusinessRuleException("Order budget not generated");
+        }
 
         this.status = OrderStatusEnum.AGUARDANDO_APROVACAO;
     }

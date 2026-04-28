@@ -3,6 +3,7 @@ package com.fiap.mechanical_hub.application.usecases;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
+import com.fiap.mechanical_hub.application.interfaces.SendBudgetApproval;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
 import com.fiap.mechanical_hub.application.repositories.OrderTaskRepository;
 import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
@@ -26,14 +27,17 @@ public class ServiceOrderUseCase {
 
     private final ServiceOrderRepository repository;
     private final OrderTaskRepository orderTaskRepository;
+
     private final ServiceMaterialUseCase serviceMaterialUseCase;
     private final StockUseCase stockUseCase;
     private final CustomerUseCase customerUseCase;
     private final VehicleUseCase vehicleUseCase;
     private final ServiceUseCase serviceUseCase;
+
     private final OrderNumberGenerator orderNumberGenerator;
     private final ServiceOrderMapper mapper;
     private final OrderStatusTransitionFactory factory;
+    private final SendBudgetApproval sendBudgetApprovalApprovalRequest;
 
     public ServiceOrderResponse create(CreateServiceOrderRequest request, UUID createdByUserId) {
         var customerData = request.getCustomer();
@@ -65,7 +69,7 @@ public class ServiceOrderUseCase {
     }
 
     @Transactional
-    public void addServicesToOrder(UUID serviceOrderId, AddServicesToOrderRequest request) {
+    public void addServices(UUID serviceOrderId, AddServicesToOrderRequest request) {
         log.info("Adding {} services to service order {}", request.serviceIds().size(), serviceOrderId);
 
         ServiceOrder order = repository.findById(serviceOrderId)
@@ -112,12 +116,10 @@ public class ServiceOrderUseCase {
         return repository.save(order);
     }
 
-    public void execute(UUID orderId, OrderStatusEnum targetStatus) {
-
+    public void submitOrder(UUID orderId){
         ServiceOrder order = repository.findById(orderId).orElseThrow();
-
-        factory.get(targetStatus).execute(order);
-
+        order.submitForApproval();
+        sendBudgetApprovalApprovalRequest.sendBudgetApprovalRequest(order);
         repository.save(order);
     }
 
@@ -141,53 +143,20 @@ public class ServiceOrderUseCase {
         return ServiceOrderMapper.toDetailResponse(order, vehicle, customer, services);
     }
 
-    public ServiceOrderResponse approve(UUID serviceOrderId) {
+    public void approve(UUID serviceOrderId) {
         ServiceOrder order = repository.findById(serviceOrderId)
                 .orElseThrow(() -> new NotFoundException("Service order with id " + serviceOrderId + " not found"));
 
-        /*
-        whatsAppMessenger.budgetApprovalReceived(order.getOrderNumber()); //TODO: Implementar lógica de aprovação via WhatsApp
-        order.approve();
-
-         */
-
-        ServiceOrder updatedOrder = repository.save(order);
-
-        var orderTasks = orderTaskRepository.findByServiceOrderId(serviceOrderId);
-        updatedOrder.setOrderTasks(orderTasks);
-
-        return mapper.toResponse(updatedOrder);
+        factory.get(OrderStatusEnum.APROVADO).execute(order);
+        repository.save(order);
     }
 
-    /*
-    @Transactional(readOnly = true)
-    public List<ServiceOrderSummaryResponse> findByCustomerId(UUID customerId) {
+    public void reject(UUID serviceOrderId) {
+        ServiceOrder order = repository.findById(serviceOrderId)
+                .orElseThrow(() -> new NotFoundException("Service order with id " + serviceOrderId + " not found"));
 
-        CustomerResponse customer = customerUseCase.findById(customerId);
-
-        List<ServiceOrder> orders;
-        try {
-            orders = repository.findSummaryByCustomerId(customerId);
-        } catch (Exception e) {
-            throw new RuntimeException("Error retrieving service orders for customer with id " + customerId + ": " + e.getMessage(), e);
-        }
-
-        return orders.stream()
-                .map(ServiceOrderMapper.toSummaryResponse(order))
-                .toList();
+        factory.get(OrderStatusEnum.RECUSADO).execute(order);
+        repository.save(order);
     }
-
-    @Transactional(readOnly = true)
-    public Optional<ServiceOrderSummaryResponse> findOrderByCustomerId(UUID customerId) {
-
-        var customer = customerUseCase.findById(customerId);
-        var vehicle = vehicleUseCase.findById(order.getVehicleId());
-        ServiceOrder order = repository.findById(customerId)
-                .orElseThrow(() -> new NotFoundException("Service order with id " + customerId + " not found"));
-
-        return mapper.toSummaryResponseOptional(order, customer, vehicle);
-    }
-
-     */
 
 }

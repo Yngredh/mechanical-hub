@@ -13,11 +13,8 @@ public class RejectOrderTransition implements OrderStatusTransition {
 
     @Override
     public void execute(ServiceOrder order) {
-
         order.reject();
-
         stockUseCase.restoreReservedItems(order);
-
     }
 
 }

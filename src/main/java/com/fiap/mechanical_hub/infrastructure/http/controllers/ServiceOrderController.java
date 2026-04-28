@@ -21,47 +21,46 @@ import java.util.UUID;
 @Slf4j
 public class ServiceOrderController {
 
-    private final ServiceOrderUseCase serviceOrderUseCase;
+    private final ServiceOrderUseCase useCase;
 
     @PostMapping
     public ResponseEntity<ServiceOrderResponse> create(
             @RequestBody CreateServiceOrderRequest request,
             @AuthenticationPrincipal UserSecurityAdapter userDetails) {
         UUID createdByUserId = userDetails.user().getId();
-        ServiceOrderResponse response = serviceOrderUseCase.create(request, createdByUserId);
+        ServiceOrderResponse response = useCase.create(request, createdByUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<ServiceOrder> updateStatus(@PathVariable UUID id,
-                                                     @RequestBody UpdateOrderStatusRequest request) {
-        ServiceOrder response = serviceOrderUseCase.updateOrderStatus(id, OrderStatusEnum.fromString(request.getStatus()));
+    public ResponseEntity<ServiceOrder> updateStatus(
+            @PathVariable UUID id, @RequestBody UpdateOrderStatusRequest request) {
+        ServiceOrder response = useCase.updateOrderStatus(
+                id, OrderStatusEnum.fromString(request.getStatus()));
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
     public ResponseEntity<List<ServiceOrderSummaryResponse>> findAll() {
-        return ResponseEntity.ok(serviceOrderUseCase.findAll());
+        return ResponseEntity.ok(useCase.findAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ServiceOrderDetailResponse> findById(@PathVariable UUID id) {
-        ServiceOrderDetailResponse response = serviceOrderUseCase.findById(id);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/{id}/approve")
-    public ResponseEntity<ServiceOrderResponse> approve(@PathVariable UUID id) {
-        ServiceOrderResponse response = serviceOrderUseCase.approve(id);
+        ServiceOrderDetailResponse response = useCase.findById(id);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{id}/services")
     public ResponseEntity<Void> addServices(
-            @PathVariable("id") UUID serviceOrderId,
-            @Valid @RequestBody AddServicesToOrderRequest request
-    ) {
-        serviceOrderUseCase.addServicesToOrder(serviceOrderId, request);
+            @PathVariable("id") UUID serviceOrderId, @Valid @RequestBody AddServicesToOrderRequest request) {
+        useCase.addServices(serviceOrderId, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/submit-approval")
+    public ResponseEntity<Void> submitForApproval(@PathVariable UUID id) {
+        useCase.submitOrder(id);
         return ResponseEntity.noContent().build();
     }
 }
