@@ -21,7 +21,7 @@ public class ExternalController {
 
     @PostMapping("/{id}/reject")
     public ResponseEntity<Void> reject(@PathVariable UUID id) {
-        useCase.approve(id);
+        useCase.reject(id);
         return ResponseEntity.noContent().build();
     }
 

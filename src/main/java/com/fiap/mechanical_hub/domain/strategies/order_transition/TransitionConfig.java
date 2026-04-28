@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.domain.strategies.os_status_transition;
+package com.fiap.mechanical_hub.domain.strategies.order_transition;
 
 import com.fiap.mechanical_hub.application.usecases.StockUseCase;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
@@ -22,9 +22,6 @@ public class TransitionConfig {
 
                         OrderStatusEnum.RECUSADO,
                         new RejectOrderTransition(stockUseCase),
-
-                        OrderStatusEnum.EM_EXECUCAO,
-                        new StartExecutionTransition(),
 
                         OrderStatusEnum.FINALIZADO,
                         new FinishOrderTransition(),

@@ -14,5 +14,14 @@ public enum TaskStatusEnum {
         this.displayName = displayName;
     }
 
+    public static TaskStatusEnum fromString(String value) {
+        for (TaskStatusEnum status : TaskStatusEnum.values()) {
+            if (status.displayName.equalsIgnoreCase(value) || status.name().equals(value)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Invalid order status: " + value);
+    }
+
 }
 

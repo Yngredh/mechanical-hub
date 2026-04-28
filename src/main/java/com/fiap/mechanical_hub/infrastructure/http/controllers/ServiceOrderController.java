@@ -2,6 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
+import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
 import com.fiap.mechanical_hub.infrastructure.security.UserSecurityAdapter;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
 import com.fiap.mechanical_hub.application.usecases.ServiceOrderUseCase;
@@ -34,7 +35,7 @@ public class ServiceOrderController {
 
     @PatchMapping("/{id}/status")
     public ResponseEntity<ServiceOrder> updateStatus(
-            @PathVariable UUID id, @RequestBody UpdateOrderStatusRequest request) {
+            @PathVariable UUID id, @RequestBody UpdateStatusRequest request) {
         ServiceOrder response = useCase.updateOrderStatus(
                 id, OrderStatusEnum.fromString(request.getStatus()));
         return ResponseEntity.ok(response);
@@ -63,4 +64,12 @@ public class ServiceOrderController {
         useCase.submitOrder(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/services/{taskId}/status")
+    public ResponseEntity<Void> updateTaskStatus(@PathVariable UUID id, @PathVariable UUID taskId,
+                                                 @RequestBody UpdateStatusRequest request){
+        useCase.updateTaskStatus(id, taskId, TaskStatusEnum.fromString(request.getStatus()));
+        return ResponseEntity.noContent().build();
+    }
+
 }

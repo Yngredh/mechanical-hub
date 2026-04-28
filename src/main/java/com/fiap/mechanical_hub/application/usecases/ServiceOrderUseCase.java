@@ -5,12 +5,12 @@ import com.fiap.mechanical_hub.application.dto.serviceorder.*;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
 import com.fiap.mechanical_hub.application.interfaces.SendBudgetApproval;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
-import com.fiap.mechanical_hub.application.repositories.OrderTaskRepository;
 import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.domain.entities.*;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
+import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
-import com.fiap.mechanical_hub.domain.strategies.os_status_transition.OrderStatusTransitionFactory;
+import com.fiap.mechanical_hub.domain.strategies.order_transition.OrderStatusTransitionFactory;
 import com.fiap.mechanical_hub.shared.utils.OrderNumberGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,6 @@ import java.util.UUID;
 public class ServiceOrderUseCase {
 
     private final ServiceOrderRepository repository;
-    private final OrderTaskRepository orderTaskRepository;
 
     private final ServiceMaterialUseCase serviceMaterialUseCase;
     private final StockUseCase stockUseCase;
@@ -156,6 +155,16 @@ public class ServiceOrderUseCase {
                 .orElseThrow(() -> new NotFoundException("Service order with id " + serviceOrderId + " not found"));
 
         factory.get(OrderStatusEnum.RECUSADO).execute(order);
+        repository.save(order);
+    }
+
+    public void updateTaskStatus(UUID id, UUID taskId, TaskStatusEnum status) {
+        ServiceOrder order = repository.findById(id).orElseThrow();
+        switch (status) {
+            case TaskStatusEnum.INICIADO -> order.startTask(taskId);
+            case TaskStatusEnum.FINALIZADO -> order.finishTask(taskId);
+            default -> throw new IllegalArgumentException("Status não reconhecido para atualização: " + status);
+        }
         repository.save(order);
     }
 
