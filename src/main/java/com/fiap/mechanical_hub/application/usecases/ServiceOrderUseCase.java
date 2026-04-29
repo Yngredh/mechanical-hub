@@ -2,6 +2,7 @@ package com.fiap.mechanical_hub.application.usecases;
 
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
+import com.fiap.mechanical_hub.application.dto.serviceorder.request.ServiceOrderCustomerView;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
 import com.fiap.mechanical_hub.application.interfaces.SendBudgetApproval;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
@@ -166,6 +167,20 @@ public class ServiceOrderUseCase {
             default -> throw new IllegalArgumentException("Status não reconhecido para atualização: " + status);
         }
         repository.save(order);
+    }
+
+    public ServiceOrderCustomerView findByOrderNumber(String orderNumber) {
+        ServiceOrder order = repository.findByOrderNumber(orderNumber)
+                .orElseThrow(() -> new NotFoundException("Ordem de serviço não encontrada com número: " + orderNumber));
+
+        VehicleResponse vehicle = vehicleUseCase.findById(order.getVehicleId());
+        CustomerResponse customer = customerUseCase.findById(order.getCustomerId());
+        List<String> services = order.getOrderTasks()
+                .stream()
+                .map(task -> task.getService().getName())
+                .toList();
+
+        return mapper.toCustomerView(order, vehicle, customer, services);
     }
 
 }

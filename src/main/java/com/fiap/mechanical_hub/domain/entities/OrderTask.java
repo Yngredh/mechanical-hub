@@ -35,7 +35,7 @@ public class OrderTask {
 
     public void start() {
         if (status != TaskStatusEnum.PENDENTE) {
-            throw new BusinessRuleException("Para iniciar uma tarefa, esta precisa estar em PENDENTE");
+            throw new BusinessRuleException("Transição de status não permitida");
         }
 
         this.status = TaskStatusEnum.INICIADO;
@@ -44,7 +44,7 @@ public class OrderTask {
 
     public void finish() {
         if (status != TaskStatusEnum.INICIADO) {
-            throw new BusinessRuleException("Para finalizar uma tarefa, esta precisa em INICIADO");
+            throw new BusinessRuleException("Transição de status não permitida");
         }
 
         this.status = TaskStatusEnum.FINALIZADO;

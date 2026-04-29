@@ -69,4 +69,10 @@ public class ServiceOrderRepositoryAdapter implements ServiceOrderRepository {
                 .toList();
     }
 
+    @Override
+    public Optional<ServiceOrder> findByOrderNumber(String orderNumber) {
+        return jpaRepository.findByOrderNumber(orderNumber)
+                .map(ServiceOrderMapper::toDomainEntity);
+    }
+
 }

@@ -102,7 +102,8 @@ public class ServiceOrder {
     public void startExecution() {
         validateCurrentStatus(OrderStatusEnum.APROVADO);
 
-        if (hasStockPending) { throw new InvalidOrderTransitionException("Cannot execute order with pending stock"); }
+        if (hasStockPending) {
+            throw new InvalidOrderTransitionException("Não é possível executar uma ordem com pendências de estoque"); }
         this.status = OrderStatusEnum.EM_EXECUCAO;
     }
 
@@ -111,7 +112,7 @@ public class ServiceOrder {
 
         boolean allFinished = orderTasks.stream().allMatch(OrderTask::isFinished);
 
-        if (!allFinished) { throw new InvalidOrderTransitionException("Cannot finish order with pending services"); }
+        if (!allFinished) { throw new InvalidOrderTransitionException("Não é possível finalizar ordem, há serviços não finalizados."); }
 
         this.status = OrderStatusEnum.FINALIZADO;
         this.completedAt = LocalDateTime.now();
@@ -151,7 +152,7 @@ public class ServiceOrder {
         if (this.status == OrderStatusEnum.APROVADO) { this.startExecution(); }
     }
 
-    public void finishTask(UUID taskId){
+    public void finishTask(UUID taskId) {
         OrderTask task = findTask(taskId);
         task.finish();
     }

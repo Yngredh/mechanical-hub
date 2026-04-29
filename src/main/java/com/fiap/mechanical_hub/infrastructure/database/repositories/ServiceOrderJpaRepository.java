@@ -19,6 +19,8 @@ public interface ServiceOrderJpaRepository extends JpaRepository<ServiceOrderMod
 
     List<ServiceOrderModel> findAllByOrderByCreatedAtDesc();
 
+    Optional<ServiceOrderModel> findByOrderNumber(String orderNumber);
+
     @Query(value = "SELECT order_number FROM service_orders WHERE order_number LIKE CONCAT('OS-', :yearMonth, '-%') ORDER BY order_number DESC LIMIT 1", nativeQuery = true)
     Optional<String> findLastOrderNumberByYearMonth(@Param("yearMonth") String yearMonth);
 
