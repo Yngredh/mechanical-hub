@@ -1,6 +1,7 @@
 package com.fiap.mechanical_hub.domain.entities;
 
 import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
+import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,16 +35,18 @@ public class OrderTask {
 
     public void start() {
         if (status != TaskStatusEnum.PENDENTE) {
-            throw new IllegalStateException("Tarefa precisa estar em status PENDENTE para ser iniciada");
+            throw new BusinessRuleException("Transição de status não permitida");
         }
+
         this.status = TaskStatusEnum.INICIADO;
         this.startedAt = LocalDateTime.now();
     }
 
     public void finish() {
         if (status != TaskStatusEnum.INICIADO) {
-            throw new IllegalStateException("Task must be in INICIADO status to finish");
+            throw new BusinessRuleException("Transição de status não permitida");
         }
+
         this.status = TaskStatusEnum.FINALIZADO;
         this.finishedAt = LocalDateTime.now();
     }
@@ -51,5 +54,6 @@ public class OrderTask {
     public boolean isFinished() {
         return status == TaskStatusEnum.FINALIZADO;
     }
+
 }
 

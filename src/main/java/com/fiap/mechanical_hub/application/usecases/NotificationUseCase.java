@@ -12,7 +12,7 @@ public class NotificationUseCase {
     private final AlertNotificationTrigger alertNotificationTrigger;
 
     public void sendLowStockAlert(String materialName, Integer minStockQuantity) {
-        String subject = "[ALERTA ESTOQUE] Estoque Baixo para o item {}";
+        String subject = "[ALERTA ESTOQUE] Estoque Baixo para o item %s".formatted(materialName);
         String body = """
     O item de estoque %s está abaixo do estoque mínimo (%d unidades).
 

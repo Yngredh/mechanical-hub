@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.domain.strategies.os_status_transition;
+package com.fiap.mechanical_hub.domain.strategies.order_transition;
 
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 

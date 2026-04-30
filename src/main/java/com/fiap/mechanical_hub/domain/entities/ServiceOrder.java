@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -103,7 +102,8 @@ public class ServiceOrder {
     public void startExecution() {
         validateCurrentStatus(OrderStatusEnum.APROVADO);
 
-        if (hasStockPending) {throw new InvalidOrderTransitionException("Cannot execute order with pending stock");}
+        if (hasStockPending) {
+            throw new InvalidOrderTransitionException("Não é possível executar uma ordem com pendências de estoque"); }
         this.status = OrderStatusEnum.EM_EXECUCAO;
     }
 
@@ -112,7 +112,7 @@ public class ServiceOrder {
 
         boolean allFinished = orderTasks.stream().allMatch(OrderTask::isFinished);
 
-        if (!allFinished) { throw new InvalidOrderTransitionException("Cannot finish order with pending services"); }
+        if (!allFinished) { throw new InvalidOrderTransitionException("Não é possível finalizar ordem, há serviços não finalizados."); }
 
         this.status = OrderStatusEnum.FINALIZADO;
         this.completedAt = LocalDateTime.now();
@@ -139,17 +139,22 @@ public class ServiceOrder {
                 .anyMatch(ot -> ot.getService().getId().equals(serviceId));
     }
 
-    //
-
-    public void updateStockPendingStatus(boolean hasStockPending) {
-        this.hasStockPending = hasStockPending;
-        this.updatedAt = LocalDateTime.now();
+    private OrderTask findTask(UUID taskId){
+        return this.getOrderTasks().stream()
+                .filter(t -> t.getService().getId().equals(taskId))
+                .findFirst()
+                .orElseThrow(() -> new BusinessRuleException("Tarefa não encontrada"));
     }
 
-    public void isAddingServiceAvailable() {
-        if (!this.getStatus().equals(OrderStatusEnum.EM_DIAGNOSTICO)) {
-            throw new BusinessRuleException("Serviços só podem ser adicionados enquanto a OS está em 'Em diagnóstico'.");
-        }
+    public void startTask(UUID taskId){
+        OrderTask task = findTask(taskId);
+        task.start();
+        if (this.status == OrderStatusEnum.APROVADO) { this.startExecution(); }
+    }
+
+    public void finishTask(UUID taskId) {
+        OrderTask task = findTask(taskId);
+        task.finish();
     }
 
     public void updateBudget(BigDecimal newBudget) {
@@ -161,4 +166,11 @@ public class ServiceOrder {
         this.hasStockPending = hasPending;
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void isAddingServiceAvailable() {
+        if (!this.getStatus().equals(OrderStatusEnum.EM_DIAGNOSTICO)) {
+            throw new BusinessRuleException("Serviços só podem ser adicionados enquanto a OS está em 'Em diagnóstico'.");
+        }
+    }
+
 }

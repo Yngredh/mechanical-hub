@@ -1,22 +1,18 @@
 package com.fiap.mechanical_hub.application.mappers;
 
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
-import com.fiap.mechanical_hub.application.dto.serviceorder.OrderTaskResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderDetailResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
+import com.fiap.mechanical_hub.application.dto.serviceorder.request.ServiceOrderCustomerView;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
-import com.fiap.mechanical_hub.domain.entities.OrderTask;
-import com.fiap.mechanical_hub.domain.entities.Service;
-import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
-import com.fiap.mechanical_hub.infrastructure.database.models.OrderTaskModel;
+import com.fiap.mechanical_hub.domain.entities.*;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceOrderModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -73,6 +69,23 @@ public class ServiceOrderMapper {
                 order.getStatus().getDisplayName(),
                 order.isHasStockPending(),
                 order.getCreatedAt()
+        );
+    }
+
+    public static ServiceOrderCustomerView toCustomerView(
+            ServiceOrder order, VehicleResponse vehicle, CustomerResponse customer, List<String> services) {
+        return new ServiceOrderCustomerView(
+                order.getOrderNumber(),
+                customer.getName(),
+                vehicle.getLicensePlate(),
+                vehicle.getModel(),
+                vehicle.getBrand(),
+                order.getStatus(),
+                order.getBudget(),
+                services,
+                order.getOpenedAt(),
+                order.getCompletedAt(),
+                order.getDeliveredAt()
         );
     }
 

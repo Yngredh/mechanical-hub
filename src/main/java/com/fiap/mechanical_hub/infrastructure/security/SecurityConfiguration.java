@@ -35,14 +35,19 @@ public class SecurityConfiguration {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/register").hasRole(administrator)
+                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/mechanical-hub/service-orders/**").permitAll()
+
+                        .requestMatchers("/auth/register").hasRole(administrator)
                         .requestMatchers("/customers/**").hasRole(administrator)
                         .requestMatchers("/vehicles/**").hasRole(administrator)
                         .requestMatchers("/services/**").hasRole(administrator)
                         .requestMatchers("/materials/**").hasRole(administrator)
+                        .requestMatchers("/stock/**").hasRole(administrator)
+                        .requestMatchers("/reports/**").hasRole(administrator)
+                        .requestMatchers(HttpMethod.GET, "/service-orders/**").hasRole(administrator)
+
                         .requestMatchers("/service-orders", "/service-orders/**").hasAnyRole(mechanical, administrator)
-                        .requestMatchers("/mechanical-hub/service-orders/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

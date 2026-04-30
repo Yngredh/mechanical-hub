@@ -13,4 +13,5 @@ public interface ServiceOrderRepository {
     List<ServiceOrder> findAll();
     void deleteById(UUID id);
     List<ServiceOrder> findAllByOrderByCreatedAtDesc();
+    Optional<ServiceOrder> findByOrderNumber(String orderNumber);
 }

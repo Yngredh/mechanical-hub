@@ -20,8 +20,7 @@ public class StockController {
     private final StockUseCase stockUseCase;
 
     @PostMapping("/entry")
-    public ResponseEntity<Void> registerEntry(
-            @Valid @RequestBody StockEntryRequest request) {
+    public ResponseEntity<Void> registerEntry(@Valid @RequestBody StockEntryRequest request) {
         stockUseCase.registerStockEntry(request);
         return ResponseEntity.noContent().build();
     }
