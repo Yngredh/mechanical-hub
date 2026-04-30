@@ -37,7 +37,6 @@ public class ServiceOrderUseCase {
     private final OrderNumberGenerator orderNumberGenerator;
     private final ServiceOrderMapper mapper;
     private final OrderStatusTransitionFactory factory;
-    private final SendBudgetApproval sendBudgetApprovalApprovalRequest;
 
     public ServiceOrderResponse create(CreateServiceOrderRequest request, UUID createdByUserId) {
         var customerData = request.getCustomer();
@@ -96,7 +95,8 @@ public class ServiceOrderUseCase {
 
                 log.info("Reserving {} units of material {} for service {}", quantity, materialId, serviceId);
 
-                hasStockPending = hasStockPending || stockUseCase.reserveMaterial(order, sm.getMaterial(), sm.getQuantity());
+                boolean stockPendingRegistered = stockUseCase.reserveForServiceOrder(order, sm.getMaterial(), sm.getQuantity());
+                if (stockPendingRegistered) hasStockPending = true;
             }
 
             totalBudget = totalBudget.add(service.getTotalPrice());
@@ -114,13 +114,6 @@ public class ServiceOrderUseCase {
         ServiceOrder order = repository.findById(orderId).orElseThrow();
         factory.get(targetStatus).execute(order);
         return repository.save(order);
-    }
-
-    public void submitOrder(UUID orderId){
-        ServiceOrder order = repository.findById(orderId).orElseThrow();
-        order.submitForApproval();
-        sendBudgetApprovalApprovalRequest.sendBudgetApprovalRequest(order);
-        repository.save(order);
     }
 
     public List<ServiceOrderSummaryResponse> findAll() {
@@ -160,7 +153,8 @@ public class ServiceOrderUseCase {
     }
 
     public void updateTaskStatus(UUID id, UUID taskId, TaskStatusEnum status) {
-        ServiceOrder order = repository.findById(id).orElseThrow();
+        ServiceOrder order = repository.findById(id).orElseThrow(
+                () -> new NotFoundException("Ordem de serviço não encontrada"));
         switch (status) {
             case TaskStatusEnum.INICIADO -> order.startTask(taskId);
             case TaskStatusEnum.FINALIZADO -> order.finishTask(taskId);
@@ -180,7 +174,7 @@ public class ServiceOrderUseCase {
                 .map(task -> task.getService().getName())
                 .toList();
 
-        return mapper.toCustomerView(order, vehicle, customer, services);
+        return ServiceOrderMapper.toCustomerView(order, vehicle, customer, services);
     }
 
 }

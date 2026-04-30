@@ -1,6 +1,7 @@
 package com.fiap.mechanical_hub.domain.entities;
 
 import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
+import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -48,19 +49,6 @@ public class Stock {
         return stock;
     }
 
-    public void markAsReserved(Integer quantityToReserve) {
-        if (quantityToReserve > this.quantity) {
-            throw new IllegalArgumentException("Quantidade insuficiente para reserva");
-        }
-        this.status = StockStatusEnum.RESERVED;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public void markAsAvailable() {
-        this.status = StockStatusEnum.AVAILABLE;
-        this.updatedAt = LocalDateTime.now();
-    }
-
     public void addQuantity(Integer quantity) {
         if (quantity < 0) { throw new IllegalArgumentException("Quantidade não pode ser negativa"); }
         this.quantity += quantity;
@@ -75,6 +63,17 @@ public class Stock {
 
     public boolean checkMaterialAvailability(Integer quantity) {
         return this.getStatus().equals(StockStatusEnum.AVAILABLE) && this.quantity < quantity;
+    }
+
+    public void release(int quantity) {
+        if (this.quantity < quantity) {
+            throw new BusinessRuleException("Quantidade reservada insuficiente para liberar o material: " + this.materialId);
+        }
+        this.quantity -= quantity;
+    }
+
+    public void replenish(int quantity) {
+        this.quantity += quantity;
     }
 
 }

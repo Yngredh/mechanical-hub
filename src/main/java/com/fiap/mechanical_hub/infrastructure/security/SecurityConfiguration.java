@@ -43,6 +43,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/vehicles/**").hasRole(administrator)
                         .requestMatchers("/services/**").hasRole(administrator)
                         .requestMatchers("/materials/**").hasRole(administrator)
+                        .requestMatchers("/stock/**").hasRole(administrator)
                         .requestMatchers("/reports/**").hasRole(administrator)
                         .requestMatchers(HttpMethod.GET, "/service-orders/**").hasRole(administrator)
 

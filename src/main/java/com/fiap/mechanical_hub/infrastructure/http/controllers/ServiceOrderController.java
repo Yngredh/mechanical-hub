@@ -59,12 +59,6 @@ public class ServiceOrderController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id}/submit-approval")
-    public ResponseEntity<Void> submitForApproval(@PathVariable UUID id) {
-        useCase.submitOrder(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @PatchMapping("/{id}/services/{taskId}/status")
     public ResponseEntity<Void> updateTaskStatus(@PathVariable UUID id, @PathVariable UUID taskId,
                                                  @RequestBody UpdateStatusRequest request){

@@ -3,6 +3,8 @@ package com.fiap.mechanical_hub.application.usecases;
 import com.fiap.mechanical_hub.application.dto.stock.*;
 import com.fiap.mechanical_hub.application.mappers.StockMapper;
 import com.fiap.mechanical_hub.application.mappers.StockMovementMapper;
+import com.fiap.mechanical_hub.application.repositories.MaterialRepository;
+import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.domain.entities.*;
 import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
@@ -27,93 +29,14 @@ public class StockUseCase {
 
     private final StockMovementRepository stockMovementRepository;
     private final StockRepository stockRepository;
+    private final ServiceOrderRepository serviceOrderRepository;
+    private final MaterialRepository materialRepository;
 
     @Transactional
     public void setStockForNewMaterial(UUID materialId) {
         log.info("Setting stock for new material with ID: {}", materialId);
         Stock stock = Stock.setStockForNewMaterial(materialId);
         stockRepository.save(stock);
-    }
-
-    @Transactional
-    public void registerStockEntry(StockEntryRequest stockEntry) {
-        log.info("Registering stock entry for material ID: {}", stockEntry.materialId());
-
-        Stock stock = stockRepository.findByMaterialIdAndStatus(stockEntry.materialId(), StockStatusEnum.AVAILABLE)
-                .orElseThrow(() -> {
-                    log.error("Stock not found for material ID: {}", stockEntry.materialId());
-                    return new NotFoundException("Estoque não encontrado para o material id: " + stockEntry.materialId());
-                });
-
-        stock.addQuantity(stockEntry.quantity());
-        Stock updatedStock = stockRepository.save(stock);
-        stockMovementUseCase.registerStockEntryMovement(stockEntry);
-
-        log.info("Checking stock pendings for material ID: {}", stockEntry.materialId());
-
-        List<StockPendingItem> pendings = stockPendingUseCase.findMaterialStockPendency(stockEntry.materialId());
-
-        for (StockPendingItem pending : pendings) {
-            int available = updatedStock.getQuantity();
-
-            if (available <= 0) {
-                log.info("No more available stock for material ID: {}, stopping pending resolution", stockEntry.materialId());
-                break;
-            }
-
-            int pendingQuantity = pending.getQuantity();
-            int reservedQuantity = Math.min(available, pendingQuantity);
-
-            log.info("Resolving pending for service order ID: {} | needed: {} | reserving: {}",
-                    pending.getServiceOrderId(), pendingQuantity, reservedQuantity);
-
-            reserve(pending.getServiceOrderId(), pending.getMaterialId(), reservedQuantity, updatedStock, null);
-
-            updatedStock.subtractQuantity(reservedQuantity);
-
-            if (reservedQuantity == pendingQuantity) {
-                stockPendingUseCase.removePendency(pending);
-                // TODO validate if all OS pendency are solved
-                log.info("Pending fully resolved for service order ID: {}", pending.getServiceOrderId());
-            }
-        }
-        log.info("Stock entry registration completed for material ID: {}", stockEntry.materialId());
-    }
-
-
-    private void reserve(UUID serviceOrderId, UUID materialId, Integer reservationQuantity, Stock availableStock, Stock reservedStock) {
-        Stock newAvailableStock = availableStock;
-
-        if (newAvailableStock == null) {
-            newAvailableStock = stockRepository
-                    .findByMaterialIdAndStatus(
-                            materialId,
-                            StockStatusEnum.AVAILABLE
-                    )
-                    .orElseThrow(() ->
-                            new NotFoundException(
-                                    "Estoque não encontrado para o material id: " + materialId
-                            )
-                    );
-        }
-        newAvailableStock.subtractQuantity(reservationQuantity);
-        stockRepository.save(newAvailableStock);
-
-        Stock newReservedStock = reservedStock;
-
-        if (newReservedStock == null) {
-            newReservedStock = stockRepository
-                    .findByMaterialIdAndStatus(materialId, StockStatusEnum.RESERVED)
-                    .orElse(null);
-        }
-
-        if (newReservedStock == null) {
-            newReservedStock = Stock.createReservedStock(materialId, reservationQuantity);
-        } else newReservedStock.addQuantity(reservationQuantity);
-
-        stockRepository.save(newReservedStock);
-
-        stockMovementRepository.save(StockMovement.registerReservation(materialId, serviceOrderId, reservationQuantity));
     }
 
     @Transactional(readOnly = true)
@@ -161,50 +84,123 @@ public class StockUseCase {
     }
 
     @Transactional
-    public boolean reserveMaterial(ServiceOrder order, Material material, Integer quantity) {
-        boolean hasStockPending = false;
+    public void registerStockEntry(StockEntryRequest stockEntry) {
+        log.info("Registering stock entry for material ID: {}", stockEntry.materialId());
+
+        Stock updatedStock = registerMaterialEntry(stockEntry);
+        resolveMaterialPendingIssues(stockEntry.materialId(), updatedStock);
+
+        log.info("Stock entry registration completed for material ID: {}", stockEntry.materialId());
+    }
+
+    public void resolveMaterialPendingIssues(UUID materialId, Stock updatedStock) {
+        log.info("Checking stock pending issues for material ID: {}", materialId);
+        List<StockPendingItem> pendingIssues = stockPendingUseCase.findMaterialStockPendency(materialId);
+
+        for (StockPendingItem pending : pendingIssues) {
+            int available = updatedStock.getQuantity();
+
+            if (available <= 0) {
+                log.info("No more available stock for material ID: {}, stopping pending resolution", materialId);
+                break;
+            }
+
+            int pendingQuantity = pending.getQuantity();
+            int reservedQuantity = Math.min(available, pendingQuantity);
+
+            log.info("Resolving pending for service order ID: {} | needed: {} | reserving: {}",
+                    pending.getServiceOrderId(), pendingQuantity, reservedQuantity);
+
+            executeReservation(pending.getServiceOrderId(), pending.getMaterialId(), reservedQuantity, updatedStock);
+
+            if (reservedQuantity == pendingQuantity) {
+                stockPendingUseCase.removePendency(pending);
+                 Optional<StockPendingItem> otherPendencyForSameOrder = pendingIssues.stream()
+                        .filter(p -> p.getServiceOrderId().equals(
+                                pending.getServiceOrderId()) &&
+                                !p.getId().equals(pending.getId())
+                        )
+                        .findAny();
+                 if (otherPendencyForSameOrder.isEmpty()) {
+                     removeStockPending(pending.getServiceOrderId());
+                 }
+
+                log.info("Pending fully resolved for service order ID: {}", pending.getServiceOrderId());
+            }
+        }
+    }
+
+    private void removeStockPending(UUID orderId) {
+        ServiceOrder order = serviceOrderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("Ordem de serviço não encontrada para o id: " + orderId));
+        order.setHasStockPending(false);
+        serviceOrderRepository.save(order);
+        log.info("Removed stock pending from service order ID: {}", orderId);
+    }
+
+    private Stock registerMaterialEntry(StockEntryRequest stockEntry) {
+        Stock stock = stockRepository.findByMaterialIdAndStatus(stockEntry.materialId(), StockStatusEnum.AVAILABLE)
+                .orElseThrow(() -> {
+                    log.error("Stock not found for material ID: {}", stockEntry.materialId());
+                    return new NotFoundException("Estoque não encontrado para o material id: " + stockEntry.materialId());
+                });
+
+        stock.addQuantity(stockEntry.quantity());
+        Stock updatedStock = stockRepository.save(stock);
+        stockMovementUseCase.registerStockEntryMovement(stockEntry);
+        return updatedStock;
+    }
+
+    private void executeReservation(UUID serviceOrderId, UUID materialId, Integer quantity, Stock availableStock) {
+        availableStock.subtractQuantity(quantity);
+        stockRepository.save(availableStock);
+
+        Stock reservedStock = stockRepository
+                .findByMaterialIdAndStatus(materialId, StockStatusEnum.RESERVED)
+                .orElse(null);
+
+        if (reservedStock == null) {
+            Stock newReservedStock = Stock.createReservedStock(materialId, quantity);
+            stockRepository.save(newReservedStock);
+        } else {
+            reservedStock.addQuantity(quantity);
+            stockRepository.save(reservedStock);
+        }
+
+        validateMinimumStock(materialRepository.findById(materialId).orElse(null), availableStock);
+
+        stockMovementRepository.save(StockMovement.registerReservation(materialId, serviceOrderId, quantity));
+    }
+
+
+    @Transactional
+    public boolean reserveForServiceOrder(ServiceOrder order, Material material, Integer quantity) {
         UUID materialId = material.getId();
         UUID serviceOrderId = order.getId();
 
-        log.info("Checking stock availability for material {} for service order {}", materialId, serviceOrderId);
-        List<Stock> stockRegister = stockRepository.findAllByMaterialId(materialId);
+        log.info("Checking stock availability: material {} | order {}", materialId, serviceOrderId);
 
-        Optional<Stock> availableStock = stockRegister.stream().findAny().filter(
-                register -> register.getStatus() == StockStatusEnum.AVAILABLE);
+        Stock availableStock = stockRepository
+                .findByMaterialIdAndStatus(materialId, StockStatusEnum.AVAILABLE)
+                .orElse(null);
 
-        if (availableStock.isEmpty() || availableStock.get().checkMaterialAvailability(quantity)) {
-            log.warn("No available stock found for material ID: {}", materialId);
+        if (availableStock == null || availableStock.checkMaterialAvailability(quantity)) {
+            log.warn("Insufficient stock for material {}: creating pendency", materialId);
             stockPendingUseCase.createStockPendency(order, material, quantity);
             return true;
         }
 
-        log.info("Reserving {} units of material {} for service order {}", quantity, materialId, serviceOrderId);
+        log.info("Reserving {} units of material {} for order {}", quantity, materialId, serviceOrderId);
 
-        availableStock.get().subtractQuantity(quantity);
-        Stock aftersaveStock = stockRepository.save(availableStock.get());
-        validateMinimumStock(material, aftersaveStock);
+        executeReservation(serviceOrderId, materialId, quantity, availableStock);
+        validateMinimumStock(material, availableStock);
 
-        Optional<Stock> reservedStock =  stockRegister.stream().findAny().filter(
-                register -> register.getStatus() == StockStatusEnum.RESERVED);
-
-        if (reservedStock.isEmpty()) {
-            Stock newReservedStock = Stock.createReservedStock(materialId, quantity);
-            stockRepository.save(newReservedStock);
-            return hasStockPending;
-        }
-
-        reservedStock.get().addQuantity(quantity);
-
-        stockRepository.save(reservedStock.get());
-
-        stockMovementUseCase.registerStockReservationMovement(materialId, serviceOrderId, quantity);
-
-        log.info("Successfully reserved stock for service order {}", serviceOrderId);
-        return hasStockPending;
+        log.info("Reservation completed: material {} | order {}", materialId, serviceOrderId);
+        return false;
     }
 
     private void validateMinimumStock(Material material, Stock stock) {
-        if (stock == null || stock.getStatus() != StockStatusEnum.AVAILABLE) { return; }
+        if (material == null || stock == null || stock.getStatus() != StockStatusEnum.AVAILABLE) { return; }
 
         if (stock.getQuantity() <= material.getMinStockQuantity()) {
             log.warn("Material {} has stock below minimum. Available: {}, Minimum: {}",
@@ -214,7 +210,34 @@ public class StockUseCase {
         }
     }
 
+    @Transactional
     public void restoreReservedItems(ServiceOrder order) {
-        // TODO
+        log.info("Restoring reserved stock items for order {}", order.getId());
+
+        List<OrderTask> tasks = order.getOrderTasks();
+
+        for (OrderTask task : tasks) {
+            List<ServiceMaterial> materials = task.getService().getMaterials();
+
+            for (ServiceMaterial sm : materials) {
+                Stock reservedStock = stockRepository.findByMaterialIdAndStatus(
+                        sm.getMaterial().getId(), StockStatusEnum.RESERVED)
+                        .orElseThrow(() -> new NotFoundException("Estoque reservado não encontrado para o material: " + sm.getMaterial().getId()));
+
+                reservedStock.release(sm.getQuantity());
+                stockRepository.save(reservedStock);
+
+                Stock availableStock = stockRepository.findByMaterialIdAndStatus(
+                        sm.getMaterial().getId(), StockStatusEnum.AVAILABLE)
+                        .orElseThrow(() -> new NotFoundException("Estoque disponível não encontrado para o material: " + sm.getMaterial().getId()));
+
+                availableStock.replenish(sm.getQuantity());
+                stockRepository.save(availableStock);
+
+                stockMovementUseCase.registerStockReturnMovement(sm.getMaterial().getId(), order.getId(), sm.getQuantity());
+
+                log.info("Restored {} units of material {} from order {}", sm.getQuantity(), sm.getMaterial().getId(), order.getId());
+            }
+        }
     }
 }

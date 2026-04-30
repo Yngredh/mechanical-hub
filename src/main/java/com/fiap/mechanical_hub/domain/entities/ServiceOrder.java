@@ -141,9 +141,9 @@ public class ServiceOrder {
 
     private OrderTask findTask(UUID taskId){
         return this.getOrderTasks().stream()
-                .filter(t -> t.getId().equals(taskId))
+                .filter(t -> t.getService().getId().equals(taskId))
                 .findFirst()
-                .orElseThrow(() -> new BusinessRuleException("Task not found"));
+                .orElseThrow(() -> new BusinessRuleException("Tarefa não encontrada"));
     }
 
     public void startTask(UUID taskId){
