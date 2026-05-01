@@ -1,10 +1,10 @@
-# Mechanical Hub
+# 🔧 Mechanical Hub
 
 Sistema de Gestão de Oficina Mecânica — automatiza o atendimento ao cliente, o ciclo completo das Ordens de Serviço, o controle de estoque de peças e insumos, e gera métricas de execução.
 
 ---
 
-## Sumário
+## 📋 Sumário
 
 - [Visão Geral](#visão-geral)
 - [Tecnologias](#tecnologias)
@@ -24,7 +24,7 @@ Sistema de Gestão de Oficina Mecânica — automatiza o atendimento ao cliente,
 
 ---
 
-## Visão Geral
+## 💡 Visão Geral
 
 O Mechanical Hub resolve os problemas de uma oficina mecânica que opera com anotações manuais e planilhas isoladas:
 
@@ -36,7 +36,7 @@ O Mechanical Hub resolve os problemas de uma oficina mecânica que opera com ano
 
 ---
 
-## Tecnologias
+## 🛠️ Tecnologias
 
 | Camada | Tecnologia |
 |---|---|
@@ -50,40 +50,13 @@ O Mechanical Hub resolve os problemas de uma oficina mecânica que opera com ano
 
 ---
 
-## Arquitetura
+## 🏗️ Arquitetura
 
-O projeto segue **Arquitetura em Camadas** com influência de **Clean Architecture / Ports and Adapters**:
-
-```
-src/main/java/com/fiap/mechanical_hub/
-├── domain/             # Entidades, enums, exceções e interfaces de repositório
-│   ├── entities/       # Modelos de domínio ricos com regras de negócio
-│   ├── enums/          # Status de OS, tarefas, estoque, documentos
-│   ├── exceptions/     # Exceções de domínio (ex: InvalidDocumentException)
-│   └── repositories/   # Interfaces (contratos)
-│
-├── application/        # Casos de uso, DTOs e mappers
-│   ├── usecases/       # Orquestração da lógica de aplicação
-│   ├── dto/            # Request e Response objects
-│   └── mappers/        # Conversão entidade ↔ DTO
-│
-├── infrastructure/     # Detalhes técnicos e adaptadores
-│   ├── database/       # JPA entities, repositórios JPA, adaptadores de repositório
-│   ├── http/           # Controllers REST, filtros de segurança, config
-│   └── integrations/   # E-mail, WhatsApp
-│
-└── shared/             # Utilitários (validadores, formatadores, gerador de número OS)
-```
-
-**Princípios:**
-- O domínio não depende de nenhuma outra camada.
-- A aplicação depende apenas do domínio.
-- Controllers são finos — nenhuma regra de negócio neles.
-- Regras de negócio vivem dentro das entidades de domínio.
+- [Estrutura do Projeto](src/docs/rules/rules.md#project-structure)
 
 ---
 
-## Regras de Negócio
+## 📖 Regras de Negócio
 
 - [Regras de Negócio](src/docs/spec/mechanical_hub_spec.md#regras-de-negócio)
 - [Linguagem Ubíqua](src/docs/spec/mechanical_hub_spec.md#linguagem-ubíqua)
@@ -92,20 +65,20 @@ src/main/java/com/fiap/mechanical_hub/
 
 ---
 
-## Entidades do Domínio
+## 🗃️ Entidades do Domínio
 
 - [Modelagem de Dados](src/docs/spec/mechanical-hub-data-model.md)
 
 ---
 
-## Pré-requisitos
+## ✅ Pré-requisitos
 
 - Executar via contêiner - [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/)
 - Executar Localmente - JDK 21 + Maven 3.9+ + PostgreSQL 16
 
 ---
 
-## Configuração de Ambiente
+## ⚙️ Configuração de Ambiente
 
 Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 
@@ -121,9 +94,9 @@ JWT_EXPIRATION_MS=3600000
 
 ---
 
-## Como Executar
+## 🚀 Como Executar
 
-### Com Docker (recomendado)
+### 🐳 Com Docker (recomendado)
 
 ```bash
 # 1. Clone o repositório
@@ -147,7 +120,7 @@ Para parar e remover o volume do banco (dados serão apagados):
 docker compose down -v
 ```
 
-### Localmente (sem Docker)
+### 💻 Localmente (sem Docker)
 
 **1. Suba apenas o banco com Docker:**
 ```bash
@@ -161,7 +134,7 @@ export DB_PORT=5432
 export DB_NAME=mechanical_hub_db
 export DB_USER=admin
 export DB_PASSWORD=PmN2iDvdNz
-export JWT_SECRET=minha-chave-secreta-para-jwt-mechanical-hub-2026
+export JWT_SECRET=minha-chave-jwt-mechanical-hub
 export JWT_EXPIRATION_MS=3600000
 ```
 
@@ -183,20 +156,20 @@ java -jar target/mechanical-hub-0.0.1-SNAPSHOT.jar
 
 ---
 
-## Usuários Padrão
+## 👤 Usuários Padrão
 
 O Flyway cria automaticamente dois usuários na primeira execução (migration `V15`):
 
-| Perfil | E-mail                         | Senha         |
-|---|--------------------------------|---------------|
-| Administrador | `admin@mechanicalhub.com`      | consultar PDF |
-| Mecânico | `mecanico@mechanicalhub.com`   | consultar PDF |
+| Perfil | E-mail | Senha |
+|---|---|---|
+| Administrador | `admin@mechanicalhub.com` | consultar PDF |
+| Mecânico | `mecanico@mechanicalhub.com` | consultar PDF |
 
 > Use o endpoint `POST /auth/login` para obter o token JWT e incluí-lo no header `Authorization: Bearer <token>` nas demais requisições.
 
 ---
 
-## Documentação da API
+## 📚 Documentação da API
 
 Com a aplicação rodando, acesse o Swagger UI:
 
@@ -211,7 +184,7 @@ http://localhost:8080/v3/api-docs
 
 ---
 
-## Como Testar o Projeto
+## 🧪 Como Testar o Projeto
 
 ### Fluxo completo passo a passo
 
@@ -433,7 +406,7 @@ GET /mechanical-hub/service-orders/OS-202604-0001
 
 ---
 
-### Cenário de teste: Recusa de orçamento e retorno de estoque
+### ❌ Cenário de teste: Recusa de orçamento e retorno de estoque
 
 1. Siga os passos 1–8 acima.
 2. No lugar de aprovar, **recuse** o orçamento:
@@ -447,7 +420,7 @@ GET /mechanical-hub/service-orders/OS-202604-0001
 
 ---
 
-### Cenário de teste: Pendência de estoque
+### ⚠️ Cenário de teste: Pendência de estoque
 
 1. Crie um serviço com material.
 2. **Não** dê entrada em estoque (quantidade = 0).
@@ -462,7 +435,7 @@ GET /mechanical-hub/service-orders/OS-202604-0001
 
 ---
 
-### Testes automatizados
+### 🤖 Testes automatizados
 
 Execute os testes com Maven:
 
