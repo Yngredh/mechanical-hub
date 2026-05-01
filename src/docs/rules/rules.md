@@ -1,4 +1,4 @@
-principles:
+# principles:
 
   - ALWAYS use Rich Domain Model
   - ALWAYS enforce business rules inside domain
@@ -12,7 +12,7 @@ principles:
 
   - Code must be readable, cohesive and maintainable
 
-project structure:
+# project structure:
 src/
 ├── domain/
 │   ├── entities/
@@ -54,7 +54,7 @@ src/
 └── main/
     └── Application.java
 
-contexts:
+# contexts:
 
   service-order:
     type: core
@@ -71,7 +71,7 @@ contexts:
   notification:
     type: generic
 
-architecture:
+# architecture:
 
   layers:
 
@@ -96,14 +96,14 @@ architecture:
         - controllers
         - DTOs
 
-rules:
+# rules:
 
   - domain must not depend on any other layer
   - application depends only on domain
   - infrastructure depends on domain and application
   - controllers must be thin (no business logic)
 
-domain_model:
+# domain_model:
 
   - entities MUST contain behavior
 
@@ -123,7 +123,7 @@ domain_model:
       - Document
       - LicensePlate
 
-business_rules:
+# business_rules:
 
   - cannot_execute_order_with_pending_stock
 
@@ -138,7 +138,7 @@ business_rules:
 
   - starting_service_sets_order_to_in_progress
 
-state_machine:
+# state_machine:
 
   RECEIVED:
     can_transition_to: [IN_DIAGNOSIS]
@@ -162,7 +162,7 @@ state_machine:
   FINISHED:
     can_transition_to: [DELIVERED]
 
-use_cases:
+# use_cases:
 
   - create_service_order
 
@@ -176,7 +176,7 @@ use_cases:
 
   - replenish_stock
 
-patterns:
+# patterns:
 
   required:
     - Repository
@@ -194,7 +194,7 @@ patterns:
     - FatController
     - BusinessLogicInDTO
 
-integration:
+# integration:
 
   - external systems MUST be isolated
 
@@ -206,7 +206,7 @@ integration:
 
   - use domain events for integrations
 
-testing:
+# testing:
 
   focus:
     - business rules
@@ -223,7 +223,7 @@ testing:
 
     - correct_budget_calculation
 
-clean_code:
+# clean_code:
 
   naming:
     - use ubiquitous language
@@ -241,7 +241,7 @@ clean_code:
     - use explicit exceptions
     - never fail silently
 
-ai_execution:
+# ai_execution:
 
   before_generating_code:
 
@@ -271,7 +271,7 @@ ai_execution:
 
     - validate transaction safety
 
-anti_patterns:
+# anti_patterns:
 
   - anemic_domain_model
   - business_logic_in_controller
