@@ -3,7 +3,7 @@ package com.fiap.mechanical_hub.application.dto.serviceorder;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
-import com.fiap.mechanical_hub.domain.entities.Service;
+import com.fiap.mechanical_hub.domain.entities.ServiceData;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,7 +19,7 @@ public record ServiceOrderDetailResponse(
         String requestDescription,
         BigDecimal budget,
         Boolean hasStockPending,
-        List<Service> services,
+        List<ServiceData> serviceData,
         List<OrderTask> orderTasks,
         LocalDateTime createdAt
 ) {}

@@ -1,27 +1,27 @@
 # Mechanical Hub
 
-Mechanical Hub automates customer service and mechanical service execution processes, eliminating the use of manual note-taking and isolated spreadsheets.
+Mechanical Hub automates customer serviceData and mechanical serviceData execution processes, eliminating the use of manual note-taking and isolated spreadsheets.
 
 ---
 
 # Goal
 
-The goal of the MVP is to cover the complete lifecycle of Service Orders, including inventory control of parts and supplies, automation of quotes, and generation of execution time metrics by service type.
+The goal of the MVP is to cover the complete lifecycle of Service Orders, including inventory control of parts and supplies, automation of quotes, and generation of execution time metrics by serviceData type.
 
 - **Service Order Management** — Complete cycle: opening, diagnosis, approval, execution, completion, and delivery.
 - **Inventory Control** — Entry, automatic reservation per order, stock status tracking (`available` / `reserved`), pending item registry, notifications of minimum stock reached, and automatic resolution of pending items.
-- **Automated Quotation** — Automatic calculation based on services, parts, and labor included in the order.
-- **Execution Metrics** — Report of average execution time by service type.
+- **Automated Quotation** — Automatic calculation based on serviceData, parts, and labor included in the order.
+- **Execution Metrics** — Report of average execution time by serviceData type.
 
 ---
 
 # The Problem
 
-The current process for vehicle service, diagnosis, repair, and delivery is disorganized, relying on manual notes and spreadsheets, leading to the following problems:
+The current process for vehicle serviceData, diagnosis, repair, and delivery is disorganized, relying on manual notes and spreadsheets, leading to the following problems:
 
-- Errors in prioritizing service requests
+- Errors in prioritizing serviceData requests
 - Failures in parts and supplies control
-- Difficulty in tracking service status in real time
+- Difficulty in tracking serviceData status in real time
 - Loss of customer and vehicle history
 - Inefficiency in the flow of quotes and authorizations
 
@@ -249,7 +249,7 @@ Ao cadastrar um material, um registro inicial é criado em `stock` com `quantity
 | `order_status` | Enum de status das ordens de serviço |
 | `service_status` | Enum de status dos serviços dentro de uma OS |
 | `service_orders` | Ordens de serviço |
-| `services` | Catálogo de serviços disponíveis |
+| `serviceData` | Catálogo de serviços disponíveis |
 | `order_services` | Relacionamento OS ↔ Serviço (status e timestamps) |
 | `service_materials` | Relacionamento Serviço ↔ Material (quantidade) |
 | `materials` | Peças e insumos |
@@ -264,23 +264,23 @@ Ao cadastrar um material, um registro inicial é criado em `stock` com `quantity
 ## Ordens de Serviço
 | Método | Rota | Descrição | Perfil |
 |---|---|---|---|
-| `POST` | `/service-orders` | Criar OS (cria cliente/veículo se necessário) | Admin |
-| `GET` | `/service-orders` | Listar OS com filtros | Admin |
-| `GET` | `/service-orders/:id` | Detalhar OS | Admin |
-| `PATCH` | `/service-orders/:id/status` | Atualizar status da OS | Mecânico |
-| `POST` | `/service-orders/:id/services` | Adicionar serviços à OS | Mecânico |
-| `POST` | `/service-orders/:id/approve` | Aprovar OS (cliente) | — |
-| `POST` | `/service-orders/:id/reject` | Recusar OS (cliente) | — |
+| `POST` | `/serviceData-orders` | Criar OS (cria cliente/veículo se necessário) | Admin |
+| `GET` | `/serviceData-orders` | Listar OS com filtros | Admin |
+| `GET` | `/serviceData-orders/:id` | Detalhar OS | Admin |
+| `PATCH` | `/serviceData-orders/:id/status` | Atualizar status da OS | Mecânico |
+| `POST` | `/serviceData-orders/:id/serviceData` | Adicionar serviços à OS | Mecânico |
+| `POST` | `/serviceData-orders/:id/approve` | Aprovar OS (cliente) | — |
+| `POST` | `/serviceData-orders/:id/reject` | Recusar OS (cliente) | — |
 
 ## Serviços
 | Método | Rota | Descrição | Perfil |
 |---|---|---|---|
-| `POST` | `/services` | Cadastrar serviço | Admin |
-| `GET` | `/services` | Listar serviços | Admin |
-| `PUT` | `/services/:id` | Editar serviço | Admin |
-| `DELETE` | `/services/:id` | Remover serviço | Admin |
-| `PATCH` | `/order-services/:id/status` | Atualizar status do serviço na OS | Mecânico |
-| `GET` | `/services/report/execution-time` | Relatório de tempo médio de execução | Admin |
+| `POST` | `/serviceData` | Cadastrar serviço | Admin |
+| `GET` | `/serviceData` | Listar serviços | Admin |
+| `PUT` | `/serviceData/:id` | Editar serviço | Admin |
+| `DELETE` | `/serviceData/:id` | Remover serviço | Admin |
+| `PATCH` | `/order-serviceData/:id/status` | Atualizar status do serviço na OS | Mecânico |
+| `GET` | `/serviceData/report/execution-time` | Relatório de tempo médio de execução | Admin |
 
 ## Clientes e Veículos
 | Método | Rota | Descrição | Perfil |

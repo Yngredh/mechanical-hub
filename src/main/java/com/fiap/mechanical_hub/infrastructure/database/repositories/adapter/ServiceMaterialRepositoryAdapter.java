@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 import com.fiap.mechanical_hub.application.mappers.ServiceMapper;
 import com.fiap.mechanical_hub.application.mappers.ServiceMaterialMapper;
 import com.fiap.mechanical_hub.application.repositories.ServiceMaterialRepository;
-import com.fiap.mechanical_hub.domain.entities.Service;
+import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceMaterialJpaRepository;
@@ -24,8 +24,8 @@ public class ServiceMaterialRepositoryAdapter implements ServiceMaterialReposito
     }
 
     @Override
-    public ServiceMaterial save(ServiceMaterial entity, Service service) {
-        ServiceMaterialModel saved = jpaRepository.save(toJpaEntity(entity, ServiceMapper.toJpaEntity(service)));
+    public ServiceMaterial save(ServiceMaterial entity, ServiceData serviceData) {
+        ServiceMaterialModel saved = jpaRepository.save(toJpaEntity(entity, ServiceMapper.toJpaEntity(serviceData)));
         return toDomainEntity(saved);
     }
 

@@ -1,9 +1,8 @@
 package com.fiap.mechanical_hub.application.mappers;
 
-import com.fiap.mechanical_hub.application.dto.servicematerials.ServiceMaterialResponse;
 import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.domain.entities.Material;
-import com.fiap.mechanical_hub.domain.entities.Service;
+import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
@@ -17,7 +16,7 @@ public class ServiceMapper {
 
     private ServiceMapper() {}
 
-    public static Service toDomainEntity(ServiceModel model) {
+    public static ServiceData toDomainEntity(ServiceModel model) {
         List<ServiceMaterial> materials = new ArrayList<>();
 
         if (model.getMaterials() != null) {
@@ -29,7 +28,7 @@ public class ServiceMapper {
                     .toList();
         }
 
-        return new Service(
+        return new ServiceData(
                 model.getId(),
                 model.getName(),
                 model.getDescription(),
@@ -43,20 +42,20 @@ public class ServiceMapper {
         );
     }
 
-    public static ServiceModel toJpaEntity(Service service) {
+    public static ServiceModel toJpaEntity(ServiceData serviceData) {
         ServiceModel model = new ServiceModel();
 
-        model.setId(service.getId());
-        model.setName(service.getName());
-        model.setDescription(service.getDescription());
-        model.setLaborCost(service.getLaborCost());
-        model.setBasePrice(service.getBasePrice());
-        model.setTotalPrice(service.getTotalPrice());
-        model.setCreatedAt(service.getCreatedAt());
-        model.setUpdatedAt(service.getUpdatedAt());
-        model.setActive(service.isActive());
+        model.setId(serviceData.getId());
+        model.setName(serviceData.getName());
+        model.setDescription(serviceData.getDescription());
+        model.setLaborCost(serviceData.getLaborCost());
+        model.setBasePrice(serviceData.getBasePrice());
+        model.setTotalPrice(serviceData.getTotalPrice());
+        model.setCreatedAt(serviceData.getCreatedAt());
+        model.setUpdatedAt(serviceData.getUpdatedAt());
+        model.setActive(serviceData.isActive());
 
-        for (ServiceMaterial item : service.getMaterials()) {
+        for (ServiceMaterial item : serviceData.getMaterials()) {
             ServiceMaterialModel child = new ServiceMaterialModel();
             child.setId(item.getId());
             child.setMaterial(MaterialMapper.toJpaEntity(item.getMaterial()));
@@ -68,18 +67,18 @@ public class ServiceMapper {
         return model;
     }
 
-    public static ServiceResponse toResponse(Service service) {
+    public static ServiceResponse toResponse(ServiceData serviceData) {
         return new ServiceResponse(
-                service.getId(),
-                service.getName(),
-                service.getDescription(),
-                service.getLaborCost(),
-                service.getBasePrice(),
-                service.getTotalPrice(),
-                service.getMaterials().stream().map(ServiceMaterialMapper::toResponse).toList(),
-                service.isActive(),
-                service.getCreatedAt(),
-                service.getUpdatedAt()
+                serviceData.getId(),
+                serviceData.getName(),
+                serviceData.getDescription(),
+                serviceData.getLaborCost(),
+                serviceData.getBasePrice(),
+                serviceData.getTotalPrice(),
+                serviceData.getMaterials().stream().map(ServiceMaterialMapper::toResponse).toList(),
+                serviceData.isActive(),
+                serviceData.getCreatedAt(),
+                serviceData.getUpdatedAt()
         );
     }
 }

@@ -1,15 +1,18 @@
 package com.fiap.mechanical_hub.application.usecases;
 
-import com.fiap.mechanical_hub.application.dto.stock.*;
+import com.fiap.mechanical_hub.application.dto.stock.StockDetailResponse;
+import com.fiap.mechanical_hub.application.dto.stock.StockEntryRequest;
+import com.fiap.mechanical_hub.application.dto.stock.StockMovementResponse;
+import com.fiap.mechanical_hub.application.dto.stock.StockSummaryResponse;
 import com.fiap.mechanical_hub.application.mappers.StockMapper;
 import com.fiap.mechanical_hub.application.mappers.StockMovementMapper;
 import com.fiap.mechanical_hub.application.repositories.MaterialRepository;
 import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
+import com.fiap.mechanical_hub.application.repositories.StockMovementRepository;
+import com.fiap.mechanical_hub.application.repositories.StockRepository;
 import com.fiap.mechanical_hub.domain.entities.*;
 import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
-import com.fiap.mechanical_hub.application.repositories.StockMovementRepository;
-import com.fiap.mechanical_hub.application.repositories.StockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -193,7 +196,6 @@ public class StockUseCase {
         log.info("Reserving {} units of material {} for order {}", quantity, materialId, serviceOrderId);
 
         executeReservation(serviceOrderId, materialId, quantity, availableStock);
-        validateMinimumStock(material, availableStock);
 
         log.info("Reservation completed: material {} | order {}", materialId, serviceOrderId);
         return false;
@@ -217,7 +219,7 @@ public class StockUseCase {
         List<OrderTask> tasks = order.getOrderTasks();
 
         for (OrderTask task : tasks) {
-            List<ServiceMaterial> materials = task.getService().getMaterials();
+            List<ServiceMaterial> materials = task.getServiceData().getMaterials();
 
             for (ServiceMaterial sm : materials) {
                 Stock reservedStock = stockRepository.findByMaterialIdAndStatus(

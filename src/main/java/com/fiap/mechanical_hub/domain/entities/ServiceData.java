@@ -1,7 +1,9 @@
 package com.fiap.mechanical_hub.domain.entities;
 
 import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -9,7 +11,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
-public class Service {
+@NoArgsConstructor(force = true)
+@Builder
+public class ServiceData {
 
     private final UUID id;
     private String name;
@@ -22,8 +26,8 @@ public class Service {
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public Service(UUID id, String name, String description, BigDecimal laborCost, BigDecimal basePrice,
-                   BigDecimal totalPrice, List<ServiceMaterial> materials, boolean active, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public ServiceData(UUID id, String name, String description, BigDecimal laborCost, BigDecimal basePrice,
+                       BigDecimal totalPrice, List<ServiceMaterial> materials, boolean active, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -36,17 +40,17 @@ public class Service {
         this.updatedAt = updatedAt;
     }
 
-    public static Service create(String name, String description, BigDecimal laborCost,
-                                 BigDecimal basePrice, List<ServiceMaterial> materials) {
-        Service service = new Service(
+    public static ServiceData create(String name, String description, BigDecimal laborCost,
+                                     BigDecimal basePrice, List<ServiceMaterial> materials) {
+        ServiceData serviceData = new ServiceData(
                 UUID.randomUUID(), name, description, laborCost, basePrice,BigDecimal.ZERO, materials, true,
                 LocalDateTime.now(), LocalDateTime.now()
         );
 
-        service.validateInputs();
-        service.recalculateTotalPrice();
+        serviceData.validateInputs();
+        serviceData.recalculateTotalPrice();
 
-        return service;
+        return serviceData;
     }
 
     public void update(

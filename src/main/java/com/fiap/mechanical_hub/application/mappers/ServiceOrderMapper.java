@@ -45,7 +45,7 @@ public class ServiceOrderMapper {
             ServiceOrder serviceOrder,
             VehicleResponse vehicle,
             CustomerResponse customer,
-            List<Service> services
+            List<ServiceData> serviceData
     ) {
         return new ServiceOrderDetailResponse(
                 serviceOrder.getId(),
@@ -56,7 +56,7 @@ public class ServiceOrderMapper {
                 serviceOrder.getRequestDescription(),
                 serviceOrder.getBudget(),
                 serviceOrder.isHasStockPending(),
-                services,
+                serviceData,
                 serviceOrder.getOrderTasks(),
                 serviceOrder.getCreatedAt()
         );

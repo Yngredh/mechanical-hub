@@ -4,7 +4,6 @@ import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
 import com.fiap.mechanical_hub.application.dto.serviceorder.request.ServiceOrderCustomerView;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
-import com.fiap.mechanical_hub.application.interfaces.SendBudgetApproval;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
 import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.domain.entities.*;
@@ -15,12 +14,13 @@ import com.fiap.mechanical_hub.domain.strategies.order_transition.OrderStatusTra
 import com.fiap.mechanical_hub.shared.utils.OrderNumberGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-@org.springframework.stereotype.Service
+@Service
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
@@ -83,7 +83,7 @@ public class ServiceOrderUseCase {
         for (UUID serviceId : request.serviceIds()) {
             if (order.validateTaskNotDuplicated(serviceId)) break;
 
-            Service service = serviceUseCase.findServiceById(serviceId);
+            ServiceData serviceData = serviceUseCase.findServiceById(serviceId);
 
             log.info("Processing service {} for order {}", serviceId, serviceOrderId);
 
@@ -99,8 +99,8 @@ public class ServiceOrderUseCase {
                 if (stockPendingRegistered) hasStockPending = true;
             }
 
-            totalBudget = totalBudget.add(service.getTotalPrice());
-            order.addTask(OrderTask.create(order.getId(), service));
+            totalBudget = totalBudget.add(serviceData.getTotalPrice());
+            order.addTask(OrderTask.create(order.getId(), serviceData));
         }
 
         order.updateBudget(totalBudget);
@@ -128,12 +128,12 @@ public class ServiceOrderUseCase {
 
         VehicleResponse vehicle = vehicleUseCase.findById(order.getVehicleId());
         CustomerResponse customer = customerUseCase.findById(order.getCustomerId());
-         List<Service> services = order.getOrderTasks()
+         List<ServiceData> serviceData = order.getOrderTasks()
                  .stream()
-                 .map(OrderTask::getService)
+                 .map(OrderTask::getServiceData)
                  .toList();
 
-        return ServiceOrderMapper.toDetailResponse(order, vehicle, customer, services);
+        return ServiceOrderMapper.toDetailResponse(order, vehicle, customer, serviceData);
     }
 
     public void approve(UUID serviceOrderId) {
@@ -171,7 +171,7 @@ public class ServiceOrderUseCase {
         CustomerResponse customer = customerUseCase.findById(order.getCustomerId());
         List<String> services = order.getOrderTasks()
                 .stream()
-                .map(task -> task.getService().getName())
+                .map(task -> task.getServiceData().getName())
                 .toList();
 
         return ServiceOrderMapper.toCustomerView(order, vehicle, customer, services);

@@ -16,7 +16,7 @@ public class OrderTaskMapper {
         return new OrderTaskModel(
                 task.getId(),
                 parent,
-                ServiceMapper.toJpaEntity(task.getService()),
+                ServiceMapper.toJpaEntity(task.getServiceData()),
                 task.getStatus().name(),
                 task.getStartedAt(),
                 task.getFinishedAt()
@@ -38,7 +38,7 @@ public class OrderTaskMapper {
         return new OrderTaskResponse(
                 task.getId(),
                 task.getServiceOrderId(),
-                ServiceMapper.toResponse(task.getService()),
+                ServiceMapper.toResponse(task.getServiceData()),
                 task.getStatus().getDisplayName(),
                 task.getStartedAt(),
                 task.getFinishedAt()
