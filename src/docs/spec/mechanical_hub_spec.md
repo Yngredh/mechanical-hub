@@ -15,7 +15,7 @@ The goal of the MVP is to cover the complete lifecycle of Service Orders, includ
 
 ---
 
-# The Problem
+# Problema
 
 The current process for vehicle service, diagnosis, repair, and delivery is disorganized, relying on manual notes and spreadsheets, leading to the following problems:
 
@@ -44,7 +44,7 @@ The current process for vehicle service, diagnosis, repair, and delivery is diso
 
 ---
 
-# Perfis & Controle de Acesso
+# Perfis e Controle de Acesso
 
 **RN-PERFIS | Sistema**
 O sistema possui dois perfis: **Mecânico** e **Administrador**. A autenticação utiliza `JWT`.
