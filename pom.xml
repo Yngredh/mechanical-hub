@@ -30,8 +30,6 @@
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <!-- Excluir classes que não possuem lógica de negócio da métrica de cobertura -->
         <sonar.exclusions>
-            **/dto/**,
-            **/entities/**,
             **/mappers/**,
             **/config/**,
             **/enums/**,
