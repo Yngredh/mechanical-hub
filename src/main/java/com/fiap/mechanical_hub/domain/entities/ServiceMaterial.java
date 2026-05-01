@@ -1,6 +1,7 @@
 package com.fiap.mechanical_hub.domain.entities;
 
 import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 @Getter
 @NoArgsConstructor
+@Builder
 public class ServiceMaterial {
 
     private UUID id;
