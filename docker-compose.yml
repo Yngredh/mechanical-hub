@@ -14,9 +14,9 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-mechanical_hub}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-PmN2iDvdNz}
-      POSTGRES_DB: ${POSTGRES_DB:-mechanical_hub_db}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
@@ -34,8 +34,8 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE:prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/mechanical_hub_db
-      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-mechanical_hub}
-      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-PmN2iDvdNz}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "8080:8080"
     networks:
