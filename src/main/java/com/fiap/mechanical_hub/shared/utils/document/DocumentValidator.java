@@ -5,8 +5,8 @@ import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
 
 public class DocumentValidator {
 
-    public DocumentValidator() {
-        // Utility Class
+    private DocumentValidator() {
+        throw new UnsupportedOperationException("Utility class");
     }
 
     public static void validateDocument(DocumentTypeEnum documentTypeEnum, String documentNumber) {

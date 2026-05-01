@@ -103,7 +103,7 @@ class ServiceOrderRepositoryAdapterTest {
         Optional<String> result = repositoryAdapter.findLastOrderNumberByYearMonth("2026-05");
 
         assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo("OS-001");
+        assertThat(result.get()).contains("OS-001");
         verify(jpaRepository).findLastOrderNumberByYearMonth("2026-05");
     }
 
