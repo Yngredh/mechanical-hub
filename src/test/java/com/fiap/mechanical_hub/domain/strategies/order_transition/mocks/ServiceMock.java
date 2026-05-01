@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.domain.strategies.order_transition.mocks;
 
-import com.fiap.mechanical_hub.domain.entities.Service;
+import com.fiap.mechanical_hub.domain.entities.ServiceData;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,8 +12,8 @@ public final class ServiceMock {
     private ServiceMock() {
     }
 
-    public static Service serviceWithId(UUID id) {
-        return new Service(
+    public static ServiceData serviceWithId(UUID id) {
+        return new ServiceData(
                 id,
                 "Service name",
                 "Service description",

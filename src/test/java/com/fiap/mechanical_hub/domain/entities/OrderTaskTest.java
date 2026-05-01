@@ -17,7 +17,7 @@ class OrderTaskTest {
 
         assertNotNull(task.getId());
         assertEquals(TestConstants.DEFAULT_SERVICE_ORDER_ID, task.getServiceOrderId());
-        assertNotNull(task.getService());
+        assertNotNull(task.getServiceData());
         assertEquals(TaskStatusEnum.PENDENTE, task.getStatus());
         assertNull(task.getStartedAt());
         assertNull(task.getFinishedAt());
@@ -110,11 +110,11 @@ class OrderTaskTest {
 
     @Test
     void shouldCreateTaskWithCustomService() {
-        Service customService = ServiceMock.serviceWithHighPrice();
+        ServiceData customService = ServiceMock.serviceWithHighPrice();
         OrderTask task = OrderTaskMock.orderTaskWithCustomService(customService);
 
-        assertEquals(customService.getId(), task.getService().getId());
-        assertEquals(customService.getName(), task.getService().getName());
+        assertEquals(customService.getId(), task.getServiceData().getId());
+        assertEquals(customService.getName(), task.getServiceData().getName());
     }
 
 }

@@ -16,7 +16,7 @@ class ServiceTest {
 
     @Test
     void shouldCreateServiceWithValidData() {
-        Service service = ServiceMock.defaultService();
+        ServiceData service = ServiceMock.defaultService();
 
         assertNotNull(service.getId());
         assertEquals(TestConstants.DEFAULT_SERVICE_NAME, service.getName());
@@ -29,7 +29,7 @@ class ServiceTest {
 
     @Test
     void shouldCalculateTotalPriceWithMaterials() {
-        Service service = ServiceMock.defaultService();
+        ServiceData service = ServiceMock.defaultService();
 
         BigDecimal materialsCost = TestConstants.DEFAULT_MATERIAL_UNIT_PRICE
                 .multiply(BigDecimal.valueOf(TestConstants.DEFAULT_SERVICE_MATERIAL_QUANTITY));
@@ -40,7 +40,7 @@ class ServiceTest {
 
     @Test
     void shouldCreateServiceWithEmptyMaterials() {
-        Service service = ServiceMock.serviceWithEmptyMaterials();
+        ServiceData service = ServiceMock.serviceWithEmptyMaterials();
 
         assertNotNull(service.getId());
         assertEquals(TestConstants.DEFAULT_SERVICE_LABOR_COST, service.getTotalPrice());
@@ -48,7 +48,7 @@ class ServiceTest {
 
     @Test
     void shouldRecalculateTotalPriceWhenUpdating() {
-        Service service = ServiceMock.defaultService();
+        ServiceData service = ServiceMock.defaultService();
         BigDecimal originalPrice = service.getTotalPrice();
 
         List<ServiceMaterial> newMaterials = new ArrayList<>();
@@ -67,7 +67,7 @@ class ServiceTest {
 
     @Test
     void shouldDeactivateService() {
-        Service service = ServiceMock.defaultService();
+        ServiceData service = ServiceMock.defaultService();
         assertTrue(service.isActive());
 
         service.deactivate();
@@ -81,7 +81,7 @@ class ServiceTest {
         materials.add(ServiceMaterialMock.defaultServiceMaterial());
 
         assertThrows(BusinessRuleException.class, () ->
-            Service.create(
+                ServiceData.create(
                     "",
                     TestConstants.DEFAULT_SERVICE_DESCRIPTION,
                     TestConstants.DEFAULT_SERVICE_LABOR_COST,
@@ -97,7 +97,7 @@ class ServiceTest {
         materials.add(ServiceMaterialMock.defaultServiceMaterial());
 
         assertThrows(BusinessRuleException.class, () ->
-            Service.create(
+                ServiceData.create(
                     null,
                     TestConstants.DEFAULT_SERVICE_DESCRIPTION,
                     TestConstants.DEFAULT_SERVICE_LABOR_COST,
@@ -115,7 +115,7 @@ class ServiceTest {
         BigDecimal negativePrice = BigDecimal.valueOf(-50.00);
 
         assertThrows(BusinessRuleException.class, () ->
-            Service.create(
+                ServiceData.create(
                     TestConstants.DEFAULT_SERVICE_NAME,
                     TestConstants.DEFAULT_SERVICE_DESCRIPTION,
                     negativePrice,
@@ -133,7 +133,7 @@ class ServiceTest {
         BigDecimal negativePrice = BigDecimal.valueOf(-50.00);
 
         assertThrows(BusinessRuleException.class, () ->
-            Service.create(
+                ServiceData.create(
                     TestConstants.DEFAULT_SERVICE_NAME,
                     TestConstants.DEFAULT_SERVICE_DESCRIPTION,
                     TestConstants.DEFAULT_SERVICE_LABOR_COST,
@@ -146,7 +146,7 @@ class ServiceTest {
     @Test
     void shouldThrowExceptionWhenCreatingWithNullMaterials() {
         assertThrows(BusinessRuleException.class, () ->
-            Service.create(
+                ServiceData.create(
                     TestConstants.DEFAULT_SERVICE_NAME,
                     TestConstants.DEFAULT_SERVICE_DESCRIPTION,
                     TestConstants.DEFAULT_SERVICE_LABOR_COST,
@@ -158,7 +158,7 @@ class ServiceTest {
 
     @Test
     void shouldCreateServiceWithMultipleMaterials() {
-        Service service = ServiceMock.serviceWithMultipleMaterials();
+        ServiceData service = ServiceMock.serviceWithMultipleMaterials();
 
         assertNotNull(service.getId());
         assertTrue(service.getMaterials().size() > 1);
@@ -166,7 +166,7 @@ class ServiceTest {
 
     @Test
     void shouldKeepIdImmutable() {
-        Service service = ServiceMock.defaultService();
+        ServiceData service = ServiceMock.defaultService();
         java.util.UUID originalId = service.getId();
 
         service.deactivate();

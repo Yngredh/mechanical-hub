@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.domain.entities.mocks;
 
-import com.fiap.mechanical_hub.domain.entities.Service;
+import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 
 import java.math.BigDecimal;
@@ -11,10 +11,10 @@ import static com.fiap.mechanical_hub.domain.entities.constants.TestConstants.*;
 
 public class ServiceMock {
 
-    public static Service defaultService() {
+    public static ServiceData defaultService() {
         List<ServiceMaterial> materials = new ArrayList<>();
         materials.add(ServiceMaterialMock.defaultServiceMaterial());
-        return Service.create(
+        return ServiceData.create(
                 DEFAULT_SERVICE_NAME,
                 DEFAULT_SERVICE_DESCRIPTION,
                 DEFAULT_SERVICE_LABOR_COST,
@@ -23,8 +23,8 @@ public class ServiceMock {
         );
     }
 
-    public static Service serviceWithEmptyMaterials() {
-        return Service.create(
+    public static ServiceData serviceWithEmptyMaterials() {
+        return ServiceData.create(
                 DEFAULT_SERVICE_NAME,
                 DEFAULT_SERVICE_DESCRIPTION,
                 DEFAULT_SERVICE_LABOR_COST,
@@ -33,11 +33,11 @@ public class ServiceMock {
         );
     }
 
-    public static Service serviceWithMultipleMaterials() {
+    public static ServiceData serviceWithMultipleMaterials() {
         List<ServiceMaterial> materials = new ArrayList<>();
         materials.add(ServiceMaterialMock.defaultServiceMaterial());
         materials.add(ServiceMaterialMock.serviceMaterialWithCustomQuantity(3));
-        return Service.create(
+        return ServiceData.create(
                 DEFAULT_SERVICE_NAME,
                 DEFAULT_SERVICE_DESCRIPTION,
                 DEFAULT_SERVICE_LABOR_COST,
@@ -46,15 +46,10 @@ public class ServiceMock {
         );
     }
 
-    public static Service serviceWithCustomValues(String name, String description, BigDecimal laborCost,
-                                                   BigDecimal basePrice, List<ServiceMaterial> materials) {
-        return Service.create(name, description, laborCost, basePrice, materials);
-    }
-
-    public static Service serviceWithHighPrice() {
+    public static ServiceData serviceWithHighPrice() {
         List<ServiceMaterial> materials = new ArrayList<>();
         materials.add(ServiceMaterialMock.defaultServiceMaterial());
-        return Service.create(
+        return ServiceData.create(
                 "Serviço Premium",
                 "Serviço de alta qualidade",
                 BigDecimal.valueOf(500.00),

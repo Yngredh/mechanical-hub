@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
-import com.fiap.mechanical_hub.domain.entities.Service;
+import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceMaterialJpaRepository;
@@ -38,7 +38,7 @@ class ServiceMaterialRepositoryAdapterTest {
     private UUID serviceId;
 
     private ServiceMaterial serviceMaterial;
-    private Service service;
+    private ServiceData service;
 
     private ServiceMaterialModel serviceMaterialModel;
 
@@ -48,7 +48,7 @@ class ServiceMaterialRepositoryAdapterTest {
         serviceId = UUID.randomUUID();
 
         serviceMaterial = Mockito.mock(ServiceMaterial.class);
-        service = Mockito.mock(Service.class);
+        service = Mockito.mock(ServiceData.class);
 
         serviceMaterialModel = Mockito.mock(ServiceMaterialModel.class);
     }

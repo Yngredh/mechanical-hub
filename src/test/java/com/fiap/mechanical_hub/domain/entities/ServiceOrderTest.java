@@ -1,9 +1,9 @@
 package com.fiap.mechanical_hub.domain.entities;
 
-import com.fiap.mechanical_hub.domain.entities.mocks.ServiceOrderMock;
+import com.fiap.mechanical_hub.domain.entities.constants.TestConstants;
 import com.fiap.mechanical_hub.domain.entities.mocks.OrderTaskMock;
 import com.fiap.mechanical_hub.domain.entities.mocks.ServiceMock;
-import com.fiap.mechanical_hub.domain.entities.constants.TestConstants;
+import com.fiap.mechanical_hub.domain.entities.mocks.ServiceOrderMock;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidOrderTransitionException;
@@ -154,7 +154,7 @@ class ServiceOrderTest {
     @Test
     void shouldDetectDuplicateTask() {
         ServiceOrder order = ServiceOrderMock.defaultServiceOrder();
-        Service service = ServiceMock.defaultService();
+        ServiceData service = ServiceMock.defaultService();
         OrderTask task1 = OrderTaskMock.orderTaskWithCustomService(service);
 
         order.addTask(task1);
