@@ -150,8 +150,6 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-
-            <!-- JaCoCo (Geração de relatório de cobertura de testes) -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -162,15 +160,6 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/mappers/**</exclude>
-                                <exclude>**/config/**</exclude>
-                                <exclude>**/enums/**</exclude>
-                                <exclude>**/exceptions/**</exclude>
-                                <exclude>**/MechanicalHubApplication.class</exclude>
-                            </excludes>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>report</id>
@@ -178,14 +167,23 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/mappers/**</exclude>
+                                <exclude>**/config/**</exclude>
+                                <exclude>**/enums/**</exclude>
+                                <exclude>**/exceptions/**</exclude>
+                                <exclude>**/MechanicalHubApplication.class</exclude>
+                                <exclude>**/dto/**</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <!-- SonarQube Scanner -->
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
-                <version>5.0.0.4389</version> <!-- Versão estável para Java 21 -->
+                <version>5.0.0.4389</version>
             </plugin>
         </plugins>
     </build>
