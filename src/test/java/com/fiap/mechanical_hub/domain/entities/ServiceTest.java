@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ServiceTest {
+class ServiceDataTest {
 
     @Test
     void shouldCreateServiceWithValidData() {
@@ -126,6 +126,22 @@ class ServiceTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenCreatingWithNullLaborCost() {
+        List<ServiceMaterial> materials = new ArrayList<>();
+        materials.add(ServiceMaterialMock.defaultServiceMaterial());
+
+        assertThrows(BusinessRuleException.class, () ->
+                ServiceData.create(
+                    TestConstants.DEFAULT_SERVICE_NAME,
+                    TestConstants.DEFAULT_SERVICE_DESCRIPTION,
+                    null,
+                    TestConstants.DEFAULT_SERVICE_BASE_PRICE,
+                    materials
+            )
+        );
+    }
+
+    @Test
     void shouldThrowExceptionWhenCreatingWithNegativeBasePrice() {
         List<ServiceMaterial> materials = new ArrayList<>();
         materials.add(ServiceMaterialMock.defaultServiceMaterial());
@@ -138,6 +154,22 @@ class ServiceTest {
                     TestConstants.DEFAULT_SERVICE_DESCRIPTION,
                     TestConstants.DEFAULT_SERVICE_LABOR_COST,
                     negativePrice,
+                    materials
+            )
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreatingWithNullBasePrice() {
+        List<ServiceMaterial> materials = new ArrayList<>();
+        materials.add(ServiceMaterialMock.defaultServiceMaterial());
+
+        assertThrows(BusinessRuleException.class, () ->
+                ServiceData.create(
+                    TestConstants.DEFAULT_SERVICE_NAME,
+                    TestConstants.DEFAULT_SERVICE_DESCRIPTION,
+                    TestConstants.DEFAULT_SERVICE_LABOR_COST,
+                    null,
                     materials
             )
         );
@@ -172,6 +204,22 @@ class ServiceTest {
         service.deactivate();
 
         assertEquals(originalId, service.getId());
+    }
+
+    @Test
+    void shouldCreateServiceWithNoArgsConstructor() {
+        ServiceData service = new ServiceData();
+
+        assertNull(service.getId());
+        assertNull(service.getName());
+        assertNull(service.getDescription());
+        assertNull(service.getLaborCost());
+        assertNull(service.getBasePrice());
+        assertNull(service.getTotalPrice());
+        assertNull(service.getMaterials());
+        assertFalse(service.isActive());
+        assertNull(service.getCreatedAt());
+        assertNull(service.getUpdatedAt());
     }
 
 }

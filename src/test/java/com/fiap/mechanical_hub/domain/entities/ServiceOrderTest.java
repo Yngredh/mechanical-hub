@@ -5,11 +5,13 @@ import com.fiap.mechanical_hub.domain.entities.mocks.OrderTaskMock;
 import com.fiap.mechanical_hub.domain.entities.mocks.ServiceMock;
 import com.fiap.mechanical_hub.domain.entities.mocks.ServiceOrderMock;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
+import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidOrderTransitionException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -152,6 +154,19 @@ class ServiceOrderTest {
     }
 
     @Test
+    void shouldInitializeOrderTasksWhenNullOnAddTask() {
+        ServiceOrder order = new ServiceOrder();
+        order.setOrderTasks(null);
+        OrderTask task = OrderTaskMock.orderTaskWithCustomValues(UUID.randomUUID(), ServiceMock.defaultService());
+
+        order.addTask(task);
+
+        assertNotNull(order.getOrderTasks());
+        assertEquals(1, order.getOrderTasks().size());
+        assertSame(task, order.getOrderTasks().getFirst());
+    }
+
+    @Test
     void shouldDetectDuplicateTask() {
         ServiceOrder order = ServiceOrderMock.defaultServiceOrder();
         ServiceData service = ServiceMock.defaultService();
@@ -228,6 +243,68 @@ class ServiceOrderTest {
                     TestConstants.DEFAULT_USER_ID
             )
         );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenFindingNonExistentTask() {
+        ServiceOrder order = ServiceOrderMock.defaultServiceOrder();
+        ServiceData service = ServiceMock.defaultService();
+        OrderTask task = OrderTaskMock.orderTaskWithCustomService(service);
+        order.addTask(task);
+
+        UUID nonExistentTaskId = UUID.randomUUID();
+
+        assertThrows(BusinessRuleException.class, () -> order.startTask(nonExistentTaskId));
+    }
+
+    @Test
+    void shouldStartTaskSuccessfully() {
+        ServiceOrder order = ServiceOrderMock.defaultServiceOrder();
+        ServiceData service = ServiceMock.defaultService();
+        OrderTask task = OrderTaskMock.orderTaskWithCustomService(service);
+        order.addTask(task);
+
+        order.startTask(service.getId());
+
+        assertEquals(TaskStatusEnum.INICIADO, task.getStatus());
+        assertNotNull(task.getStartedAt());
+    }
+
+    @Test
+    void shouldStartTaskAndStartExecutionWhenStatusIsApproved() {
+        ServiceOrder order = ServiceOrderMock.serviceOrderApproved();
+        ServiceData service = ServiceMock.defaultService();
+        OrderTask task = OrderTaskMock.orderTaskWithCustomService(service);
+        order.addTask(task);
+
+        order.startTask(service.getId());
+
+        assertEquals(OrderStatusEnum.EM_EXECUCAO, order.getStatus());
+        assertEquals(TaskStatusEnum.INICIADO, task.getStatus());
+        assertNotNull(task.getStartedAt());
+    }
+
+    @Test
+    void shouldFinishTaskSuccessfully() {
+        ServiceOrder order = ServiceOrderMock.serviceOrderInExecution();
+        ServiceData service = ServiceMock.defaultService();
+        OrderTask task = OrderTaskMock.orderTaskWithCustomService(service);
+        order.addTask(task);
+        task.start();
+
+        order.finishTask(service.getId());
+
+        assertEquals(TaskStatusEnum.FINALIZADO, task.getStatus());
+        assertNotNull(task.getFinishedAt());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenFinishingNonExistentTask() {
+        ServiceOrder order = ServiceOrderMock.serviceOrderInExecution();
+
+        UUID nonExistentTaskId = UUID.randomUUID();
+
+        assertThrows(BusinessRuleException.class, () -> order.finishTask(nonExistentTaskId));
     }
 
 }

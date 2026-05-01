@@ -7,6 +7,7 @@ import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,25 +51,25 @@ class ServiceMaterialTest {
     @Test
     void shouldThrowExceptionWhenCreatingWithNullMaterial() {
         assertThrows(BusinessRuleException.class, () ->
-            ServiceMaterial.create(null, 5)
+                ServiceMaterial.create(null, 5)
         );
     }
 
     @Test
     void shouldThrowExceptionWhenCreatingWithZeroQuantity() {
         Material material = MaterialMock.defaultMaterial();
-        
+
         assertThrows(BusinessRuleException.class, () ->
-            ServiceMaterial.create(material, 0)
+                ServiceMaterial.create(material, 0)
         );
     }
 
     @Test
     void shouldThrowExceptionWhenCreatingWithNegativeQuantity() {
         Material material = MaterialMock.defaultMaterial();
-        
+
         assertThrows(BusinessRuleException.class, () ->
-            ServiceMaterial.create(material, -5)
+                ServiceMaterial.create(material, -5)
         );
     }
 
@@ -91,5 +92,29 @@ class ServiceMaterialTest {
         assertEquals(material.getName(), serviceMaterial.getMaterial().getName());
     }
 
+    @Test
+    void shouldCreateServiceMaterialWithFullConstructorIncludingServiceId() {
+        UUID id = UUID.randomUUID();
+        UUID serviceId = UUID.randomUUID();
+        Material material = MaterialMock.defaultMaterial();
+        int quantity = 5;
+
+        ServiceMaterial serviceMaterial = new ServiceMaterial(id, serviceId, material, quantity);
+
+        assertEquals(id, serviceMaterial.getId());
+        assertEquals(serviceId, serviceMaterial.getServiceId());
+        assertEquals(material, serviceMaterial.getMaterial());
+        assertEquals(quantity, serviceMaterial.getQuantity());
+    }
+
+    @Test
+    void shouldCreateServiceMaterialWithNoArgsConstructor() {
+        ServiceMaterial serviceMaterial = new ServiceMaterial();
+
+        assertNull(serviceMaterial.getId());
+        assertNull(serviceMaterial.getServiceId());
+        assertNull(serviceMaterial.getMaterial());
+        assertEquals(0, serviceMaterial.getQuantity());
+    }
 }
 
