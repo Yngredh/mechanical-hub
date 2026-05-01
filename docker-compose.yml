@@ -1,6 +1,12 @@
-version: "3.9"
-
 services:
+  sonarqube:
+    image: sonarqube:10.5-community
+    container_name: mechanical_hub_sonarqube
+    ports:
+      - "9000:9000"
+    networks:
+      - mechanical-net
+
   postgres:
     image: postgres:16
     container_name: mechanical_hub_db
@@ -8,13 +14,15 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER:-mechanical_hub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-PmN2iDvdNz}
+      POSTGRES_DB: ${POSTGRES_DB:-mechanical_hub_db}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mechanical-net
 
   app:
     build: .
@@ -24,9 +32,18 @@ services:
     env_file:
       - .env
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      - SPRING_PROFILES_ACTIVE:prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/mechanical_hub_db
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-mechanical_hub}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-PmN2iDvdNz}
     ports:
       - "8080:8080"
+    networks:
+      - mechanical-net
+
+networks:
+  mechanical-net:
+    driver: bridge
 
 volumes:
   postgres_data:
