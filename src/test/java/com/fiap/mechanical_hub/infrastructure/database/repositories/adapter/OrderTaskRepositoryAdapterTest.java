@@ -1,7 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
-import com.fiap.mechanical_hub.domain.entities.Service;
 import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
 import com.fiap.mechanical_hub.infrastructure.database.models.OrderTaskModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
@@ -16,7 +15,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -34,29 +36,15 @@ class OrderTaskRepositoryAdapterTest {
 
     private UUID orderTaskId;
     private UUID serviceOrderId;
-    private Service service;
-    private ServiceModel serviceModel;
     private OrderTaskModel orderTaskModel;
-    private ServiceOrderModel serviceOrderModel;
-    private OrderTask orderTask;
 
     @BeforeEach
     void setUp() {
         orderTaskId = UUID.randomUUID();
         serviceOrderId = UUID.randomUUID();
 
-        service = Mockito.mock(Service.class);
-        serviceModel = Mockito.mock(ServiceModel.class);
-        serviceOrderModel = Mockito.mock(ServiceOrderModel.class);
-
-        orderTask = new OrderTask(
-                orderTaskId,
-                serviceOrderId,
-                service,
-                TaskStatusEnum.PENDENTE,
-                null,
-                null
-        );
+        ServiceModel serviceModel = Mockito.mock(ServiceModel.class);
+        ServiceOrderModel serviceOrderModel = Mockito.mock(ServiceOrderModel.class);
 
         orderTaskModel = new OrderTaskModel(
                 orderTaskId,

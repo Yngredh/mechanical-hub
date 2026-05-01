@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
-import com.fiap.mechanical_hub.domain.entities.Service;
+import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +12,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -29,14 +31,14 @@ class ServiceRepositoryAdapterTest {
     private ServiceRepositoryAdapter repositoryAdapter;
 
     private UUID serviceId;
-    private Service service;
+    private ServiceData service;
     private ServiceModel serviceModel;
 
     @BeforeEach
     void setUp() {
         serviceId = UUID.randomUUID();
 
-        service = Mockito.mock(Service.class);
+        service = Mockito.mock(ServiceData.class);
         serviceModel = Mockito.mock(ServiceModel.class);
     }
 
@@ -46,7 +48,7 @@ class ServiceRepositoryAdapterTest {
         when(jpaRepository.save(Mockito.any(ServiceModel.class)))
                 .thenReturn(serviceModel);
 
-        Service result = repositoryAdapter.save(service);
+        ServiceData result = repositoryAdapter.save(service);
 
         assertThat(result).isNotNull();
         verify(jpaRepository).save(Mockito.any(ServiceModel.class));
@@ -58,7 +60,7 @@ class ServiceRepositoryAdapterTest {
         when(jpaRepository.findById(serviceId))
                 .thenReturn(Optional.of(serviceModel));
 
-        Optional<Service> result = repositoryAdapter.findById(serviceId);
+        Optional<ServiceData> result = repositoryAdapter.findById(serviceId);
 
         assertThat(result).isPresent();
         verify(jpaRepository).findById(serviceId);
@@ -70,7 +72,7 @@ class ServiceRepositoryAdapterTest {
         when(jpaRepository.findById(serviceId))
                 .thenReturn(Optional.empty());
 
-        Optional<Service> result = repositoryAdapter.findById(serviceId);
+        Optional<ServiceData> result = repositoryAdapter.findById(serviceId);
 
         assertThat(result).isEmpty();
         verify(jpaRepository).findById(serviceId);
@@ -82,7 +84,7 @@ class ServiceRepositoryAdapterTest {
         when(jpaRepository.findAll())
                 .thenReturn(List.of(serviceModel));
 
-        List<Service> result = repositoryAdapter.findAll();
+        List<ServiceData> result = repositoryAdapter.findAll();
 
         assertThat(result).hasSize(1);
         verify(jpaRepository).findAll();
@@ -104,7 +106,7 @@ class ServiceRepositoryAdapterTest {
         when(jpaRepository.findByIdIn(ids))
                 .thenReturn(List.of(serviceModel));
 
-        List<Service> result = repositoryAdapter.findByIds(ids);
+        List<ServiceData> result = repositoryAdapter.findByIds(ids);
 
         assertThat(result).hasSize(1);
         verify(jpaRepository).findByIdIn(ids);
