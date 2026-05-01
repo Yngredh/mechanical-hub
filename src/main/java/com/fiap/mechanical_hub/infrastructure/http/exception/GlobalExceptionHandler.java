@@ -15,6 +15,7 @@ public class GlobalExceptionHandler {
     private static final String STATUS = "status";
     private static final String ERROR = "error";
     private static final String MESSAGE = "message";
+    public static final String BAD_REQUEST = "Bad Request";
 
     @ExceptionHandler(InvalidDocumentException.class)
     public ResponseEntity<Object> handleInvalidDocument(InvalidDocumentException ex) {
@@ -90,7 +91,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put(STATUS, HttpStatus.BAD_REQUEST.value());
-        body.put(ERROR, "Bad Request");
+        body.put(ERROR, BAD_REQUEST);
         body.put(MESSAGE, ex.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
@@ -100,7 +101,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleNoSuchElement(NoSuchElementException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put(STATUS, HttpStatus.BAD_REQUEST.value());
-        body.put(ERROR, "Bad Request");
+        body.put(ERROR, BAD_REQUEST);
         body.put(MESSAGE, ex.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
@@ -110,7 +111,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleInvalidOrderTransition(InvalidOrderTransitionException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put(STATUS, HttpStatus.BAD_REQUEST.value());
-        body.put(ERROR, "Bad Request");
+        body.put(ERROR, BAD_REQUEST);
         body.put(MESSAGE, ex.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);

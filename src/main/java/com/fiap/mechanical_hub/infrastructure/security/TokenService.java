@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.fiap.mechanical_hub.domain.entities.User;
+import com.fiap.mechanical_hub.domain.exceptions.TokenErrorException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class TokenService {
                     .withExpiresAt(genExpirationDate())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
-            throw new RuntimeException("Error while generating token", exception);
+            throw new TokenErrorException("Error while generating token", exception);
         }
     }
 

@@ -17,12 +17,14 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -145,5 +147,87 @@ class VehicleUseCaseTest {
         vehicleUseCase.delete(vehicleId);
 
         verify(vehicleRepository, times(1)).deleteById(vehicleId);
+    }
+
+    @Test
+    @DisplayName("Deve retornar VehicleResponse quando encontrar um veículo pelo ID")
+    void findById_Success() {
+        // GIVEN
+        UUID vehicleId = UUID.randomUUID();
+        Vehicle vehicle = mock(Vehicle.class);
+        VehicleResponse response = new VehicleResponse();
+
+        when(vehicleRepository.findById(vehicleId)).thenReturn(Optional.of(vehicle));
+        when(vehicleMapper.toResponse(vehicle)).thenReturn(response);
+
+        // WHEN
+        VehicleResponse result = vehicleUseCase.findById(vehicleId);
+
+        // THEN
+        assertNotNull(result);
+        assertEquals(response, result);
+        verify(vehicleRepository, times(1)).findById(vehicleId);
+        verify(vehicleMapper, times(1)).toResponse(vehicle);
+    }
+
+    @Test
+    @DisplayName("Deve lançar NoSuchElementException quando o ID do veículo não existir")
+    void findById_NotFound() {
+        // GIVEN
+        UUID vehicleId = UUID.randomUUID();
+        when(vehicleRepository.findById(vehicleId)).thenReturn(Optional.empty());
+
+        // WHEN & THEN
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
+            vehicleUseCase.findById(vehicleId);
+        });
+
+        assertEquals("Veículo não encontrado para o id: " + vehicleId, exception.getMessage());
+        verify(vehicleRepository, times(1)).findById(vehicleId);
+        verifyNoInteractions(vehicleMapper);
+    }
+
+    @Test
+    @DisplayName("Deve retornar uma lista de VehicleResponse no findAll")
+    void findAll_Success() {
+        // GIVEN
+        Vehicle v1 = mock(Vehicle.class);
+        Vehicle v2 = mock(Vehicle.class);
+        List<Vehicle> vehicles = List.of(v1, v2);
+
+        VehicleResponse r1 = new VehicleResponse();
+        VehicleResponse r2 = new VehicleResponse();
+
+        when(vehicleRepository.findAll()).thenReturn(vehicles);
+        when(vehicleMapper.toResponse(v1)).thenReturn(r1);
+        when(vehicleMapper.toResponse(v2)).thenReturn(r2);
+
+        // WHEN
+        List<VehicleResponse> result = vehicleUseCase.findAll();
+
+        // THEN
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.contains(r1));
+        assertTrue(result.contains(r2));
+
+        verify(vehicleRepository, times(1)).findAll();
+        verify(vehicleMapper, times(2)).toResponse(any(Vehicle.class));
+    }
+
+    @Test
+    @DisplayName("Deve retornar lista vazia no findAll quando não houver veículos")
+    void findAll_Empty() {
+        // GIVEN
+        when(vehicleRepository.findAll()).thenReturn(List.of());
+
+        // WHEN
+        List<VehicleResponse> result = vehicleUseCase.findAll();
+
+        // THEN
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(vehicleRepository, times(1)).findAll();
+        verifyNoInteractions(vehicleMapper);
     }
 }

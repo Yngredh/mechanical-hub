@@ -9,6 +9,7 @@ import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 import com.fiap.mechanical_hub.domain.exceptions.DuplicateDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
+import com.fiap.mechanical_hub.shared.utils.Formatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -188,8 +189,8 @@ class CustomerUseCaseTest {
                 LocalDateTime.now()
         );
 
-        try (MockedStatic<com.fiap.mechanical_hub.shared.utils.Formatter> formatterMock = mockStatic(com.fiap.mechanical_hub.shared.utils.Formatter.class)) {
-            formatterMock.when(() -> com.fiap.mechanical_hub.shared.utils.Formatter.removeFormatting("123.456.789-01")).thenReturn("12345678901");
+        try (MockedStatic<Formatter> formatterMock = mockStatic(Formatter.class)) {
+            formatterMock.when(() -> Formatter.removeFormatting("123.456.789-01")).thenReturn("12345678901");
 
             when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
             when(customerRepository.existsByDocumentNumberAndIdNot("12345678901", customerId)).thenReturn(false);
@@ -271,7 +272,7 @@ class CustomerUseCaseTest {
     @Test
     @DisplayName("Deve encontrar cliente existente por documento")
     void shouldFindExistingCustomerByDocument() {
-        try (MockedStatic<com.fiap.mechanical_hub.shared.utils.Formatter> formatterMock = mockStatic(com.fiap.mechanical_hub.shared.utils.Formatter.class)) {
+        try (MockedStatic<Formatter> formatterMock = mockStatic(com.fiap.mechanical_hub.shared.utils.Formatter.class)) {
             formatterMock.when(() -> com.fiap.mechanical_hub.shared.utils.Formatter.removeFormatting("123.456.789-01")).thenReturn("12345678901");
 
             when(customerRepository.findByDocumentNumber("12345678901")).thenReturn(Optional.of(customer));
@@ -318,4 +319,36 @@ class CustomerUseCaseTest {
         verify(customerRepository).findByDocumentNumber(documentoLimpo);
         verify(customerRepository).save(any(Customer.class));
     }
-}
+
+    @Test
+    @DisplayName("Deve lançar DuplicateDocumentException quando o documento já existir para outro ID no update")
+    void shouldThrowDuplicateDocumentExceptionWhenDocumentExistsForAnotherIdOnUpdate() {
+        String documentNumber = "123.456.789-00";
+        String cleanDocument = "12345678900";
+
+        UpsertCustomerRequest request = new UpsertCustomerRequest();
+        request.setDocumentNumber(documentNumber);
+
+        Customer existingCustomer = new Customer(
+                UUID.randomUUID(),
+                "João Silva Atualizado",
+                DocumentTypeEnum.CPF,
+                cleanDocument,
+                "11987654321",
+                "joao@example.com",
+                "Rua B, 456",
+                customer.getCreatedAt(),
+                LocalDateTime.now()
+        );
+
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(existingCustomer));
+
+        when(customerRepository.existsByDocumentNumberAndIdNot(cleanDocument, customerId))
+                .thenReturn(true);
+
+        DuplicateDocumentException exception = assertThrows(DuplicateDocumentException.class, () -> {
+            customerUseCase.update(customerId, request);
+        });
+
+        assertEquals(String.format("Cliente com documento %s já existe", documentNumber), exception.getMessage());
+    }}

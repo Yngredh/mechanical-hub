@@ -41,9 +41,10 @@ class ServiceMaterialUseCaseTest {
 
         List<ServiceMaterial> result = serviceMaterialUseCase.getServiceMaterials(serviceId);
 
-        assertThat(result).isNotNull();
-        assertThat(result).hasSize(2);
-        assertThat(result).containsExactly(item1, item2);
+        assertThat(result)
+                .isNotNull()
+                .hasSize(2)
+                .containsExactly(item1, item2);
 
         verify(serviceMaterialRepository, times(1)).findByServiceId(serviceId);
     }

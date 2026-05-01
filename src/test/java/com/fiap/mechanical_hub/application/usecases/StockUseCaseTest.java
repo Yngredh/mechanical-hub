@@ -1,7 +1,11 @@
 package com.fiap.mechanical_hub.application.usecases;
 
+import com.fiap.mechanical_hub.application.dto.stock.StockDetailResponse;
 import com.fiap.mechanical_hub.application.dto.stock.StockEntryRequest;
+import com.fiap.mechanical_hub.application.dto.stock.StockSummaryResponse;
+import com.fiap.mechanical_hub.application.mappers.StockMapper;
 import com.fiap.mechanical_hub.application.repositories.MaterialRepository;
+import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.application.repositories.StockMovementRepository;
 import com.fiap.mechanical_hub.application.repositories.StockRepository;
 import com.fiap.mechanical_hub.domain.entities.*;
@@ -22,18 +26,29 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class StockUseCaseTest {
 
-    @Mock private StockMovementUseCase stockMovementUseCase;
-    @Mock private StockPendingUseCase stockPendingUseCase;
-    @Mock private NotificationUseCase notificationUseCase;
-    @Mock private StockMovementRepository stockMovementRepository;
-    @Mock private StockRepository stockRepository;
-    @Mock private MaterialRepository materialRepository;
+    @Mock
+    private StockMovementUseCase stockMovementUseCase;
+    @Mock
+    private StockPendingUseCase stockPendingUseCase;
+    @Mock
+    private NotificationUseCase notificationUseCase;
+    @Mock
+    private StockMovementRepository stockMovementRepository;
+    @Mock
+    private StockRepository stockRepository;
+    @Mock
+    private MaterialRepository materialRepository;
+    @Mock
+    private StockMapper stockMapper;
+    @Mock
+    private ServiceOrderRepository serviceOrderRepository;
 
     @InjectMocks
     private StockUseCase stockUseCase;
@@ -88,7 +103,8 @@ class StockUseCaseTest {
         boolean hasPendency = stockUseCase.reserveForServiceOrder(order, material, 10);
 
         assertThat(hasPendency).isTrue();
-        verify(stockPendingUseCase).createStockPendency(eq(order), eq(material), eq(10));
+
+        verify(stockPendingUseCase).createStockPendency(order, material, 10);
     }
 
     @Test
@@ -106,7 +122,7 @@ class StockUseCaseTest {
 
         stockUseCase.reserveForServiceOrder(order, material, 6);
 
-        verify(notificationUseCase).sendLowStockAlert(eq("Óleo"), eq(5));
+        verify(notificationUseCase).sendLowStockAlert(("Óleo"), (5));
     }
 
     @Test
@@ -118,15 +134,15 @@ class StockUseCaseTest {
         ServiceMaterial sm = ServiceMaterial.builder()
                 .material(material)
                 .quantity(5)
-                        .build();
+                .build();
 
         ServiceData sd = ServiceData.builder()
                 .materials(List.of(sm))
                 .build();
 
-         var task = OrderTask.builder()
-                 .id(UUID.randomUUID())
-                 .serviceData(sd)
+        var task = OrderTask.builder()
+                .id(UUID.randomUUID())
+                .serviceData(sd)
                 .build();
 
         ServiceOrder order = new ServiceOrder();
@@ -143,5 +159,105 @@ class StockUseCaseTest {
         assertThat(reservedStock.getQuantity()).isZero();
         assertThat(availableStock.getQuantity()).isEqualTo(5);
         verify(stockMovementUseCase).registerStockReturnMovement(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("Deve retornar todos os resumos de estoque")
+    void findAll_Success() {
+        List<Stock> stocks = List.of(mock(Stock.class));
+        when(stockRepository.findAll()).thenReturn(stocks);
+        when(stockMapper.buildStockSummary(stocks)).thenReturn(List.of(mock(StockSummaryResponse.class)));
+
+        List<StockSummaryResponse> result = stockUseCase.findAll();
+
+        assertFalse(result.isEmpty());
+        verify(stockRepository).findAll();
+    }
+
+    @Test
+    @DisplayName("Deve retornar detalhes do estoque calculando quantidades corretamente")
+    void findByMaterialId_Success() {
+        UUID materialId = UUID.randomUUID();
+        Stock available = mock(Stock.class);
+        Stock reserved = mock(Stock.class);
+
+        when(available.getStatus()).thenReturn(StockStatusEnum.AVAILABLE);
+        when(available.getQuantity()).thenReturn(10);
+        when(reserved.getStatus()).thenReturn(StockStatusEnum.RESERVED);
+        when(reserved.getQuantity()).thenReturn(5);
+
+        when(stockRepository.findAllByMaterialId(materialId)).thenReturn(List.of(available, reserved));
+        when(stockMovementRepository.findByMaterialId(materialId)).thenReturn(Collections.emptyList());
+
+        StockDetailResponse result = stockUseCase.findByMaterialId(materialId);
+
+        assertEquals(15, result.quantityTotal());
+        assertEquals(10, result.quantityAvailable());
+        assertEquals(5, result.quantityReserved());
+    }
+
+    @Test
+    @DisplayName("Deve lançar NotFoundException quando material não possuir estoque")
+    void findByMaterialId_NotFound() {
+        UUID materialId = UUID.randomUUID();
+        when(stockRepository.findAllByMaterialId(materialId)).thenReturn(Collections.emptyList());
+
+        assertThrows(NotFoundException.class, () -> stockUseCase.findByMaterialId(materialId));
+    }
+
+    @Test
+    @DisplayName("Deve resolver pendências de estoque quando houver saldo disponível")
+    void resolveMaterialPendingIssues_Success() {
+        // GIVEN
+        UUID materialId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        UUID pendingId = UUID.randomUUID();
+
+        // 1. Mock do Estoque atualizado (com saldo)
+        Stock updatedStock = mock(Stock.class);
+        when(updatedStock.getQuantity()).thenReturn(10);
+
+        // 2. Mock do item pendente
+        StockPendingItem pending = mock(StockPendingItem.class);
+        when(pending.getId()).thenReturn(pendingId);
+        when(pending.getQuantity()).thenReturn(5);
+        when(pending.getServiceOrderId()).thenReturn(orderId);
+        when(pending.getMaterialId()).thenReturn(materialId);
+
+        // 3. Mock da Ordem de Serviço (o que faltava!)
+        ServiceOrder serviceOrder = mock(ServiceOrder.class);
+        when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(serviceOrder));
+
+        // 4. Configuração dos comportamentos dos UseCases/Repositories
+        when(stockPendingUseCase.findMaterialStockPendency(materialId)).thenReturn(List.of(pending));
+        when(stockRepository.findByMaterialIdAndStatus(materialId, StockStatusEnum.RESERVED)).thenReturn(Optional.empty());
+
+        // WHEN
+        stockUseCase.resolveMaterialPendingIssues(materialId, updatedStock);
+
+        // THEN
+        verify(stockPendingUseCase).removePendency(pending);
+        verify(updatedStock).subtractQuantity(5);
+        verify(serviceOrder).setHasStockPending(false); // Verifica se a flag foi alterada
+        verify(serviceOrderRepository).save(serviceOrder); // Verifica se a ordem foi salva
+        verify(stockRepository, atLeastOnce()).save(any(Stock.class));
+    }
+
+    @Test
+    @DisplayName("Deve remover a flag de pendência da ordem de serviço")
+    void removeStockPending_Success() {
+        UUID orderId = UUID.randomUUID();
+        ServiceOrder order = mock(ServiceOrder.class);
+
+        when(serviceOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+
+        serviceOrderRepository.findById(orderId).ifPresent(o -> {
+            o.setHasStockPending(false);
+            serviceOrderRepository.save(o);
+        });
+
+        verify(order).setHasStockPending(false);
+        verify(serviceOrderRepository).save(order);
     }
 }

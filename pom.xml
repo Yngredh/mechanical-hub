@@ -27,11 +27,10 @@
 
         <!-- Configurações do Sonar -->
         <sonar.java.binaries>target/classes</sonar.java.binaries>
-        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
         <!-- Excluir classes que não possuem lógica de negócio da métrica de cobertura -->
         <sonar.exclusions>
-            **/dto/**,
-            **/entities/**,
             **/mappers/**,
             **/config/**,
             **/enums/**,
@@ -163,6 +162,15 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/mappers/**</exclude>
+                                <exclude>**/config/**</exclude>
+                                <exclude>**/enums/**</exclude>
+                                <exclude>**/exceptions/**</exclude>
+                                <exclude>**/MechanicalHubApplication.class</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>report</id>

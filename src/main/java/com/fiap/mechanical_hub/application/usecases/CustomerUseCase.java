@@ -26,6 +26,7 @@ import static com.fiap.mechanical_hub.shared.utils.Formatter.removeFormatting;
 @Transactional
 public class CustomerUseCase {
 
+    public static final String CLIENTE_NAO_ENCONTRADO_PARA_O_ID = "Cliente não encontrado para o id: ";
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
 
@@ -51,7 +52,7 @@ public class CustomerUseCase {
     public CustomerResponse findById(UUID id) {
         log.info("Retrieving customer with id: {}", id);
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Cliente não encontrado para o id: " + id));
+                .orElseThrow(() -> new NotFoundException(CLIENTE_NAO_ENCONTRADO_PARA_O_ID + id));
         return customerMapper.toResponse(customer);
     }
 
@@ -66,7 +67,7 @@ public class CustomerUseCase {
     public CustomerResponse update(UUID id, UpsertCustomerRequest request) {
         log.info("Updating customer with id: {}", id);
         Customer existingCustomer = customerRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Cliente não encontrado para o id: " + id));
+                .orElseThrow(() -> new NotFoundException(CLIENTE_NAO_ENCONTRADO_PARA_O_ID + id));
 
         String cleanRequestDocument = removeFormatting(request.getDocumentNumber());
         String cleanExistingDocument = existingCustomer.getDocumentNumber();
@@ -90,7 +91,7 @@ public class CustomerUseCase {
     public void delete(UUID id) {
         log.info("Deleting customer with id: {}", id);
         if (customerRepository.findById(id).isEmpty()) {
-            throw new NotFoundException("Cliente não encontrado para o id: " + id);
+            throw new NotFoundException(CLIENTE_NAO_ENCONTRADO_PARA_O_ID + id);
         }
         customerRepository.deleteById(id);
     }

@@ -1,9 +1,8 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.application.mappers.OrderTaskMapper;
-import com.fiap.mechanical_hub.domain.entities.OrderTask;
 import com.fiap.mechanical_hub.application.repositories.OrderTaskRepository;
-import com.fiap.mechanical_hub.infrastructure.database.models.OrderTaskModel;
+import com.fiap.mechanical_hub.domain.entities.OrderTask;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.OrderTaskJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,8 +10,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import static com.fiap.mechanical_hub.application.mappers.OrderTaskMapper.toDomainEntity;
 
 @Component
 @RequiredArgsConstructor
