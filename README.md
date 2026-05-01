@@ -114,12 +114,10 @@ DB_HOST=postgres
 DB_PORT=5432
 DB_NAME=mechanical_hub_db
 DB_USER=admin
-DB_PASSWORD=PmN2iDvdNz
-JWT_SECRET=minha-chave-secreta-para-jwt-mechanical-hub-2026
+DB_PASSWORD=12345678
+JWT_SECRET=minha-chave-jwt-mechanical-hub
 JWT_EXPIRATION_MS=3600000
 ```
-
-> O arquivo `.env` já vem com valores padrão para desenvolvimento. **Em produção, troque `JWT_SECRET` e `DB_PASSWORD` por valores seguros.**
 
 ---
 
@@ -136,7 +134,7 @@ cd mechanical-hub
 docker compose up --build
 
 # 3. A API estará disponível em:
-#    http://localhost:8080
+http://localhost:8080
 ```
 
 Para parar os serviços:
@@ -189,10 +187,10 @@ java -jar target/mechanical-hub-0.0.1-SNAPSHOT.jar
 
 O Flyway cria automaticamente dois usuários na primeira execução (migration `V15`):
 
-| Perfil | E-mail | Senha                                                                                                      |
-|---|---|------------------------------------------------------------------------------------------------------------|
-| Administrador | `admin@mechanicalhub.com` | consultar PDF ou [`V15__seed_default_users.sql`](src/main/resources/db/migration/V15__seed_default_users.sql) |
-| Mecânico | `mecanico@mechanicalhub.com` | consultar PDF ou [`V15__seed_default_users.sql`](src/main/resources/db/migration/V15__seed_default_users.sql)              |
+| Perfil | E-mail                         | Senha         |
+|---|--------------------------------|---------------|
+| Administrador | `admin@mechanicalhub.com`      | consultar PDF |
+| Mecânico | `mecanico@mechanicalhub.com`   | consultar PDF |
 
 > Use o endpoint `POST /auth/login` para obter o token JWT e incluí-lo no header `Authorization: Bearer <token>` nas demais requisições.
 
