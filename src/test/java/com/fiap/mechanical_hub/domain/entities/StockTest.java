@@ -85,6 +85,13 @@ class StockTest {
     }
 
     @Test
+    void shouldReturnFalseWhenStockIsReservedEvenIfQuantityIsInsufficient() {
+        Stock stock = StockMock.reservedStock();
+
+        assertFalse(stock.checkMaterialAvailability(stock.getQuantity() + 10));
+    }
+
+    @Test
     void shouldReleaseQuantityFromReservedStock() {
         Stock stock = StockMock.reservedStock();
         Integer initialQuantity = stock.getQuantity();

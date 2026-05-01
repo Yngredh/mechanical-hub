@@ -9,6 +9,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class StockPendingItemTest {
 
     @Test
+    void shouldCreateEmptyStockPendingItem() {
+        StockPendingItem pendingItem = new StockPendingItem();
+
+        assertAll(
+                () -> assertNull(pendingItem.getId()),
+                () -> assertNull(pendingItem.getServiceOrderId()),
+                () -> assertNull(pendingItem.getMaterialId()),
+                () -> assertNull(pendingItem.getQuantity()),
+                () -> assertNull(pendingItem.getCreatedAt())
+        );
+    }
+
+    @Test
     void shouldCreateStockPendingItemWithValidData() {
         StockPendingItem pendingItem = StockPendingItemMock.defaultPendingItem();
 

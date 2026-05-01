@@ -10,6 +10,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class StockMovementTest {
 
     @Test
+    void shouldCreateEmptyStockMovement() {
+        StockMovement movement = new StockMovement();
+
+        assertAll(
+                () -> assertNull(movement.getId()),
+                () -> assertNull(movement.getMaterialId()),
+                () -> assertNull(movement.getServiceOrderId()),
+                () -> assertNull(movement.getMovementType()),
+                () -> assertNull(movement.getQuantity()),
+                () -> assertNull(movement.getCreatedAt())
+        );
+    }
+
+    @Test
     void shouldCreateEntryMovement() {
         StockMovement movement = StockMovementMock.defaultEntryMovement();
 
