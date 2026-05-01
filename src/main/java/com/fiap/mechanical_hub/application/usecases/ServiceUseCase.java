@@ -5,18 +5,19 @@ import com.fiap.mechanical_hub.application.dto.service.UpsertServiceRequest;
 import com.fiap.mechanical_hub.application.mappers.ServiceMapper;
 import com.fiap.mechanical_hub.application.repositories.ServiceRepository;
 import com.fiap.mechanical_hub.domain.entities.Material;
-import com.fiap.mechanical_hub.domain.entities.Service;
+import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@org.springframework.stereotype.Service
+@Service
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
@@ -34,7 +35,7 @@ public class ServiceUseCase {
                 })
                 .toList();
 
-        Service service = Service.create(
+        ServiceData serviceData = ServiceData.create(
                 request.getName(),
                 request.getDescription(),
                 request.getLaborCost(),
@@ -42,13 +43,13 @@ public class ServiceUseCase {
                 materials
         );
 
-        serviceRepository.save(service);
+        serviceRepository.save(serviceData);
 
-        return ServiceMapper.toResponse(service);
+        return ServiceMapper.toResponse(serviceData);
     }
 
     public ServiceResponse update(UUID id, UpsertServiceRequest request) {
-        Service service = serviceRepository.findById(id)
+        ServiceData serviceData = serviceRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Service not found"));
 
         List<ServiceMaterial> materials = request.getMaterials().stream()
@@ -58,7 +59,7 @@ public class ServiceUseCase {
                 })
                 .toList();
 
-        service.update(
+        serviceData.update(
                 request.getName(),
                 request.getDescription(),
                 request.getLaborCost(),
@@ -66,19 +67,19 @@ public class ServiceUseCase {
                 materials
         );
 
-        serviceRepository.save(service);
+        serviceRepository.save(serviceData);
 
-        return ServiceMapper.toResponse(service);
+        return ServiceMapper.toResponse(serviceData);
     }
 
     @Transactional(readOnly = true)
     public ServiceResponse findById(UUID id) {
-        Optional<Service> service = serviceRepository.findById(id);
+        Optional<ServiceData> service = serviceRepository.findById(id);
         if (service.isEmpty()) { throw new NotFoundException("Service with id " + id + " not found"); }
         return ServiceMapper.toResponse(service.get());
     }
 
-    public Service findServiceById(UUID id) {
+    public ServiceData findServiceById(UUID id) {
         return serviceRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Service not found"));
     }
@@ -94,7 +95,7 @@ public class ServiceUseCase {
         serviceRepository.deleteById(id);
     }
 
-    public List<Service> findAll(List<UUID> serviceIds) {
+    public List<ServiceData> findAll(List<UUID> serviceIds) {
         return serviceRepository.findByIds(serviceIds);
     }
 }

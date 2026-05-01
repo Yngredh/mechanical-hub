@@ -103,7 +103,7 @@
 ### Tarefas técnicas
 
 **4.1 – Criação de Ordem de Serviço** *(perfil: Administrador)*
-- `POST /service-orders`
+- `POST /serviceData-orders`
   - Recebe: dados do cliente, dados do veículo, `request_description` (max 255 chars)
   - Criar cliente/veículo automaticamente se não existirem
   - Gerar `order_number` sequencial por mês/ano
@@ -111,18 +111,18 @@
   - Registrar `created_by_user_id`
 
 **4.2 – Listagem e Detalhe**
-- `GET /service-orders` — listagem com filtros (status, cliente, data)
-- `GET /service-orders/:id` — detalhe completo (serviços, cliente, veículo, status)
+- `GET /serviceData-orders` — listagem com filtros (status, cliente, data)
+- `GET /serviceData-orders/:id` — detalhe completo (serviços, cliente, veículo, status)
 
 **4.3 – Atualização de Status**
-- `PATCH /service-orders/:id/status`
+- `PATCH /serviceData-orders/:id/status`
   - Validar perfil do usuário para `Em diagnóstico`
   - Validar `has_stock_pending` antes de transitar para `Em execução`
   - Validar se todos os serviços estão `Finalizado` antes de transitar para `Finalizada`
   - Registrar timestamps: `opened_at`, `completed_at`, `delivered_at` conforme status
 
 **4.4 – Adicionar Serviços na Ordem**
-- `POST /service-orders/:id/services`
+- `POST /serviceData-orders/:id/serviceData`
   - Disponível apenas enquanto a ordem está `Em diagnóstico`
   - Recebe: array de `service_id`
   - Para cada serviço adicionado:
@@ -148,8 +148,8 @@
 - Atualizar status para `Aguardando aprovação`
 
 **4.7 – Webhook de Aprovação/Recusa**
-- `POST /service-orders/:id/approve` — atualiza status para `Aprovado`
-- `POST /service-orders/:id/reject`
+- `POST /serviceData-orders/:id/approve` — atualiza status para `Aprovado`
+- `POST /serviceData-orders/:id/reject`
   - Atualiza status para `Recusada`
   - Para cada item com status `reservado` vinculado à OS via `stock_movements`:
     1. Reverter o status dos registros de `reservado` para `disponivel` em `stock`
@@ -169,22 +169,22 @@
 ### Tarefas técnicas
 
 **5.1 – CRUD de Serviços** *(perfil: Administrador)*
-- `POST /services` — cadastro
+- `POST /serviceData` — cadastro
   - Recebe: `name`, `description`, `labor_cost`, `materials[]` (`material_id`, `quantity`)
   - Calcular e persistir `total_price` automaticamente
-- `GET /services` — listagem
-- `GET /services/:id` — detalhe
-- `PUT /services/:id` — edição (recalcular `total_price`)
-- `DELETE /services/:id` — remoção
+- `GET /serviceData` — listagem
+- `GET /serviceData/:id` — detalhe
+- `PUT /serviceData/:id` — edição (recalcular `total_price`)
+- `DELETE /serviceData/:id` — remoção
 
 **5.2 – Atualização de Status do Serviço na OS**
-- `PATCH /service-orders/:id/services/:service_id/status`
+- `PATCH /serviceData-orders/:id/serviceData/:service_id/status`
   - Recebe: novo status
   - Se `Iniciado` → acionar atualização automática da OS para `Em execução`
   - Registrar `started_at` e `finished_at` conforme transição
 
 **5.3 – Relatório de Tempo Médio de Execução**
-- `GET /reports/services/avg-execution-time`
+- `GET /reports/serviceData/avg-execution-time`
   - Agrupar registros de `order_services` por `service_id`
   - Calcular: `avg_time = Σ (finished_at - started_at) / count`
   - Retornar: lista de serviços com nome e tempo médio em minutos/horas
@@ -269,7 +269,7 @@ As tabelas abaixo devem ser criadas conforme a modelagem ER do projeto:
 | `order_status` | Enum de status das ordens |
 | `service_status` | Enum de status dos serviços dentro da OS |
 | `service_orders` | Ordens de serviço |
-| `services` | Catálogo de serviços disponíveis |
+| `serviceData` | Catálogo de serviços disponíveis |
 | `order_services` | Relacionamento OS ↔ Serviço (com status e timestamps) |
 | `service_materials` | Relacionamento Serviço ↔ Material (com quantidade) |
 | `materials` | Peças e insumos |

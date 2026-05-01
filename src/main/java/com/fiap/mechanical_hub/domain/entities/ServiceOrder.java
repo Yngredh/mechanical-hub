@@ -136,12 +136,12 @@ public class ServiceOrder {
 
     public boolean validateTaskNotDuplicated(UUID serviceId) {
         return this.orderTasks.stream()
-                .anyMatch(ot -> ot.getService().getId().equals(serviceId));
+                .anyMatch(ot -> ot.getServiceData().getId().equals(serviceId));
     }
 
     private OrderTask findTask(UUID taskId){
         return this.getOrderTasks().stream()
-                .filter(t -> t.getService().getId().equals(taskId))
+                .filter(t -> t.getServiceData().getId().equals(taskId))
                 .findFirst()
                 .orElseThrow(() -> new BusinessRuleException("Tarefa não encontrada"));
     }

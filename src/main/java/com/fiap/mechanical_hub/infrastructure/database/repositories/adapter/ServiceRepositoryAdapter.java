@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.application.mappers.ServiceMapper;
-import com.fiap.mechanical_hub.domain.entities.Service;
+import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.application.repositories.ServiceRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceJpaRepository;
@@ -21,19 +21,19 @@ public class ServiceRepositoryAdapter implements ServiceRepository {
     private final ServiceJpaRepository jpaRepository;
 
     @Override
-    public Service save(Service service) {
-        ServiceModel entity = toJpaEntity(service);
+    public ServiceData save(ServiceData serviceData) {
+        ServiceModel entity = toJpaEntity(serviceData);
         ServiceModel saved = jpaRepository.save(entity);
         return toDomainEntity(saved);
     }
 
     @Override
-    public Optional<Service> findById(UUID id) {
+    public Optional<ServiceData> findById(UUID id) {
         return jpaRepository.findById(id).map(ServiceMapper::toDomainEntity);
     }
 
     @Override
-    public List<Service> findAll() {
+    public List<ServiceData> findAll() {
         return jpaRepository.findAll().stream()
                 .map(ServiceMapper::toDomainEntity)
                 .toList();
@@ -45,7 +45,7 @@ public class ServiceRepositoryAdapter implements ServiceRepository {
     }
 
     @Override
-    public List<Service> findByIds(List<UUID> serviceIds) {
+    public List<ServiceData> findByIds(List<UUID> serviceIds) {
          return jpaRepository.findByIdIn(serviceIds)
                  .stream().map(ServiceMapper::toDomainEntity).toList();
     }

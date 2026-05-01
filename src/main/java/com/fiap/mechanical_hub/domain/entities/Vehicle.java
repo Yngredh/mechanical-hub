@@ -1,8 +1,6 @@
 package com.fiap.mechanical_hub.domain.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -14,6 +12,7 @@ import static com.fiap.mechanical_hub.shared.utils.license_plate.LicensePlateVal
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Vehicle {
 
 	private UUID id;

@@ -19,7 +19,7 @@ src/
 │   ├── value-objects/
 │   ├── enums/
 │   ├── repositories/
-│   ├── services/
+│   ├── serviceData/
 │   └── exceptions/
 │
 ├── application/
@@ -56,7 +56,7 @@ src/
 
 # contexts:
 
-  service-order:
+  serviceData-order:
     type: core
 
   inventory:
@@ -202,7 +202,7 @@ src/
       - whatsapp
       - email
 
-  - NEVER call external service from domain
+  - NEVER call external serviceData from domain
 
   - use domain events for integrations
 

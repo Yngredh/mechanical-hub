@@ -3,6 +3,7 @@ package com.fiap.mechanical_hub.domain.entities;
 import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,20 +13,21 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class OrderTask {
 
     private UUID id;
     private UUID serviceOrderId;
-    private Service service;
+    private ServiceData serviceData;
     private TaskStatusEnum status;
     private LocalDateTime startedAt;
     private LocalDateTime finishedAt;
 
-    public static OrderTask create(UUID serviceOrderId, Service service) {
+    public static OrderTask create(UUID serviceOrderId, ServiceData serviceData) {
         OrderTask task = new OrderTask();
         task.id = UUID.randomUUID();
         task.serviceOrderId = serviceOrderId;
-        task.service = service;
+        task.serviceData = serviceData;
         task.status = TaskStatusEnum.PENDENTE;
         task.startedAt = null;
         task.finishedAt = null;
