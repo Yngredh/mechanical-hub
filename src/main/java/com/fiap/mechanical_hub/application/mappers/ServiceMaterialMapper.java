@@ -10,11 +10,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServiceMaterialMapper {
 
-    private ServiceMaterialMapper() {
-        throw new UnsupportedOperationException("Utility class");
-    }
-
-
     public static ServiceMaterialModel toJpaEntity(ServiceMaterial entity, ServiceModel parentService) {
         return new ServiceMaterialModel(
                 entity.getId(),

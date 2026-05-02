@@ -10,11 +10,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
-    private UserMapper() {
-        throw new UnsupportedOperationException("Utility class");
-    }
-
-
     public static User toDomain(UserModel model) {
         return User.build(
                 model.getId(),
