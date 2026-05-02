@@ -152,7 +152,6 @@ class VehicleUseCaseTest {
     @Test
     @DisplayName("Deve retornar VehicleResponse quando encontrar um veículo pelo ID")
     void findById_Success() {
-        // GIVEN
         UUID vehicleId = UUID.randomUUID();
         Vehicle vehicle = mock(Vehicle.class);
         VehicleResponse response = new VehicleResponse();
@@ -160,10 +159,8 @@ class VehicleUseCaseTest {
         when(vehicleRepository.findById(vehicleId)).thenReturn(Optional.of(vehicle));
         when(vehicleMapper.toResponse(vehicle)).thenReturn(response);
 
-        // WHEN
         VehicleResponse result = vehicleUseCase.findById(vehicleId);
 
-        // THEN
         assertNotNull(result);
         assertEquals(response, result);
         verify(vehicleRepository, times(1)).findById(vehicleId);
@@ -173,11 +170,9 @@ class VehicleUseCaseTest {
     @Test
     @DisplayName("Deve lançar NoSuchElementException quando o ID do veículo não existir")
     void findById_NotFound() {
-        // GIVEN
         UUID vehicleId = UUID.randomUUID();
         when(vehicleRepository.findById(vehicleId)).thenReturn(Optional.empty());
 
-        // WHEN & THEN
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
             vehicleUseCase.findById(vehicleId);
         });
@@ -190,7 +185,6 @@ class VehicleUseCaseTest {
     @Test
     @DisplayName("Deve retornar uma lista de VehicleResponse no findAll")
     void findAll_Success() {
-        // GIVEN
         Vehicle v1 = mock(Vehicle.class);
         Vehicle v2 = mock(Vehicle.class);
         List<Vehicle> vehicles = List.of(v1, v2);
@@ -202,10 +196,8 @@ class VehicleUseCaseTest {
         when(vehicleMapper.toResponse(v1)).thenReturn(r1);
         when(vehicleMapper.toResponse(v2)).thenReturn(r2);
 
-        // WHEN
         List<VehicleResponse> result = vehicleUseCase.findAll();
 
-        // THEN
         assertNotNull(result);
         assertEquals(2, result.size());
         assertTrue(result.contains(r1));
@@ -218,16 +210,87 @@ class VehicleUseCaseTest {
     @Test
     @DisplayName("Deve retornar lista vazia no findAll quando não houver veículos")
     void findAll_Empty() {
-        // GIVEN
         when(vehicleRepository.findAll()).thenReturn(List.of());
 
-        // WHEN
         List<VehicleResponse> result = vehicleUseCase.findAll();
 
-        // THEN
         assertNotNull(result);
         assertTrue(result.isEmpty());
         verify(vehicleRepository, times(1)).findAll();
         verifyNoInteractions(vehicleMapper);
+    }
+
+    @Test
+    @DisplayName("Deve lançar DuplicateLicensePlateException quando a nova placa já pertencer a outro veículo")
+    void update_ShouldThrowException_WhenLicensePlateAlreadyExistsForAnotherVehicle() {
+        UUID vehicleId = UUID.randomUUID();
+        String plate = "ABC1D23";
+        String normalizedPlate = "ABC1D23";
+
+        UpsertVehicleRequest request = new UpsertVehicleRequest();
+        request.setLicensePlate(plate);
+
+        Vehicle existingVehicle = mock(Vehicle.class);
+
+        when(vehicleRepository.findById(vehicleId)).thenReturn(Optional.of(existingVehicle));
+
+        when(vehicleRepository.existsByLicensePlateAndIdNot(normalizedPlate, vehicleId))
+                .thenReturn(true);
+
+        DuplicateLicensePlateException exception = assertThrows(DuplicateLicensePlateException.class, () -> {
+            vehicleUseCase.update(vehicleId, request);
+        });
+
+        assertEquals(String.format("Veículo com placa %s já existe", normalizedPlate), exception.getMessage());
+
+        verify(vehicleRepository, never()).save(any(Vehicle.class));
+    }
+
+    @Test
+    @DisplayName("Deve lançar NoSuchElementException ao tentar deletar um veículo inexistente")
+    void delete_ShouldThrowException_WhenVehicleDoesNotExist() {
+        UUID vehicleId = UUID.randomUUID();
+
+        when(vehicleRepository.findById(vehicleId)).thenReturn(Optional.empty());
+
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
+            vehicleUseCase.delete(vehicleId);
+        });
+
+        String expectedMessage = VehicleUseCase.VEICULO_NAO_ENCONTRADO_PARA_O_ID + vehicleId;
+        assertEquals(expectedMessage, exception.getMessage());
+
+        verify(vehicleRepository, never()).deleteById(any(UUID.class));
+    }
+
+    @Test
+    @DisplayName("Deve retornar veículo existente quando a placa já estiver cadastrada")
+    void findByLicensePlateOrCreate_ShouldReturnExistingVehicle() {
+        UUID customerId = UUID.randomUUID();
+        String plate = "BRA2E24";
+        String normalizedPlate = "BRA2E24";
+
+        Vehicle existingVehicle = Vehicle.create(
+                customerId,
+                normalizedPlate,
+                "Toyota",
+                "Corolla",
+                2023,
+                "Preto"
+        );
+
+        when(vehicleRepository.findByLicensePlate(normalizedPlate))
+                .thenReturn(Optional.of(existingVehicle));
+
+        Vehicle result = vehicleUseCase.findByLicensePlateOrCreate(
+                customerId, plate, "Toyota", "Corolla", 2023, "Preto"
+        );
+
+        assertNotNull(result);
+        assertEquals(normalizedPlate, result.getLicensePlate());
+        assertEquals(existingVehicle, result);
+
+        verify(vehicleRepository, never()).save(any(Vehicle.class));
+        verify(vehicleRepository, times(1)).findByLicensePlate(normalizedPlate);
     }
 }

@@ -260,4 +260,86 @@ class StockUseCaseTest {
         verify(order).setHasStockPending(false);
         verify(serviceOrderRepository).save(order);
     }
+
+    @Test
+    @DisplayName("Deve interromper a resolução de pendências quando o estoque disponível chegar a zero")
+    void resolveMaterialPendingIssues_ShouldBreakLoopWhenStockExhausted() {
+        UUID materialId = UUID.randomUUID();
+
+        Stock updatedStock = mock(Stock.class);
+        when(updatedStock.getQuantity()).thenReturn(2, 0);
+
+        StockPendingItem firstPending = mock(StockPendingItem.class);
+        when(firstPending.getQuantity()).thenReturn(5);
+        when(firstPending.getMaterialId()).thenReturn(materialId);
+        when(firstPending.getServiceOrderId()).thenReturn(UUID.randomUUID());
+
+        StockPendingItem secondPending = mock(StockPendingItem.class);
+
+        when(stockPendingUseCase.findMaterialStockPendency(materialId))
+                .thenReturn(List.of(firstPending, secondPending));
+
+        when(stockRepository.findByMaterialIdAndStatus(materialId, StockStatusEnum.RESERVED))
+                .thenReturn(Optional.empty());
+        when(materialRepository.findById(materialId)).thenReturn(Optional.empty());
+
+        stockUseCase.resolveMaterialPendingIssues(materialId, updatedStock);
+
+        verify(updatedStock, times(1)).subtractQuantity(anyInt());
+
+        verify(stockPendingUseCase, never()).removePendency(secondPending);
+    }
+
+    @Test
+    @DisplayName("Deve lançar NotFoundException quando não houver registro de estoque disponível para o material")
+    void registerStockEntry_ShouldThrowNotFoundException_WhenStockRecordDoesNotExist() {
+        UUID materialId = UUID.randomUUID();
+        StockEntryRequest request = new StockEntryRequest(materialId, 10);
+
+        when(stockRepository.findByMaterialIdAndStatus(materialId, StockStatusEnum.AVAILABLE))
+                .thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            stockUseCase.registerStockEntry(request);
+        });
+
+        String expectedMessage = "Estoque não encontrado para o material id: " + materialId;
+        assertEquals(expectedMessage, exception.getMessage());
+
+        verify(stockRepository, never()).save(any(Stock.class));
+        verify(stockMovementUseCase, never()).registerStockEntryMovement(any());
+        verify(stockPendingUseCase, never()).findMaterialStockPendency(any());
+    }
+
+    @Test
+    @DisplayName("Deve atualizar estoque reservado existente quando já houver registro")
+    void executeReservation_ShouldUpdateExistingReservedStock() {
+        UUID serviceOrderId = UUID.randomUUID();
+        UUID materialId = UUID.randomUUID();
+        Integer quantityToReserve = 5;
+
+        Stock availableStock = mock(Stock.class);
+
+        when(availableStock.checkMaterialAvailability(quantityToReserve)).thenReturn(false);
+
+        Stock existingReservedStock = mock(Stock.class);
+
+        when(stockRepository.findByMaterialIdAndStatus(materialId, StockStatusEnum.AVAILABLE))
+                .thenReturn(Optional.of(availableStock));
+
+        when(stockRepository.findByMaterialIdAndStatus(materialId, StockStatusEnum.RESERVED))
+                .thenReturn(Optional.of(existingReservedStock));
+
+        when(materialRepository.findById(materialId)).thenReturn(Optional.empty());
+
+        ServiceOrder order = mock(ServiceOrder.class);
+        when(order.getId()).thenReturn(serviceOrderId);
+        Material material = new Material(materialId, "Material Teste", null, null, 10, null, null);
+
+        stockUseCase.reserveForServiceOrder(order, material, quantityToReserve);
+
+        verify(existingReservedStock).addQuantity(quantityToReserve);
+        verify(stockRepository).save(existingReservedStock);
+        verify(stockRepository).save(availableStock);
+    }
 }

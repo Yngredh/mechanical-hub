@@ -20,6 +20,12 @@
     </parent>
 
     <properties>
+
+        <sonar.projectKey>mechanical-hub</sonar.projectKey>
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ${project.build.directory}/site/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+
         <java.version>21</java.version>
         <sonar.version>4.0.0.4121</sonar.version>
         <jacoco.version>0.8.11</jacoco.version>
@@ -31,10 +37,13 @@
         </sonar.coverage.jacoco.xmlReportPaths>
         <!-- Excluir classes que não possuem lógica de negócio da métrica de cobertura -->
         <sonar.exclusions>
+            **/config/**,
+            **/interfaces/**,
             **/mappers/**,
             **/config/**,
             **/enums/**,
             **/exceptions/**,
+            **/integrations/**,
             **/*Application.java
         </sonar.exclusions>
     </properties>
@@ -174,7 +183,6 @@
                                 <exclude>**/enums/**</exclude>
                                 <exclude>**/exceptions/**</exclude>
                                 <exclude>**/MechanicalHubApplication.class</exclude>
-                                <exclude>**/dto/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
