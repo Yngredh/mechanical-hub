@@ -188,6 +188,29 @@ class ServiceOrderControllerTest {
         @Test
         @DisplayName("Should create service order and return 201 when request data is valid")
         void shouldReturn201WhenDataIsValid() throws Exception {
+
+            List<OrderTaskResponse> orderTaskResponses = List.of(
+                    new OrderTaskResponse(
+                            UUID.randomUUID(),
+                            serviceOrderId,
+                            new com.fiap.mechanical_hub.application.dto.service.ServiceResponse(
+                                    serviceId,
+                                    "Troca de óleo",
+                                    "Troca do óleo do motor",
+                                    BigDecimal.valueOf(100),
+                                    BigDecimal.valueOf(200),
+                                    BigDecimal.valueOf(300),
+                                    List.of(),
+                                    true,
+                                    LocalDateTime.now(),
+                                    LocalDateTime.now()
+                            ),
+                            "PENDENTE",
+                            null,
+                            null
+                    )
+            );
+            serviceOrderResponse.setOrderTasks(orderTaskResponses);
             when(serviceOrderUseCase.create(createRequest, createdByUserId))
                     .thenReturn(serviceOrderResponse);
 
