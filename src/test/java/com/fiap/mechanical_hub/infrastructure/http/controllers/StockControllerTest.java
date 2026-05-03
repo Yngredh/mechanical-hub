@@ -28,8 +28,8 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -227,6 +227,36 @@ class StockControllerTest {
                     .andExpect(status().isUnauthorized());
 
             verifyNoInteractions(stockUseCase);
+        }
+
+        @Test
+        void delete_Success() throws Exception {
+            UUID uuid = UUID.fromString("e3710999-f455-4733-a1c2-545d1674bd10");
+
+            mockMvc.perform(delete("/stock/{materialId}", uuid)
+                            .with(csrf())
+                            .with(user("ADMINISTRATOR").roles("ADMINISTRATOR"))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNoContent());
+
+            verify(stockUseCase).delete(uuid);
+        }
+
+        @Test
+        @DisplayName("Deve retornar 404 Not Found quando o UseCase lançar NotFoundException")
+        void delete_NotFound() throws Exception {
+            UUID uuid = UUID.randomUUID();
+
+            doThrow(new NotFoundException("Material não encontrado"))
+                    .when(stockUseCase).delete(uuid);
+
+            mockMvc.perform(delete("/stock/{materialId}", uuid) // Use a mesma variável
+                            .with(csrf())
+                            .with(user("ADMINISTRATOR").roles("ADMINISTRATOR"))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNotFound());
+
+            verify(stockUseCase, times(1)).delete(uuid);
         }
     }
 }

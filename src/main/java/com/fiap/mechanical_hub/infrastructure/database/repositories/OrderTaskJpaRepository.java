@@ -20,7 +20,7 @@ public interface OrderTaskJpaRepository extends JpaRepository<OrderTaskModel, UU
                 CAST(AVG(EXTRACT(EPOCH FROM (ot.finished_at - ot.started_at)) / 60) AS BIGINT) as avgExecutionMinutes,
                 COUNT(ot.id) as totalExecutions
             FROM order_tasks ot
-            JOIN serviceData s ON ot.service_id = s.id
+            JOIN services s ON ot.service_id = s.id
             WHERE ot.started_at IS NOT NULL\s
                 AND ot.finished_at IS NOT NULL
             GROUP BY ot.service_id, s.name

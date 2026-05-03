@@ -82,13 +82,18 @@ public class MaterialUseCase {
         return materialMapper.toResponse(savedMaterial);
     }
 
+    @Transactional
     public void delete(UUID id) {
-        log.info("Deleting material with id: {}", id);
+        log.info("Iniciando processo de exclusão do material e dependências: {}", id);
+
         if (materialRepository.findById(id).isEmpty()) {
-            throw new NotFoundException(MATERIAL_NAO_ENCONTRADO_PARA_O_ID + id);
+            throw new NotFoundException("Material não encontrado com o id: " + id);
         }
 
+        stockUseCase.delete(id);
+
         materialRepository.deleteById(id);
-        log.info("Material with id {} deleted successfully", id);
+
+        log.info("Material e todas as dependências de estoque deletadas com sucesso: {}", id);
     }
 }

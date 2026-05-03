@@ -14,6 +14,6 @@ public class ServiceMaterialResponse {
     private String materialName;
     private String materialDescription;
     private BigDecimal unitPrice;
-    private Integer quantity;
+    private int quantity;
 }
 
