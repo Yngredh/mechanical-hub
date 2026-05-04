@@ -6,7 +6,7 @@ Sistema de Gestão de Oficina Mecânica — automatiza o atendimento ao cliente,
 
 ## 📋 Sumário
 
-- [Visão Geral](#visao-geral)
+- [Visão Geral](#visão-geral)
 - [Tecnologias](#tecnologias)
 - [Arquitetura](#arquitetura)
 - [Regras de Negócio](#regras-de-negócio)
@@ -24,7 +24,7 @@ Sistema de Gestão de Oficina Mecânica — automatiza o atendimento ao cliente,
 
 ---
 
-<a id="visao-geral"></a>
+<a id="visão-geral"></a>
 ## 💡 Visão Geral
 
 O Mechanical Hub resolve os problemas de uma oficina mecânica que opera com anotações manuais e planilhas isoladas:
@@ -37,6 +37,7 @@ O Mechanical Hub resolve os problemas de uma oficina mecânica que opera com ano
 
 ---
 
+<a id="tecnologias"></a>
 ## 🛠️ Tecnologias
 
 | Camada | Tecnologia |
@@ -51,12 +52,14 @@ O Mechanical Hub resolve os problemas de uma oficina mecânica que opera com ano
 
 ---
 
+<a id="arquitetura"></a>
 ## 🏗️ Arquitetura
 
 - [Estrutura do Projeto](src/docs/rules/rules.md#project-structure)
 
 ---
 
+<a id="regras-de-negócio"></a>
 ## 📖 Regras de Negócio
 
 - [Regras de Negócio](src/docs/spec/mechanical_hub_spec.md#regras-de-negócio)
@@ -66,12 +69,14 @@ O Mechanical Hub resolve os problemas de uma oficina mecânica que opera com ano
 
 ---
 
+<a id="entidades-do-domínio"></a>
 ## 🗃️ Entidades do Domínio
 
 - [Modelagem de Dados](src/docs/spec/mechanical-hub-data-model.md)
 
 ---
 
+<a id="pré-requisitos"></a>
 ## ✅ Pré-requisitos
 
 - Executar via contêiner - [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/)
@@ -79,6 +84,7 @@ O Mechanical Hub resolve os problemas de uma oficina mecânica que opera com ano
 
 ---
 
+<a id="configuração-de-ambiente"></a>
 ## ⚙️ Configuração de Ambiente
 
 Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
@@ -95,8 +101,10 @@ JWT_EXPIRATION_MS=3600000
 
 ---
 
+<a id="como-executar"></a>
 ## 🚀 Como Executar
 
+<a id="com-docker-recomendado"></a>
 ### 🐳 Com Docker (recomendado)
 
 ```bash
@@ -121,6 +129,7 @@ Para parar e remover o volume do banco (dados serão apagados):
 docker compose down -v
 ```
 
+<a id="localmente-sem-docker"></a>
 ### 💻 Localmente (sem Docker)
 
 **1. Suba apenas o banco com Docker:**
@@ -157,6 +166,7 @@ java -jar target/mechanical-hub-0.0.1-SNAPSHOT.jar
 
 ---
 
+<a id="usuários-padrão"></a>
 ## 👤 Usuários Padrão
 
 O Flyway cria automaticamente dois usuários na primeira execução (migration `V15`):
@@ -170,6 +180,7 @@ O Flyway cria automaticamente dois usuários na primeira execução (migration `
 
 ---
 
+<a id="documentação-da-api"></a>
 ## 📚 Documentação da API
 
 Com a aplicação rodando, acesse o Swagger UI:
@@ -185,8 +196,10 @@ http://localhost:8080/v3/api-docs
 
 ---
 
+<a id="como-testar-o-projeto"></a>
 ## 🧪 Como Testar o Projeto
 
+<a id="fluxo-completo-passo-a-passo"></a>
 ### Fluxo completo passo a passo
 
 O fluxo abaixo cobre o ciclo completo de uma Ordem de Serviço desde a criação até a entrega do veículo. Use o Swagger (`http://localhost:8080/swagger-ui/index.html`) ou um cliente HTTP como Insomnia / Postman.
@@ -436,6 +449,7 @@ GET /mechanical-hub/service-orders/OS-202604-0001
 
 ---
 
+<a id="testes-automatizados"></a>
 ### 🤖 Testes automatizados
 
 Execute os testes com Maven:
