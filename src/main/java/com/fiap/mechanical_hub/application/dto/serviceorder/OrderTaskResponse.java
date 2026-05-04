@@ -3,13 +3,11 @@ package com.fiap.mechanical_hub.application.dto.serviceorder;
 import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class OrderTaskResponse {
 

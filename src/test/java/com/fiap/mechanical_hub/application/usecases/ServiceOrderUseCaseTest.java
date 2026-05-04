@@ -2,11 +2,14 @@ package com.fiap.mechanical_hub.application.usecases;
 
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
+import com.fiap.mechanical_hub.application.dto.serviceorder.request.ServiceOrderCustomerView;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
 import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.domain.entities.*;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
+import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
+import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.domain.strategies.order_transition.OrderStatusTransition;
 import com.fiap.mechanical_hub.domain.strategies.order_transition.OrderStatusTransitionFactory;
 import com.fiap.mechanical_hub.shared.utils.OrderNumberGenerator;
@@ -24,22 +27,33 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ServiceOrderUseCaseTest {
 
-    @Mock private ServiceOrderRepository repository;
-    @Mock private ServiceMaterialUseCase serviceMaterialUseCase;
-    @Mock private StockUseCase stockUseCase;
-    @Mock private CustomerUseCase customerUseCase;
-    @Mock private VehicleUseCase vehicleUseCase;
-    @Mock private ServiceUseCase serviceUseCase;
-    @Mock private OrderNumberGenerator orderNumberGenerator;
-    @Mock private ServiceOrderMapper mapper;
-    @Mock private OrderStatusTransitionFactory factory;
-
+    @Mock
+    private ServiceOrderRepository repository;
+    @Mock
+    private ServiceMaterialUseCase serviceMaterialUseCase;
+    @Mock
+    private StockUseCase stockUseCase;
+    @Mock
+    private CustomerUseCase customerUseCase;
+    @Mock
+    private VehicleUseCase vehicleUseCase;
+    @Mock
+    private ServiceUseCase serviceUseCase;
+    @Mock
+    private OrderNumberGenerator orderNumberGenerator;
+    @Mock
+    private ServiceOrderMapper mapper;
+    @Mock
+    private OrderStatusTransitionFactory factory;
+    @Mock
+    private OrderStatusTransition transition;
     @InjectMocks
     private ServiceOrderUseCase useCase;
 
@@ -110,14 +124,14 @@ class ServiceOrderUseCaseTest {
     void approve_ShouldUseFactoryAndSave() {
         UUID orderId = UUID.randomUUID();
         ServiceOrder order = mock(ServiceOrder.class);
-        OrderStatusTransition transition = mock(OrderStatusTransition.class);
+        OrderStatusTransition transitionTest = mock(OrderStatusTransition.class);
 
         when(repository.findById(orderId)).thenReturn(Optional.of(order));
-        when(factory.get(OrderStatusEnum.APROVADO)).thenReturn(transition);
+        when(factory.get(OrderStatusEnum.APROVADO)).thenReturn(transitionTest);
 
         useCase.approve(orderId);
 
-        verify(transition).execute(order);
+        verify(transitionTest).execute(order);
         verify(repository).save(order);
     }
 
@@ -137,6 +151,127 @@ class ServiceOrderUseCaseTest {
 
         assertThat(result).isNotNull();
         verify(repository).findById(id);
+    }
+
+    @Test
+    @DisplayName("Deve atualizar o status da ordem com sucesso")
+    void updateOrderStatus_Success() {
+        UUID orderId = UUID.randomUUID();
+        ServiceOrder order = mock(ServiceOrder.class);
+        OrderStatusEnum targetStatus = OrderStatusEnum.EM_DIAGNOSTICO;
+
+        when(repository.findById(orderId)).thenReturn(Optional.of(order));
+        when(factory.get(targetStatus)).thenReturn(transition);
+        when(repository.save(order)).thenReturn(order);
+
+        ServiceOrder result = useCase.updateOrderStatus(orderId, targetStatus);
+
+        verify(transition).execute(order);
+        verify(repository).save(order);
+        assertNotNull(result);
+    }
+
+    @Test
+    @DisplayName("Deve retornar todos os sumários de ordens de serviço")
+    void findAll_Success() {
+        ServiceOrder order = mock(ServiceOrder.class);
+        when(order.getStatus()).thenReturn(OrderStatusEnum.RECEBIDO);
+        when(repository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(order));
+
+        List<ServiceOrderSummaryResponse> result = useCase.findAll();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(repository).findAllByOrderByCreatedAtDesc();
+    }
+
+    @Test
+    @DisplayName("Deve rejeitar uma ordem de serviço com sucesso")
+    void reject_Success() {
+        UUID orderId = UUID.randomUUID();
+        ServiceOrder order = mock(ServiceOrder.class);
+
+        when(repository.findById(orderId)).thenReturn(Optional.of(order));
+        when(factory.get(OrderStatusEnum.RECUSADO)).thenReturn(transition);
+
+        useCase.reject(orderId);
+
+        verify(transition).execute(order);
+        verify(repository).save(order);
+    }
+
+    @Test
+    @DisplayName("Deve atualizar status da tarefa para INICIADO")
+    void updateTaskStatus_Started() {
+        UUID orderId = UUID.randomUUID();
+        UUID taskId = UUID.randomUUID();
+        ServiceOrder order = mock(ServiceOrder.class);
+
+        when(repository.findById(orderId)).thenReturn(Optional.of(order));
+
+        useCase.updateTaskStatus(orderId, taskId, TaskStatusEnum.INICIADO);
+
+        verify(order).startTask(taskId);
+        verify(repository).save(order);
+    }
+
+    @Test
+    @DisplayName("Deve atualizar status da tarefa para FINALIZADO")
+    void updateTaskStatus_Finished() {
+        UUID orderId = UUID.randomUUID();
+        UUID taskId = UUID.randomUUID();
+        ServiceOrder order = mock(ServiceOrder.class);
+
+        when(repository.findById(orderId)).thenReturn(Optional.of(order));
+
+        useCase.updateTaskStatus(orderId, taskId, TaskStatusEnum.FINALIZADO);
+
+        verify(order).finishTask(taskId);
+        verify(repository).save(order);
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção para status de tarefa inválido")
+    void updateTaskStatus_InvalidStatus() {
+        UUID orderId = UUID.randomUUID();
+        ServiceOrder order = mock(ServiceOrder.class);
+        when(repository.findById(orderId)).thenReturn(Optional.of(order));
+
+        UUID taskId = UUID.randomUUID();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                useCase.updateTaskStatus(orderId, taskId, TaskStatusEnum.PENDENTE)
+        );
+    }
+
+    @Test
+    @DisplayName("Deve encontrar ordem pelo número e retornar visão do cliente")
+    void findByOrderNumber_Success() {
+        String orderNumber = "SO-2026-001";
+        ServiceOrder order = mock(ServiceOrder.class);
+        UUID vehicleId = UUID.randomUUID();
+        UUID customerId = UUID.randomUUID();
+
+        when(order.getVehicleId()).thenReturn(vehicleId);
+        when(order.getCustomerId()).thenReturn(customerId);
+        when(repository.findByOrderNumber(orderNumber)).thenReturn(Optional.of(order));
+
+        when(vehicleUseCase.findById(vehicleId)).thenReturn(mock(VehicleResponse.class));
+        when(customerUseCase.findById(customerId)).thenReturn(mock(CustomerResponse.class));
+
+        ServiceOrderCustomerView result = useCase.findByOrderNumber(orderNumber);
+
+        assertNotNull(result);
+        verify(repository).findByOrderNumber(orderNumber);
+    }
+
+    @Test
+    @DisplayName("Deve lançar NotFoundException quando número da ordem não existir")
+    void findByOrderNumber_NotFound() {
+        String orderNumber = "INVALID";
+        when(repository.findByOrderNumber(orderNumber)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> useCase.findByOrderNumber(orderNumber));
     }
 
     private CreateServiceOrderRequest createMockRequest() {

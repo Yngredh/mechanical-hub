@@ -1,5 +1,6 @@
 package com.fiap.mechanical_hub.application.usecases;
 
+import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.application.dto.service.UpsertServiceRequest;
 import com.fiap.mechanical_hub.application.dto.servicematerials.ServiceMaterialRequest;
 import com.fiap.mechanical_hub.application.repositories.ServiceRepository;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -140,5 +142,73 @@ class ServiceUseCaseTest {
         serviceUseCase.delete(id);
 
         verify(serviceRepository, times(1)).deleteById(id);
+    }
+
+    @Test
+    @DisplayName("Deve retornar ServiceData quando o ID existir")
+    void findServiceById_Success() {
+        // GIVEN
+        UUID serviceId = UUID.randomUUID();
+        ServiceData serviceData = mock(ServiceData.class);
+        when(serviceRepository.findById(serviceId)).thenReturn(Optional.of(serviceData));
+
+        // WHEN
+        ServiceData result = serviceUseCase.findServiceById(serviceId);
+
+        // THEN
+        assertNotNull(result);
+        assertEquals(serviceData, result);
+        verify(serviceRepository, times(1)).findById(serviceId);
+    }
+
+    @Test
+    @DisplayName("Deve lançar NotFoundException quando o ID do serviço não existir")
+    void findServiceById_NotFound() {
+        // GIVEN
+        UUID serviceId = UUID.randomUUID();
+        when(serviceRepository.findById(serviceId)).thenReturn(Optional.empty());
+
+        // WHEN & THEN
+        assertThrows(NotFoundException.class, () -> serviceUseCase.findServiceById(serviceId));
+        verify(serviceRepository, times(1)).findById(serviceId);
+    }
+
+    @Test
+    @DisplayName("Deve retornar lista de ServiceResponse no findAll")
+    void findAll_Success() {
+        // GIVEN
+        ServiceData service1 = mock(ServiceData.class);
+        ServiceData service2 = mock(ServiceData.class);
+
+        // Mockando comportamentos básicos para o Mapper não estourar NullPointer se necessário
+        when(service1.getName()).thenReturn("Troca de Óleo");
+        when(service2.getName()).thenReturn("Alinhamento");
+
+        when(serviceRepository.findAll()).thenReturn(List.of(service1, service2));
+
+        // WHEN
+        List<ServiceResponse> result = serviceUseCase.findAll();
+
+        // THEN
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(serviceRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("Deve retornar lista de ServiceData ao buscar por lista de IDs")
+    void findAllByIds_Success() {
+        // GIVEN
+        List<UUID> ids = List.of(UUID.randomUUID(), UUID.randomUUID());
+        ServiceData s1 = mock(ServiceData.class);
+        ServiceData s2 = mock(ServiceData.class);
+        when(serviceRepository.findByIds(ids)).thenReturn(List.of(s1, s2));
+
+        // WHEN
+        List<ServiceData> result = serviceUseCase.findAll(ids);
+
+        // THEN
+        assertEquals(2, result.size());
+        verify(serviceRepository).findByIds(ids);
     }
 }

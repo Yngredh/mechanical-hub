@@ -5,7 +5,9 @@ import com.fiap.mechanical_hub.domain.entities.User;
 import com.fiap.mechanical_hub.domain.enums.ProfileEnum;
 import com.fiap.mechanical_hub.infrastructure.database.models.ProfileModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.UserModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserMapper {
 
     public static User toDomain(UserModel model) {

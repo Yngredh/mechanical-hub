@@ -310,7 +310,7 @@ Salve o `id` e o `orderNumber` da OS.
 
 Autentique-se como mecânico ou use o token de admin:
 ```
-PATCH /service-orders/<id>/status
+PATCH /service-orders/<order-id>/status
 ```
 ```json
 {

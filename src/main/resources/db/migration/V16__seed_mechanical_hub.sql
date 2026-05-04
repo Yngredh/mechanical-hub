@@ -155,6 +155,43 @@ INSERT INTO service_orders (id, vehicle_id, customer_id, order_status, created_b
 SELECT '4b3e8a1d-5f2c-4e9a-bc7d-1a2b3c4d5e6f', '241ad3cc-f878-49d3-9292-94ca1d4912d9', '69c2954a-3606-48f4-a38b-28a50062e962', 'AGUARDANDO_APROVACAO', (SELECT id FROM users WHERE email = 'mecanico@mechanicalhub.com'), NULL, 'OS-0003', 'Revisão completa e ajustes', 425.00, true, NULL, CURRENT_TIMESTAMP - INTERVAL '1 hours', NULL, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 WHERE NOT EXISTS (SELECT 1 FROM service_orders WHERE order_number = 'OS-0003');
 
+INSERT INTO service_orders (
+    id,
+    vehicle_id,
+    customer_id,
+    order_status,
+    created_by_user_id,
+    responsible_user_id,
+    order_number,
+    request_description,
+    budget,
+    has_stock_pending,
+    estimated_completion_at,
+    opened_at,
+    completed_at,
+    delivered_at,
+    created_at,
+    updated_at
+)
+SELECT
+    'aabbccdd-0000-0000-0000-111111111111',
+    'd0803851-6a5f-4fea-8463-a723be0e390c',
+    '96052f8d-0817-4124-84ad-918b7c9ac73d',
+    'FINALIZADO',
+    (SELECT id FROM users WHERE email = 'admin@mechanicalhub.com'),
+    (SELECT id FROM users WHERE email = 'mecanico@mechanicalhub.com'),
+    'OS-202604-0099',
+    'Revisão completa: troca de óleo, freios e correia dentada.',
+    1245.00,
+    false,
+    CURRENT_TIMESTAMP - INTERVAL '2 hours',
+    CURRENT_TIMESTAMP - INTERVAL '5 hours',
+    CURRENT_TIMESTAMP - INTERVAL '30 minutes',
+    NULL,
+    CURRENT_TIMESTAMP - INTERVAL '6 hours',
+    CURRENT_TIMESTAMP - INTERVAL '30 minutes'
+WHERE NOT EXISTS (SELECT 1 FROM service_orders WHERE order_number = 'OS-202604-0099');
+
 -- ------------------------------------------------------------
 -- ORDER_TASKS
 -- ------------------------------------------------------------
@@ -174,6 +211,36 @@ INSERT INTO order_tasks (id, service_order_id, service_id, service_status, start
 SELECT 'd4bb7b88-b8b4-402a-bae8-039aead53188', '5cce96e4-d0b2-42c1-a2b9-62fb6e97786e', 'b9090e29-c8f8-498f-b536-bb70cb69113e', 'PENDENTE', CURRENT_TIMESTAMP - INTERVAL '30 minutes', NULL
 WHERE NOT EXISTS (SELECT 1 FROM order_tasks WHERE id = 'd4bb7b88-b8b4-402a-bae8-039aead53188');
 
+INSERT INTO order_tasks (id, service_order_id, service_id, service_status, started_at, finished_at)
+SELECT
+    'aabbccdd-1111-1111-1111-000000000001',
+    'aabbccdd-0000-0000-0000-111111111111',
+    '03d94934-6201-449b-b8db-490546c35d34',
+    'FINALIZADO',
+    CURRENT_TIMESTAMP - INTERVAL '4 hours 30 minutes',
+    CURRENT_TIMESTAMP - INTERVAL '3 hours 30 minutes'
+WHERE NOT EXISTS (SELECT 1 FROM order_tasks WHERE id = 'aabbccdd-1111-1111-1111-000000000001');
+
+INSERT INTO order_tasks (id, service_order_id, service_id, service_status, started_at, finished_at)
+SELECT
+    'aabbccdd-1111-1111-1111-000000000002',
+    'aabbccdd-0000-0000-0000-111111111111',
+    'b9090e29-c8f8-498f-b536-bb70cb69113e',
+    'FINALIZADO',
+    CURRENT_TIMESTAMP - INTERVAL '3 hours 30 minutes',
+    CURRENT_TIMESTAMP - INTERVAL '2 hours 30 minutes'
+WHERE NOT EXISTS (SELECT 1 FROM order_tasks WHERE id = 'aabbccdd-1111-1111-1111-000000000002');
+
+INSERT INTO order_tasks (id, service_order_id, service_id, service_status, started_at, finished_at)
+SELECT
+    'aabbccdd-1111-1111-1111-000000000003',
+    'aabbccdd-0000-0000-0000-111111111111',
+    '192c4db5-61b3-4cf7-b02b-54e948a9ce5d',
+    'FINALIZADO',
+    CURRENT_TIMESTAMP - INTERVAL '2 hours 30 minutes',
+    CURRENT_TIMESTAMP - INTERVAL '30 minutes'
+WHERE NOT EXISTS (SELECT 1 FROM order_tasks WHERE id = 'aabbccdd-1111-1111-1111-000000000003');
+
 -- ------------------------------------------------------------
 -- STOCK_PENDING_ITEMS
 -- ------------------------------------------------------------
@@ -184,3 +251,84 @@ WHERE NOT EXISTS (SELECT 1 FROM stock_pending_items WHERE id = 'd97640b2-bb16-43
 INSERT INTO stock_pending_items (id, service_order_id, material_id, quantity, created_at)
 SELECT '1eabac34-d65d-45a7-ba64-85f0013c10ee', '5cce96e4-d0b2-42c1-a2b9-62fb6e97786e', 'a7f744e8-2a29-41ba-85f4-6eb13317af07', 1, CURRENT_TIMESTAMP - INTERVAL '20 minutes'
 WHERE NOT EXISTS (SELECT 1 FROM stock_pending_items WHERE id = '1eabac34-d65d-45a7-ba64-85f0013c10ee');
+
+-- ------------------------------------------------------------
+-- STOCK_MOVEMENTS –
+-- ------------------------------------------------------------
+
+-- 4x Óleo de Motor (Troca de Óleo)
+INSERT INTO stock_movements (id, material_id, service_order_id, movement_type, quantity, created_at)
+SELECT
+    'aabbccdd-2222-2222-2222-000000000001',
+    '789492e9-c859-4ad7-8a9a-39d3ffb12519',
+    'aabbccdd-0000-0000-0000-111111111111',
+    'RESERVED',
+    4,
+    CURRENT_TIMESTAMP - INTERVAL '5 hours'
+WHERE NOT EXISTS (SELECT 1 FROM stock_movements WHERE id = 'aabbccdd-2222-2222-2222-000000000001');
+
+-- 1x Filtro de Óleo (Troca de Óleo)
+INSERT INTO stock_movements (id, material_id, service_order_id, movement_type, quantity, created_at)
+SELECT
+    'aabbccdd-2222-2222-2222-000000000002',
+    'eb694988-23ef-413b-b68a-c510f6346534',
+    'aabbccdd-0000-0000-0000-111111111111',
+    'RESERVED',
+    1,
+    CURRENT_TIMESTAMP - INTERVAL '5 hours'
+WHERE NOT EXISTS (SELECT 1 FROM stock_movements WHERE id = 'aabbccdd-2222-2222-2222-000000000002');
+
+-- 1x Pastilha de Freio (Freios)
+INSERT INTO stock_movements (id, material_id, service_order_id, movement_type, quantity, created_at)
+SELECT
+    'aabbccdd-2222-2222-2222-000000000003',
+    '99370d9f-1cbc-468d-8043-94588108b7c2',
+    'aabbccdd-0000-0000-0000-111111111111',
+    'RESERVED',
+    1,
+    CURRENT_TIMESTAMP - INTERVAL '5 hours'
+WHERE NOT EXISTS (SELECT 1 FROM stock_movements WHERE id = 'aabbccdd-2222-2222-2222-000000000003');
+
+-- 1x Fluido de Freio DOT 4 (Freios)
+INSERT INTO stock_movements (id, material_id, service_order_id, movement_type, quantity, created_at)
+SELECT
+    'aabbccdd-2222-2222-2222-000000000004',
+    'a7f744e8-2a29-41ba-85f4-6eb13317af07',
+    'aabbccdd-0000-0000-0000-111111111111',
+    'RESERVED',
+    1,
+    CURRENT_TIMESTAMP - INTERVAL '5 hours'
+WHERE NOT EXISTS (SELECT 1 FROM stock_movements WHERE id = 'aabbccdd-2222-2222-2222-000000000004');
+
+-- 1x Correia Dentada (Correia)
+INSERT INTO stock_movements (id, material_id, service_order_id, movement_type, quantity, created_at)
+SELECT
+    'aabbccdd-2222-2222-2222-000000000005',
+    '88221fb1-880c-4eb8-b0ed-be3e59d34269',
+    'aabbccdd-0000-0000-0000-111111111111',
+    'RESERVED',
+    1,
+    CURRENT_TIMESTAMP - INTERVAL '5 hours'
+WHERE NOT EXISTS (SELECT 1 FROM stock_movements WHERE id = 'aabbccdd-2222-2222-2222-000000000005');
+
+-- 1x Tensor de Correia (Correia)
+INSERT INTO stock_movements (id, material_id, service_order_id, movement_type, quantity, created_at)
+SELECT
+    'aabbccdd-2222-2222-2222-000000000006',
+    '18c8a5ca-1d69-4690-a9c5-0877d928b96a',
+    'aabbccdd-0000-0000-0000-111111111111',
+    'RESERVED',
+    1,
+    CURRENT_TIMESTAMP - INTERVAL '5 hours'
+WHERE NOT EXISTS (SELECT 1 FROM stock_movements WHERE id = 'aabbccdd-2222-2222-2222-000000000006');
+
+-- 1x Rolamento Esticador (Correia)
+INSERT INTO stock_movements (id, material_id, service_order_id, movement_type, quantity, created_at)
+SELECT
+    'aabbccdd-2222-2222-2222-000000000007',
+    'b6313df9-9c00-4750-84ad-1af4912f9373',
+    'aabbccdd-0000-0000-0000-111111111111',
+    'RESERVED',
+    1,
+    CURRENT_TIMESTAMP - INTERVAL '5 hours'
+WHERE NOT EXISTS (SELECT 1 FROM stock_movements WHERE id = 'aabbccdd-2222-2222-2222-000000000007');

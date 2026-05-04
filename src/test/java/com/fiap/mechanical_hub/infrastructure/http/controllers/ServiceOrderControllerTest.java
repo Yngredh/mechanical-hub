@@ -188,7 +188,30 @@ class ServiceOrderControllerTest {
         @Test
         @DisplayName("Should create service order and return 201 when request data is valid")
         void shouldReturn201WhenDataIsValid() throws Exception {
-            when(serviceOrderUseCase.create(eq(createRequest), eq(createdByUserId)))
+
+            List<OrderTaskResponse> orderTaskResponses = List.of(
+                    new OrderTaskResponse(
+                            UUID.randomUUID(),
+                            serviceOrderId,
+                            new com.fiap.mechanical_hub.application.dto.service.ServiceResponse(
+                                    serviceId,
+                                    "Troca de óleo",
+                                    "Troca do óleo do motor",
+                                    BigDecimal.valueOf(100),
+                                    BigDecimal.valueOf(200),
+                                    BigDecimal.valueOf(300),
+                                    List.of(),
+                                    true,
+                                    LocalDateTime.now(),
+                                    LocalDateTime.now()
+                            ),
+                            "PENDENTE",
+                            null,
+                            null
+                    )
+            );
+            serviceOrderResponse.setOrderTasks(orderTaskResponses);
+            when(serviceOrderUseCase.create(createRequest, createdByUserId))
                     .thenReturn(serviceOrderResponse);
 
             mockMvc.perform(post("/service-orders")
@@ -201,13 +224,13 @@ class ServiceOrderControllerTest {
                     .andExpect(jsonPath("$.orderNumber").value("OS-202605-0001"))
                     .andExpect(jsonPath("$.status").value(OrderStatusEnum.RECEBIDO.getDisplayName()));
 
-            verify(serviceOrderUseCase).create(eq(createRequest), eq(createdByUserId));
+            verify(serviceOrderUseCase).create((createRequest), (createdByUserId));
         }
 
         @Test
         @DisplayName("Should return 422 when business rule is violated")
         void shouldReturn422WhenBusinessRuleIsViolated() throws Exception {
-            when(serviceOrderUseCase.create(eq(createRequest), eq(createdByUserId)))
+            when(serviceOrderUseCase.create((createRequest), (createdByUserId)))
                     .thenThrow(new BusinessRuleException("A descrição da solicitação não pode ultrapassar 255 caracteres"));
 
             mockMvc.perform(post("/service-orders")
@@ -245,7 +268,7 @@ class ServiceOrderControllerTest {
             updatedOrder.setStatus(OrderStatusEnum.EM_DIAGNOSTICO);
             updatedOrder.setOrderNumber("OS-202605-0001");
 
-            when(serviceOrderUseCase.updateOrderStatus(eq(serviceOrderId), eq(OrderStatusEnum.EM_DIAGNOSTICO)))
+            when(serviceOrderUseCase.updateOrderStatus((serviceOrderId), (OrderStatusEnum.EM_DIAGNOSTICO)))
                     .thenReturn(updatedOrder);
 
             mockMvc.perform(patch("/service-orders/{id}/status", serviceOrderId)
@@ -256,14 +279,14 @@ class ServiceOrderControllerTest {
                     .andExpect(jsonPath("$.id").value(serviceOrderId.toString()))
                     .andExpect(jsonPath("$.status").value(OrderStatusEnum.EM_DIAGNOSTICO.name()));
 
-            verify(serviceOrderUseCase).updateOrderStatus(eq(serviceOrderId), eq(OrderStatusEnum.EM_DIAGNOSTICO));
+            verify(serviceOrderUseCase).updateOrderStatus((serviceOrderId), (OrderStatusEnum.EM_DIAGNOSTICO));
         }
 
         @Test
         @DisplayName("Should return 400 when status transition is invalid")
         @WithMockUser(roles = "ADMINISTRATOR")
         void shouldReturn400WhenInvalidStatusTransition() throws Exception {
-            when(serviceOrderUseCase.updateOrderStatus(eq(serviceOrderId), eq(OrderStatusEnum.EM_DIAGNOSTICO)))
+            when(serviceOrderUseCase.updateOrderStatus((serviceOrderId), (OrderStatusEnum.EM_DIAGNOSTICO)))
                     .thenThrow(new InvalidOrderTransitionException("Invalid transition"));
 
             mockMvc.perform(patch("/service-orders/{id}/status", serviceOrderId)
@@ -395,7 +418,7 @@ class ServiceOrderControllerTest {
         @DisplayName("Should add services and return 204 when request is valid")
         @WithMockUser(roles = "ADMINISTRATOR")
         void shouldReturn204WhenServicesAreAdded() throws Exception {
-            doNothing().when(serviceOrderUseCase).addServices(eq(serviceOrderId), eq(addServicesRequest));
+            doNothing().when(serviceOrderUseCase).addServices((serviceOrderId), (addServicesRequest));
 
             mockMvc.perform(post("/service-orders/{id}/services", serviceOrderId)
                             .with(csrf())
@@ -403,7 +426,7 @@ class ServiceOrderControllerTest {
                             .content(objectMapper.writeValueAsString(addServicesRequest)))
                     .andExpect(status().isNoContent());
 
-            verify(serviceOrderUseCase).addServices(eq(serviceOrderId), eq(addServicesRequest));
+            verify(serviceOrderUseCase).addServices((serviceOrderId), (addServicesRequest));
         }
 
         @Test
@@ -411,7 +434,7 @@ class ServiceOrderControllerTest {
         @WithMockUser(roles = "ADMINISTRATOR")
         void shouldReturn404WhenOrderDoesNotExist() throws Exception {
             doThrow(new NotFoundException("Ordem de serviço não encontrada"))
-                    .when(serviceOrderUseCase).addServices(eq(serviceOrderId), eq(addServicesRequest));
+                    .when(serviceOrderUseCase).addServices((serviceOrderId), (addServicesRequest));
 
             mockMvc.perform(post("/service-orders/{id}/services", serviceOrderId)
                             .with(csrf())

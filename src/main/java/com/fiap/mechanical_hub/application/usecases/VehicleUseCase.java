@@ -25,6 +25,7 @@ import static com.fiap.mechanical_hub.shared.utils.license_plate.LicensePlateVal
 @Transactional
 public class VehicleUseCase {
 
+    public static final String VEICULO_NAO_ENCONTRADO_PARA_O_ID = "Veículo não encontrado para o id: ";
     private final VehicleRepository vehicleRepository;
     private final CustomerRepository customerRepository;
     private final VehicleMapper vehicleMapper;
@@ -54,7 +55,7 @@ public class VehicleUseCase {
     @Transactional(readOnly = true)
     public VehicleResponse findById(UUID id) {
         Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Veículo não encontrado para o id: " + id));
+                .orElseThrow(() -> new NoSuchElementException(VEICULO_NAO_ENCONTRADO_PARA_O_ID + id));
         return vehicleMapper.toResponse(vehicle);
     }
 
@@ -67,7 +68,7 @@ public class VehicleUseCase {
 
     public VehicleResponse update(UUID id, UpsertVehicleRequest request) {
         Vehicle existingVehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Veículo não encontrado para o id: " + id));
+                .orElseThrow(() -> new NoSuchElementException(VEICULO_NAO_ENCONTRADO_PARA_O_ID + id));
 
         validateLicensePlate(request.getLicensePlate());
         String normalizedPlate = normalize(request.getLicensePlate());
@@ -85,7 +86,7 @@ public class VehicleUseCase {
 
     public void delete(UUID id) {
         if (vehicleRepository.findById(id).isEmpty()) {
-            throw new NoSuchElementException("Veículo não encontrado para o id: " + id);
+            throw new NoSuchElementException(VEICULO_NAO_ENCONTRADO_PARA_O_ID + id);
         }
         vehicleRepository.deleteById(id);
     }

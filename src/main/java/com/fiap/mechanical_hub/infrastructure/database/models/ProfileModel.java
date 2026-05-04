@@ -17,6 +17,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ProfileModel {
 
+    public ProfileModel() {
+    }
+
     @Id
     private UUID id;
 

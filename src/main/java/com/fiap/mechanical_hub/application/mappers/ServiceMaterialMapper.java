@@ -5,7 +5,9 @@ import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ServiceMaterialMapper {
 
     public static ServiceMaterialModel toJpaEntity(ServiceMaterial entity, ServiceModel parentService) {

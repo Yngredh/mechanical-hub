@@ -20,6 +20,12 @@
     </parent>
 
     <properties>
+
+        <sonar.projectKey>mechanical-hub</sonar.projectKey>
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ${project.build.directory}/site/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+
         <java.version>21</java.version>
         <sonar.version>4.0.0.4121</sonar.version>
         <jacoco.version>0.8.11</jacoco.version>
@@ -27,13 +33,17 @@
 
         <!-- Configurações do Sonar -->
         <sonar.java.binaries>target/classes</sonar.java.binaries>
-        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
         <!-- Excluir classes que não possuem lógica de negócio da métrica de cobertura -->
         <sonar.exclusions>
+            **/config/**,
+            **/interfaces/**,
             **/mappers/**,
             **/config/**,
             **/enums/**,
             **/exceptions/**,
+            **/integrations/**,
             **/*Application.java
         </sonar.exclusions>
     </properties>
@@ -149,8 +159,6 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-
-            <!-- JaCoCo (Geração de relatório de cobertura de testes) -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -168,14 +176,22 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/mappers/**</exclude>
+                                <exclude>**/config/**</exclude>
+                                <exclude>**/enums/**</exclude>
+                                <exclude>**/exceptions/**</exclude>
+                                <exclude>**/MechanicalHubApplication.class</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <!-- SonarQube Scanner -->
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
-                <version>5.0.0.4389</version> <!-- Versão estável para Java 21 -->
+                <version>5.0.0.4389</version>
             </plugin>
         </plugins>
     </build>
