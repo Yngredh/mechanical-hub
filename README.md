@@ -214,7 +214,7 @@ POST /auth/login
 ```json
 {
   "login": "admin@mechanicalhub.com",
-  "password": "admin123"
+  "password": "<senha-no-pdf>"
 }
 ```
 Copie o `token` da resposta e use-o em todos os próximos requests no header:
@@ -264,6 +264,7 @@ POST /services
 {
   "name": "Troca de Filtro de Óleo",
   "description": "Substituição do filtro de óleo",
+  "basePrice": 85.00,
   "laborCost": 60.00,
   "materials": [
     {
