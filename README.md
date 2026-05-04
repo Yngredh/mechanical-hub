@@ -6,7 +6,7 @@ Sistema de Gestão de Oficina Mecânica — automatiza o atendimento ao cliente,
 
 ## 📋 Sumário
 
-- [Visão Geral](#visão-geral)
+- [Visão Geral](#visao-geral)
 - [Tecnologias](#tecnologias)
 - [Arquitetura](#arquitetura)
 - [Regras de Negócio](#regras-de-negócio)
@@ -24,6 +24,7 @@ Sistema de Gestão de Oficina Mecânica — automatiza o atendimento ao cliente,
 
 ---
 
+<a id="visao-geral"></a>
 ## 💡 Visão Geral
 
 O Mechanical Hub resolve os problemas de uma oficina mecânica que opera com anotações manuais e planilhas isoladas:
