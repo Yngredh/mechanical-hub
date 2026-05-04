@@ -76,4 +76,18 @@ public class StockController {
         StockDetailResponse stockDetail = stockUseCase.findByMaterialId(materialId);
         return ResponseEntity.ok(stockDetail);
     }
+
+    @DeleteMapping("/{materialId}")
+    @Operation(summary = "Deletar item de estoque", description = "Deleta um item de estoque do sistema. Requer perfil de Administrador.")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Item de estoque deletado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)"),
+            @ApiResponse(responseCode = "404", description = "Item de estoque não encontrado")
+    })
+    public ResponseEntity<Void> delete(@PathVariable UUID materialId) {
+        stockUseCase.delete(materialId);
+        return ResponseEntity.noContent().build();
+    }
 }

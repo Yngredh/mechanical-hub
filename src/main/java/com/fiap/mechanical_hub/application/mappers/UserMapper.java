@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
+    private UserMapper() {
+    }
+
     public static User toDomain(UserModel model) {
         return User.build(
                 model.getId(),

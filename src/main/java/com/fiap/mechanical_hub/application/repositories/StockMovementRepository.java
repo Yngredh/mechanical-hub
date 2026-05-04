@@ -12,5 +12,9 @@ public interface StockMovementRepository {
     void deleteById(UUID id);
 
     List<StockMovement> findByMaterialId(UUID materialId);
+
+    void deleteByMaterialId(UUID materialId);
+
+    void flush();
 }
 

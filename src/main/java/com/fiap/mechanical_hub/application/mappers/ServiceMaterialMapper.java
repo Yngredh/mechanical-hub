@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServiceMaterialMapper {
 
+    private ServiceMaterialMapper() {
+    }
+
     public static ServiceMaterialModel toJpaEntity(ServiceMaterial entity, ServiceModel parentService) {
         return new ServiceMaterialModel(
                 entity.getId(),
