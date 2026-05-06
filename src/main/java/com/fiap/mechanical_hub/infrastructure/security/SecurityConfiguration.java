@@ -34,10 +34,9 @@ public class SecurityConfiguration {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/mechanical-hub/service-orders/**").permitAll()
-
                         .requestMatchers("/auth/register").hasRole(administrator)
                         .requestMatchers("/customers/**").hasRole(administrator)
                         .requestMatchers("/vehicles/**").hasRole(administrator)
@@ -45,8 +44,6 @@ public class SecurityConfiguration {
                         .requestMatchers("/materials/**").hasRole(administrator)
                         .requestMatchers("/stock/**").hasRole(administrator)
                         .requestMatchers("/reports/**").hasRole(administrator)
-                        .requestMatchers(HttpMethod.GET, "/service-orders/**").hasRole(administrator)
-
                         .requestMatchers("/service-orders", "/service-orders/**").hasAnyRole(mechanical, administrator)
                         .anyRequest().authenticated()
                 )

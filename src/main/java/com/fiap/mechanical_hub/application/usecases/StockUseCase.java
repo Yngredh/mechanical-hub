@@ -6,17 +6,18 @@ import com.fiap.mechanical_hub.application.dto.stock.StockMovementResponse;
 import com.fiap.mechanical_hub.application.dto.stock.StockSummaryResponse;
 import com.fiap.mechanical_hub.application.mappers.StockMapper;
 import com.fiap.mechanical_hub.application.mappers.StockMovementMapper;
-import com.fiap.mechanical_hub.application.repositories.MaterialRepository;
-import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
-import com.fiap.mechanical_hub.application.repositories.StockMovementRepository;
-import com.fiap.mechanical_hub.application.repositories.StockRepository;
 import com.fiap.mechanical_hub.domain.entities.*;
 import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.MaterialRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.ServiceOrderRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.StockMovementRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.StockRepositoryAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,10 +31,10 @@ public class StockUseCase {
     private final NotificationUseCase notificationUseCase;
     private final StockMapper stockMapper;
 
-    private final StockMovementRepository stockMovementRepository;
-    private final StockRepository stockRepository;
-    private final ServiceOrderRepository serviceOrderRepository;
-    private final MaterialRepository materialRepository;
+    private final StockMovementRepositoryAdapter stockMovementRepository;
+    private final StockRepositoryAdapter stockRepository;
+    private final ServiceOrderRepositoryAdapter serviceOrderRepository;
+    private final MaterialRepositoryAdapter materialRepository;
 
     @Transactional
     public void setStockForNewMaterial(UUID materialId) {
@@ -86,6 +87,19 @@ public class StockUseCase {
         );
     }
 
+    public boolean findByMaterialIdDelete(UUID materialId) {
+        log.info("Finding stock detail for material ID: {}", materialId);
+
+        List<Stock> stocks = stockRepository.findAllByMaterialId(materialId);
+
+        if (stocks.isEmpty()) {
+            log.warn("No stock found for material ID: {}", materialId);
+            throw new NotFoundException("Estoque não encontrado para o material id: " + materialId);
+        }
+
+        return true;
+    }
+
     @Transactional
     public void registerStockEntry(StockEntryRequest stockEntry) {
         log.info("Registering stock entry for material ID: {}", stockEntry.materialId());
@@ -118,15 +132,15 @@ public class StockUseCase {
 
             if (reservedQuantity == pendingQuantity) {
                 stockPendingUseCase.removePendency(pending);
-                 Optional<StockPendingItem> otherPendencyForSameOrder = pendingIssues.stream()
+                Optional<StockPendingItem> otherPendencyForSameOrder = pendingIssues.stream()
                         .filter(p -> p.getServiceOrderId().equals(
                                 pending.getServiceOrderId()) &&
                                 !p.getId().equals(pending.getId())
                         )
                         .findAny();
-                 if (otherPendencyForSameOrder.isEmpty()) {
-                     removeStockPending(pending.getServiceOrderId());
-                 }
+                if (otherPendencyForSameOrder.isEmpty()) {
+                    removeStockPending(pending.getServiceOrderId());
+                }
 
                 log.info("Pending fully resolved for service order ID: {}", pending.getServiceOrderId());
             }
@@ -202,7 +216,9 @@ public class StockUseCase {
     }
 
     private void validateMinimumStock(Material material, Stock stock) {
-        if (material == null || stock == null || stock.getStatus() != StockStatusEnum.AVAILABLE) { return; }
+        if (material == null || stock == null || stock.getStatus() != StockStatusEnum.AVAILABLE) {
+            return;
+        }
 
         if (stock.getQuantity() <= material.getMinStockQuantity()) {
             log.warn("Material {} has stock below minimum. Available: {}, Minimum: {}",
@@ -223,14 +239,14 @@ public class StockUseCase {
 
             for (ServiceMaterial sm : materials) {
                 Stock reservedStock = stockRepository.findByMaterialIdAndStatus(
-                        sm.getMaterial().getId(), StockStatusEnum.RESERVED)
+                                sm.getMaterial().getId(), StockStatusEnum.RESERVED)
                         .orElseThrow(() -> new NotFoundException("Estoque reservado não encontrado para o material: " + sm.getMaterial().getId()));
 
                 reservedStock.release(sm.getQuantity());
                 stockRepository.save(reservedStock);
 
                 Stock availableStock = stockRepository.findByMaterialIdAndStatus(
-                        sm.getMaterial().getId(), StockStatusEnum.AVAILABLE)
+                                sm.getMaterial().getId(), StockStatusEnum.AVAILABLE)
                         .orElseThrow(() -> new NotFoundException("Estoque disponível não encontrado para o material: " + sm.getMaterial().getId()));
 
                 availableStock.replenish(sm.getQuantity());
@@ -242,4 +258,27 @@ public class StockUseCase {
             }
         }
     }
+
+    @Transactional
+    public void delete(UUID materialId) {
+        log.info("Iniciando exclusão total do material e dependências: {}", materialId);
+
+        if (materialRepository.findById(materialId).isEmpty()) {
+            throw new NotFoundException("Material não encontrado: " + materialId);
+        }
+
+        log.info("Limpando histórico de movimentações...");
+        stockMovementRepository.deleteByMaterialId(materialId);
+        stockMovementRepository.flush();
+
+        log.info("Limpando registros de estoque...");
+        stockRepository.deleteByMaterialId(materialId);
+        stockRepository.flush();
+
+        log.info("Limpando registro do material...");
+        materialRepository.deleteById(materialId);
+
+        log.info("Exclusão completa realizada com sucesso.");
+    }
+
 }

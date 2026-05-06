@@ -35,5 +35,16 @@ public class StockMovementRepositoryAdapter implements StockMovementRepository {
                 .map(StockMovementMapper::toDomainEntity)
                 .toList();
     }
+
+    @Override
+    public void deleteByMaterialId(UUID materialId) {
+        List<StockMovementModel> movements = jpaRepository.findAllByMaterialId(materialId);
+        jpaRepository.deleteAll(movements);
+    }
+
+    @Override
+    public void flush() {
+        jpaRepository.flush();
+    }
 }
 

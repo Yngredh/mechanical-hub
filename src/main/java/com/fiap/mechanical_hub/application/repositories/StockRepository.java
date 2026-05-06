@@ -13,6 +13,8 @@ public interface StockRepository {
 
     Optional<Stock> findByMaterialId(UUID materialId);
 
+    Optional<Stock> findById(UUID id);
+
     Optional<Stock> findByMaterialIdAndStatus(UUID materialId, StockStatusEnum status);
 
     List<Stock> findAll();
@@ -20,5 +22,9 @@ public interface StockRepository {
     List<Stock> findAllByMaterialId(UUID materialId);
 
     void deleteById(UUID id);
+
+    void deleteByMaterialId(UUID materialId);
+
+    void flush();
 }
 

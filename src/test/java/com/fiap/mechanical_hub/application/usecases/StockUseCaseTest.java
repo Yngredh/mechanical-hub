@@ -4,13 +4,13 @@ import com.fiap.mechanical_hub.application.dto.stock.StockDetailResponse;
 import com.fiap.mechanical_hub.application.dto.stock.StockEntryRequest;
 import com.fiap.mechanical_hub.application.dto.stock.StockSummaryResponse;
 import com.fiap.mechanical_hub.application.mappers.StockMapper;
-import com.fiap.mechanical_hub.application.repositories.MaterialRepository;
-import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
-import com.fiap.mechanical_hub.application.repositories.StockMovementRepository;
-import com.fiap.mechanical_hub.application.repositories.StockRepository;
 import com.fiap.mechanical_hub.domain.entities.*;
 import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.MaterialRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.ServiceOrderRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.StockMovementRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.StockRepositoryAdapter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,15 +40,15 @@ class StockUseCaseTest {
     @Mock
     private NotificationUseCase notificationUseCase;
     @Mock
-    private StockMovementRepository stockMovementRepository;
+    private StockMovementRepositoryAdapter stockMovementRepository;
     @Mock
-    private StockRepository stockRepository;
+    private StockRepositoryAdapter stockRepository;
     @Mock
-    private MaterialRepository materialRepository;
+    private MaterialRepositoryAdapter materialRepository;
     @Mock
     private StockMapper stockMapper;
     @Mock
-    private ServiceOrderRepository serviceOrderRepository;
+    private ServiceOrderRepositoryAdapter serviceOrderRepository;
 
     @InjectMocks
     private StockUseCase stockUseCase;
@@ -341,5 +341,37 @@ class StockUseCaseTest {
         verify(existingReservedStock).addQuantity(quantityToReserve);
         verify(stockRepository).save(existingReservedStock);
         verify(stockRepository).save(availableStock);
+    }
+
+    @Test
+    @DisplayName("Deve deletar material e dependências com sucesso")
+    void delete_Success() {
+        UUID materialId = UUID.randomUUID();
+        Material material = mock(Material.class);
+
+        when(materialRepository.findById(materialId)).thenReturn(Optional.of(material));
+
+        stockUseCase.delete(materialId);
+
+        verify(stockMovementRepository, times(1)).deleteByMaterialId(materialId);
+        verify(stockMovementRepository, times(1)).flush();
+
+        verify(stockRepository, times(1)).deleteByMaterialId(materialId);
+        verify(stockRepository, times(1)).flush();
+
+        verify(materialRepository, times(1)).deleteById(materialId);
+    }
+
+    @Test
+    @DisplayName("Deve lançar NotFoundException quando o material não existir")
+    void delete_MaterialNotFound() {
+        UUID materialId = UUID.randomUUID();
+        when(materialRepository.findById(materialId)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> stockUseCase.delete(materialId));
+
+        verify(stockMovementRepository, never()).deleteByMaterialId(any());
+        verify(stockRepository, never()).deleteByMaterialId(any());
+        verify(materialRepository, never()).deleteById(any());
     }
 }

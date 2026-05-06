@@ -13,5 +13,7 @@ public interface StockMovementJpaRepository extends JpaRepository<StockMovementM
 
     @Query(value = "SELECT * FROM stock_movements WHERE material_id = ?1 ORDER BY created_at DESC", nativeQuery = true)
     List<StockMovementModel> findByMaterialIdOrderByCreatedAtDesc(UUID materialId);
+
+    List<StockMovementModel> findAllByMaterialId(UUID materialId);
 }
 

@@ -31,6 +31,12 @@ public class StockRepositoryAdapter implements StockRepository {
     }
 
     @Override
+    public Optional<Stock> findById(UUID id) {
+        return jpaRepository.findById(id).map(this::toDomainEntity);
+    }
+
+
+    @Override
     public Optional<Stock> findByMaterialIdAndStatus(UUID materialId, StockStatusEnum status) {
         return jpaRepository.findByMaterialIdAndStatus(materialId, status).map(this::toDomainEntity);
     }
@@ -62,6 +68,18 @@ public class StockRepositoryAdapter implements StockRepository {
                 stock.getStatus(),
                 stock.getUpdatedAt()
         );
+    }
+
+    @Override
+    public void deleteByMaterialId(UUID materialId) {
+        jpaRepository.findByMaterialId(materialId).ifPresent(stockEntity ->
+            jpaRepository.deleteById(stockEntity.getId()));
+
+    }
+
+    @Override
+    public void flush() {
+        jpaRepository.flush();
     }
 
     private Stock toDomainEntity(StockModel entity) {
