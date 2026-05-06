@@ -110,9 +110,9 @@ public class ServiceOrderUseCase {
         log.info("Successfully added services to service order {}. Has pending items: {}", serviceOrderId, hasStockPending);
     }
 
-    public ServiceOrder updateOrderStatus(UUID orderId, OrderStatusEnum targetStatus) {
+    public ServiceOrder updateOrderStatus(UUID orderId, OrderStatusEnum targetStatus, UUID userId) {
         ServiceOrder order = repository.findById(orderId).orElseThrow();
-        factory.get(targetStatus).execute(order);
+        factory.get(targetStatus).execute(order, userId);
         return repository.save(order);
     }
 
@@ -140,7 +140,7 @@ public class ServiceOrderUseCase {
         ServiceOrder order = repository.findById(serviceOrderId)
                 .orElseThrow(() -> new NotFoundException("Service order with id " + serviceOrderId + " not found"));
 
-        factory.get(OrderStatusEnum.APROVADO).execute(order);
+        factory.get(OrderStatusEnum.APROVADO).execute(order, null);
         repository.save(order);
     }
 
@@ -148,7 +148,7 @@ public class ServiceOrderUseCase {
         ServiceOrder order = repository.findById(serviceOrderId)
                 .orElseThrow(() -> new NotFoundException("Service order with id " + serviceOrderId + " not found"));
 
-        factory.get(OrderStatusEnum.RECUSADO).execute(order);
+        factory.get(OrderStatusEnum.RECUSADO).execute(order, null);
         repository.save(order);
     }
 
