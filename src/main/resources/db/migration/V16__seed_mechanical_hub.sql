@@ -144,7 +144,7 @@ SELECT '60c9af8c-9334-427d-b35c-4ed19413965c', '192c4db5-61b3-4cf7-b02b-54e948a9
 -- SERVICE_ORDERS
 -- ------------------------------------------------------------
 INSERT INTO service_orders (id, vehicle_id, customer_id, order_status, created_by_user_id, responsible_user_id, order_number, request_description, budget, has_stock_pending, estimated_completion_at, opened_at, completed_at, delivered_at, created_at, updated_at)
-SELECT '5cce96e4-d0b2-42c1-a2b9-62fb6e97786e', 'd0803851-6a5f-4fea-8463-a723be0e390c', '96052f8d-0817-4124-84ad-918b7c9ac73d', 'RECEBIDO', (SELECT id FROM users WHERE email = 'admin@mechanicalhub.com'), NULL, 'OS-202604-0001', 'Solicita Substituição de Correia Dentada', NULL, false, NULL, CURRENT_TIMESTAMP, NULL, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+SELECT '5cce96e4-d0b2-42c1-a2b9-62fb6e97786e', 'd0803851-6a5f-4fea-8463-a723be0e390c', '96052f8d-0817-4124-84ad-918b7c9ac73d', 'RECEBIDO', (SELECT id FROM users WHERE email = 'admin@mechanicalhub.com'), NULL, 'OS-202604-0001', 'Solicita Substituição de Correia Dentada', NULL, true, NULL, CURRENT_TIMESTAMP, NULL, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
     WHERE NOT EXISTS (SELECT 1 FROM service_orders WHERE order_number = 'OS-202604-0001');
 
 INSERT INTO service_orders (id, vehicle_id, customer_id, order_status, created_by_user_id, responsible_user_id, order_number, request_description, budget, has_stock_pending, estimated_completion_at, opened_at, completed_at, delivered_at, created_at, updated_at)

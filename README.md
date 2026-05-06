@@ -288,13 +288,13 @@ POST /service-orders
   "customer": {
     "name": "Maria Souza",
     "documentType": "CPF",
-    "documentNumber": "529.982.247-25",
+    "documentNumber": "935.411.347-80",
     "telephone": "(11) 98765-4321",
     "email": "maria@email.com",
     "address": "Av. Paulista, 1000 - São Paulo/SP"
   },
   "vehicle": {
-    "licensePlate": "BRA2E19",
+    "licensePlate": "DCA2E23",
     "brand": "Honda",
     "model": "Civic",
     "year": 2021,
@@ -316,7 +316,7 @@ PATCH /service-orders/<order-id>/status
 ```json
 {
   "status": "EM_DIAGNOSTICO",
-  "responsibleUserId": "<uuid-do-mecanico>"
+  "responsibleUserId": ""
 }
 ```
 
@@ -416,37 +416,83 @@ PATCH /service-orders/<id>/status
 #### Consultar OS pelo número (visão do cliente — sem token)
 
 ```
-GET /mechanical-hub/service-orders/OS-202604-0001
+GET /mechanical-hub/service-orders/<order-number>
 ```
 
 ---
 
 ### ❌ Cenário de teste: Recusa de orçamento e retorno de estoque
 
-1. Siga os passos 1–8 acima.
-2. No lugar de aprovar, **recuse** o orçamento:
-   ```
-   POST /mechanical-hub/service-orders/<id>/reject
-   ```
-3. Verifique que os materiais reservados voltaram para `disponivel`:
-   ```
-   GET /stock/<materialId>
-   ```
+> Os dados abaixo já estão carregados pelo seed **V16** — não é necessário criar nada do zero.
+
+A OS **`OS-0002`** (`027d61d3-2781-448a-8141-364fe9ab961c`) já está em `AGUARDANDO_APROVACAO` com o serviço **Substituição de Correia Dentada** adicionado (materiais reservados: Correia Dentada, Tensor e Rolamento Esticador).
+
+**1. (Opcional) Consulte a OS antes de recusar:**
+```
+GET /service-orders/027d61d3-2781-448a-8141-364fe9ab961c
+```
+
+**2. Recuse o orçamento (endpoint público — sem token):**
+```
+POST /mechanical-hub/service-orders/027d61d3-2781-448a-8141-364fe9ab961c/reject
+```
+
+**3. Verifique que os materiais voltaram ao estoque:**
+
+| Material | ID |
+|---|---|
+| Correia Dentada | `88221fb1-880c-4eb8-b0ed-be3e59d34269` |
+| Tensor de Correia Dentada | `18c8a5ca-1d69-4690-a9c5-0877d928b96a` |
+| Rolamento Esticador de Correia | `b6313df9-9c00-4750-84ad-1af4912f9373` |
+
+```
+GET /stock/88221fb1-880c-4eb8-b0ed-be3e59d34269
+GET /stock/18c8a5ca-1d69-4690-a9c5-0877d928b96a
+GET /stock/b6313df9-9c00-4750-84ad-1af4912f9373
+```
+
+> A OS deverá ter status `RECUSADO` e os materiais acima deverão retornar ao status `AVAILABLE`.
+
 
 ---
 
 ### ⚠️ Cenário de teste: Pendência de estoque
 
-1. Crie um serviço com material.
-2. **Não** dê entrada em estoque (quantidade = 0).
-3. Crie uma OS e adicione o serviço.
-4. Verifique que `hasStockPending = true` na OS.
-5. Tente avançar para `EM_EXECUCAO` — deve retornar erro.
-6. Dê entrada no estoque:
-   ```
-   POST /stock/entry
-   ```
-7. Verifique que `hasStockPending` foi automaticamente resolvido para `false`.
+> Os dados abaixo já estão carregados pelo seed **V16** — não é necessário criar nada do zero.
+
+A OS **`OS-202604-0001`** (`5cce96e4-d0b2-42c1-a2b9-62fb6e97786e`) já está em `RECEBIDO` com o serviço **Manutenção de Sistema de Freios** adicionado e `hasStockPending = true`, pois os materiais desse serviço têm estoque 0:
+
+| Material | ID | Estoque |
+|---|---|---|
+| Pastilha de Freio Dianteira | `99370d9f-1cbc-468d-8043-94588108b7c2` | 0 |
+| Fluido de Freio DOT 4 | `a7f744e8-2a29-41ba-85f4-6eb13317af07` | 0 |
+
+**1. Consulte a OS e confirme `hasStockPending = true`:**
+```
+GET /service-orders/5cce96e4-d0b2-42c1-a2b9-62fb6e97786e
+```
+
+**2. Consulte o estoque dos materiais e confirme quantidade 0:**
+```
+GET /stock/99370d9f-1cbc-468d-8043-94588108b7c2
+GET /stock/a7f744e8-2a29-41ba-85f4-6eb13317af07
+```
+
+**3. Dê entrada no estoque dos materiais pendentes:**
+```
+POST /stock/entry
+```
+```json
+{ "materialId": "99370d9f-1cbc-468d-8043-94588108b7c2", "quantity": 5 }
+```
+```json
+{ "materialId": "a7f744e8-2a29-41ba-85f4-6eb13317af07", "quantity": 5 }
+```
+
+**4. Verifique que `hasStockPending` foi automaticamente resolvido para `false`:**
+```
+GET /service-orders/5cce96e4-d0b2-42c1-a2b9-62fb6e97786e
+```
 
 ---
 
