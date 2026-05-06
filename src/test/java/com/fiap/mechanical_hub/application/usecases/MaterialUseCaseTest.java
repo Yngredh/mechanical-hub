@@ -194,11 +194,13 @@ class MaterialUseCaseTest {
     @DisplayName("Deve deletar material com sucesso")
     void shouldDeleteMaterialSuccessfully() {
         when(materialRepository.findById(materialId)).thenReturn(Optional.of(material));
+        doNothing().when(stockUseCase).delete(materialId);
         doNothing().when(materialRepository).deleteById(materialId);
 
         assertDoesNotThrow(() -> materialUseCase.delete(materialId));
 
         verify(materialRepository).findById(materialId);
+        verify(stockUseCase).delete(materialId);
         verify(materialRepository).deleteById(materialId);
     }
 
@@ -210,6 +212,7 @@ class MaterialUseCaseTest {
 
         assertThrows(NotFoundException.class, () -> materialUseCase.delete(materialId));
         verify(materialRepository).findById(materialId);
+        verify(stockUseCase, never()).delete(any());
         verify(materialRepository, never()).deleteById(any());
     }
 }

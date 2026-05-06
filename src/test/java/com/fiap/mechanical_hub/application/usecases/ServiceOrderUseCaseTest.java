@@ -213,20 +213,31 @@ class ServiceOrderUseCaseTest {
 
         verify(order).startTask(taskId);
         verify(repository).save(order);
+        verify(stockUseCase, never()).registerStockOut(any(), any());
     }
 
     @Test
-    @DisplayName("Deve atualizar status da tarefa para FINALIZADO")
+    @DisplayName("Deve atualizar status da tarefa para FINALIZADO e registrar saída de estoque")
     void updateTaskStatus_Finished() {
         UUID orderId = UUID.randomUUID();
         UUID taskId = UUID.randomUUID();
+        UUID serviceId = UUID.randomUUID();
+
+        ServiceData serviceData = mock(ServiceData.class);
+        when(serviceData.getId()).thenReturn(serviceId);
+
+        OrderTask task = mock(OrderTask.class);
+        when(task.getServiceData()).thenReturn(serviceData);
+
         ServiceOrder order = mock(ServiceOrder.class);
+        when(order.getOrderTasks()).thenReturn(List.of(task));
 
         when(repository.findById(orderId)).thenReturn(Optional.of(order));
 
         useCase.updateTaskStatus(orderId, taskId, TaskStatusEnum.FINALIZADO);
 
         verify(order).finishTask(taskId);
+        verify(stockUseCase).registerStockOut(order, task);
         verify(repository).save(order);
     }
 
@@ -243,6 +254,36 @@ class ServiceOrderUseCaseTest {
                 useCase.updateTaskStatus(orderId, taskId, TaskStatusEnum.PENDENTE)
         );
     }
+
+    @Test
+    @DisplayName("Deve lançar NotFoundException ao atualizar tarefa em ordem inexistente")
+    void updateTaskStatus_OrderNotFound() {
+        UUID orderId = UUID.randomUUID();
+        UUID taskId = UUID.randomUUID();
+
+        when(repository.findById(orderId)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () ->
+                useCase.updateTaskStatus(orderId, taskId, TaskStatusEnum.FINALIZADO)
+        );
+    }
+
+    @Test
+    @DisplayName("Deve lançar NotFoundException quando tarefa não existir na ordem")
+    void updateTaskStatus_TaskNotFound() {
+        UUID orderId = UUID.randomUUID();
+        UUID taskId = UUID.randomUUID();
+
+        ServiceOrder order = mock(ServiceOrder.class);
+        when(order.getOrderTasks()).thenReturn(List.of());
+
+        when(repository.findById(orderId)).thenReturn(Optional.of(order));
+
+        assertThrows(NotFoundException.class, () ->
+                useCase.updateTaskStatus(orderId, taskId, TaskStatusEnum.FINALIZADO)
+        );
+    }
+
 
     @Test
     @DisplayName("Deve encontrar ordem pelo número e retornar visão do cliente")

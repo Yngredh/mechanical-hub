@@ -120,5 +120,55 @@ class StockTest {
         assertEquals(initialQuantity + 25, stock.getQuantity());
     }
 
+    @Test
+    void shouldDecreaseReservedStock() {
+        Stock stock = StockMock.reservedStock();
+        Integer initialQuantity = stock.getQuantity();
+        Integer quantityToDecrease = 5;
+
+        stock.decreaseReserved(quantityToDecrease);
+
+        assertEquals(initialQuantity - quantityToDecrease, stock.getQuantity());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDecreasingReservedStockWithWrongStatus() {
+        Stock stock = StockMock.availableStock();
+
+        assertThrows(BusinessRuleException.class, () ->
+            stock.decreaseReserved(5)
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDecreasingMoreThanReserved() {
+        Stock stock = StockMock.reservedStock();
+
+        assertThrows(BusinessRuleException.class, () ->
+            stock.decreaseReserved(TestConstants.DEFAULT_STOCK_QUANTITY + 10)
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDecreasingZeroQuantity() {
+        Stock stock = StockMock.reservedStock();
+        Integer initialQuantity = stock.getQuantity();
+
+        stock.decreaseReserved(0);
+
+        assertEquals(initialQuantity, stock.getQuantity());
+    }
+
+    @Test
+    void shouldUpdateTimestampWhenDecreasingReserved() {
+        Stock stock = StockMock.reservedStock();
+        var initialUpdatedAt = stock.getUpdatedAt();
+
+        stock.decreaseReserved(5);
+
+        assertNotNull(stock.getUpdatedAt());
+        assertTrue(stock.getUpdatedAt().isEqual(initialUpdatedAt) || stock.getUpdatedAt().isAfter(initialUpdatedAt));
+    }
+
 }
 
