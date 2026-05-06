@@ -100,6 +100,6 @@ class StockMovementUseCaseTest {
         assertThat(capturedMovement.getMaterialId()).isEqualTo(materialId);
         assertThat(capturedMovement.getServiceOrderId()).isNull();
         assertThat(capturedMovement.getQuantity()).isEqualTo(quantity);
-        assertThat(capturedMovement.getMovementType()).isEqualTo("DELEÇÃO");
+        assertThat(capturedMovement.getMovementType()).isEqualTo("EXCLUIDO");
     }
 }

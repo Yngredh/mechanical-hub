@@ -443,7 +443,6 @@ class StockUseCaseTest {
 
         ServiceMaterial serviceMaterial = mock(ServiceMaterial.class);
         when(serviceMaterial.getMaterial()).thenReturn(material);
-        when(serviceMaterial.getQuantity()).thenReturn(5);
 
         ServiceData serviceData = mock(ServiceData.class);
         when(serviceData.getMaterials()).thenReturn(List.of(serviceMaterial));

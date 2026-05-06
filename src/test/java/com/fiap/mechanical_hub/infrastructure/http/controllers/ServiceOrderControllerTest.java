@@ -273,6 +273,7 @@ class ServiceOrderControllerTest {
 
             mockMvc.perform(patch("/service-orders/{id}/status", serviceOrderId)
                             .with(csrf())
+                            .with(user(mechanicalPrincipal))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(updateStatusRequest)))
                     .andExpect(status().isOk())
@@ -291,6 +292,7 @@ class ServiceOrderControllerTest {
 
             mockMvc.perform(patch("/service-orders/{id}/status", serviceOrderId)
                             .with(csrf())
+                            .with(user(mechanicalPrincipal))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(updateStatusRequest)))
                     .andExpect(status().isBadRequest())
@@ -305,6 +307,7 @@ class ServiceOrderControllerTest {
 
             mockMvc.perform(patch("/service-orders/{id}/status", serviceOrderId)
                             .with(csrf())
+                            .with(user(mechanicalPrincipal))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(invalidRequest)))
                     .andExpect(status().isBadRequest())

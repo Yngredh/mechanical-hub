@@ -221,10 +221,9 @@ class ServiceOrderUseCaseTest {
     void updateTaskStatus_Finished() {
         UUID orderId = UUID.randomUUID();
         UUID taskId = UUID.randomUUID();
-        UUID serviceId = UUID.randomUUID();
 
         ServiceData serviceData = mock(ServiceData.class);
-        when(serviceData.getId()).thenReturn(serviceId);
+        when(serviceData.getId()).thenReturn(taskId);
 
         OrderTask task = mock(OrderTask.class);
         when(task.getServiceData()).thenReturn(serviceData);
