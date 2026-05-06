@@ -157,7 +157,14 @@ public class ServiceOrderUseCase {
                 () -> new NotFoundException("Ordem de serviço não encontrada"));
         switch (status) {
             case TaskStatusEnum.INICIADO -> order.startTask(taskId);
-            case TaskStatusEnum.FINALIZADO -> order.finishTask(taskId);
+            case TaskStatusEnum.FINALIZADO -> {
+                order.finishTask(taskId);
+                OrderTask task = order.getOrderTasks().stream()
+                        .filter(t -> t.getServiceData().getId().equals(taskId))
+                        .findFirst()
+                        .orElseThrow(() -> new NotFoundException("Tarefa não encontrada"));
+                stockUseCase.registerStockOut(order, task);
+            }
             default -> throw new IllegalArgumentException("Status não reconhecido para atualização: " + status);
         }
         repository.save(order);

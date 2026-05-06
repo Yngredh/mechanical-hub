@@ -33,14 +33,14 @@ public final class ServiceOrderMock {
 
     public static ServiceOrder inDiagnosisOrderWithBudget(BigDecimal budget) {
         ServiceOrder order = receivedOrder();
-        order.startDiagnosis();
+        order.startDiagnosis(DEFAULT_CREATED_BY_USER_ID);
         order.updateBudget(budget);
         return order;
     }
 
     public static ServiceOrder inDiagnosisOrderWithoutBudget() {
         ServiceOrder order = receivedOrder();
-        order.startDiagnosis();
+        order.startDiagnosis(DEFAULT_CREATED_BY_USER_ID);
         return order;
     }
 
@@ -60,7 +60,6 @@ public final class ServiceOrderMock {
     public static ServiceOrder inExecutionOrderWithTasks(List<OrderTask> tasks) {
         ServiceOrder order = approvedOrder(false);
 
-        // move to execution using domain behavior
         order.startExecution();
 
         tasks.forEach(order::addTask);
@@ -71,7 +70,6 @@ public final class ServiceOrderMock {
         ServiceOrder order = inExecutionOrderWithTasks(List.of(
                 OrderTaskMock.finishedTask(receivedOrder().getId(), DEFAULT_SERVICE_ID)
         ));
-        // ensure tasks belong to order id
         order.getOrderTasks().clear();
         order.addTask(OrderTaskMock.finishedTask(order.getId(), DEFAULT_SERVICE_ID));
         order.finish();

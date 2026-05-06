@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import static com.fiap.mechanical_hub.domain.entities.constants.TestConstants.DEFAULT_USER_ID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServiceOrderTest {
@@ -26,7 +27,7 @@ class ServiceOrderTest {
         assertEquals(TestConstants.DEFAULT_CUSTOMER_ID, order.getCustomerId());
         assertEquals(TestConstants.DEFAULT_ORDER_NUMBER, order.getOrderNumber());
         assertEquals(TestConstants.DEFAULT_REQUEST_DESCRIPTION, order.getRequestDescription());
-        assertEquals(TestConstants.DEFAULT_USER_ID, order.getCreatedByUserId());
+        assertEquals(DEFAULT_USER_ID, order.getCreatedByUserId());
         assertEquals(OrderStatusEnum.RECEBIDO, order.getStatus());
         assertFalse(order.isHasStockPending());
         assertNotNull(order.getCreatedAt());
@@ -37,7 +38,7 @@ class ServiceOrderTest {
         ServiceOrder order = ServiceOrderMock.defaultServiceOrder();
         assertEquals(OrderStatusEnum.RECEBIDO, order.getStatus());
 
-        order.startDiagnosis();
+        order.startDiagnosis(DEFAULT_USER_ID);
 
         assertEquals(OrderStatusEnum.EM_DIAGNOSTICO, order.getStatus());
         assertNotNull(order.getOpenedAt());
@@ -108,7 +109,7 @@ class ServiceOrderTest {
     void shouldThrowExceptionWhenStartingDiagnosisFromInvalidStatus() {
         ServiceOrder order = ServiceOrderMock.serviceOrderInDiagnosis();
 
-        assertThrows(InvalidOrderTransitionException.class, order::startDiagnosis);
+        assertThrows(InvalidOrderTransitionException.class, () -> order.startDiagnosis(DEFAULT_USER_ID));
     }
 
     @Test
@@ -212,7 +213,7 @@ class ServiceOrderTest {
                     TestConstants.DEFAULT_CUSTOMER_ID,
                     TestConstants.DEFAULT_ORDER_NUMBER,
                     "",
-                    TestConstants.DEFAULT_USER_ID
+                    DEFAULT_USER_ID
             )
         );
     }
@@ -225,7 +226,7 @@ class ServiceOrderTest {
                     TestConstants.DEFAULT_CUSTOMER_ID,
                     TestConstants.DEFAULT_ORDER_NUMBER,
                     null,
-                    TestConstants.DEFAULT_USER_ID
+                    DEFAULT_USER_ID
             )
         );
     }
@@ -240,7 +241,7 @@ class ServiceOrderTest {
                     TestConstants.DEFAULT_CUSTOMER_ID,
                     TestConstants.DEFAULT_ORDER_NUMBER,
                     longDescription,
-                    TestConstants.DEFAULT_USER_ID
+                    DEFAULT_USER_ID
             )
         );
     }

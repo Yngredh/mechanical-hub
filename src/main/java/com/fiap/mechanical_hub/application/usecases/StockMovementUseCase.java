@@ -26,4 +26,14 @@ public class StockMovementUseCase {
         StockMovement movement = StockMovement.registerReturn(materialId, serviceOrderId, quantity);
         stockMovementRepository.save(movement);
     }
+
+    public void registerStockDeleteMovement(UUID materialId, UUID serviceOrderId, Integer quantity) {
+        StockMovement movement = StockMovement.registerDelete(materialId, serviceOrderId, quantity);
+        stockMovementRepository.save(movement);
+    }
+
+    public void registerStockOutMovement(UUID materialId, UUID serviceOrderId, Integer quantity) {
+        StockMovement movement = StockMovement.registerStockOut(materialId, serviceOrderId, quantity);
+        stockMovementRepository.save(movement);
+    }
 }

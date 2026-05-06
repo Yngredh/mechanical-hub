@@ -140,7 +140,7 @@ public class ServiceOrder {
                 .anyMatch(ot -> ot.getServiceData().getId().equals(serviceId));
     }
 
-    private OrderTask findTask(UUID taskId){
+    private OrderTask findTask(UUID taskId) {
         return this.getOrderTasks().stream()
                 .filter(t -> t.getServiceData().getId().equals(taskId))
                 .findFirst()

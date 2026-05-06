@@ -76,5 +76,18 @@ public class Stock {
         this.quantity += quantity;
     }
 
+    public void decreaseReserved(int quantity) {
+        if (this.status != StockStatusEnum.RESERVED) {
+            throw new BusinessRuleException("Não é possível dar saída em um item que não está reservado");
+        }
+        if (this.quantity < quantity) {
+            throw new BusinessRuleException("Quantidade reservada insuficiente para dar saída");
+        }
+
+        this.quantity -= quantity;
+
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }
 

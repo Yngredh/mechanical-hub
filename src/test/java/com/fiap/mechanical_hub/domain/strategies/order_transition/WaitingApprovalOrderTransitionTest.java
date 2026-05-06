@@ -12,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
 import static com.fiap.mechanical_hub.domain.strategies.order_transition.constants.TestConstants.DEFAULT_BUDGET;
 import static com.fiap.mechanical_hub.domain.strategies.order_transition.constants.TestConstants.ZERO_BUDGET;
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,11 +28,13 @@ class WaitingApprovalOrderTransitionTest {
     @InjectMocks
     private WaitingApprovalOrderTransition transition;
 
+    private final UUID userId = UUID.randomUUID();
+
     @Test
     void shouldSubmitForApprovalAndSendBudgetApprovalRequestWhenBudgetIsGenerated() {
         ServiceOrder order = ServiceOrderMock.inDiagnosisOrderWithBudget(DEFAULT_BUDGET);
 
-        transition.execute(order);
+        transition.execute(order, userId);
 
         assertEquals(OrderStatusEnum.AGUARDANDO_APROVACAO, order.getStatus());
         verify(sendBudgetApproval, times(1)).sendBudgetApprovalRequest(order);
@@ -43,7 +47,7 @@ class WaitingApprovalOrderTransitionTest {
 
         BusinessRuleException exception = assertThrows(
                 BusinessRuleException.class,
-                () -> transition.execute(order)
+                () -> transition.execute(order, userId)
         );
 
         assertEquals("Order budget not generated", exception.getMessage());
@@ -57,7 +61,7 @@ class WaitingApprovalOrderTransitionTest {
 
         BusinessRuleException exception = assertThrows(
                 BusinessRuleException.class,
-                () -> transition.execute(order)
+                () -> transition.execute(order, userId)
         );
 
         assertEquals("Order budget not generated", exception.getMessage());
@@ -71,7 +75,7 @@ class WaitingApprovalOrderTransitionTest {
 
         InvalidOrderTransitionException exception = assertThrows(
                 InvalidOrderTransitionException.class,
-                () -> transition.execute(order)
+                () -> transition.execute(order, userId)
         );
 
         assertTrue(exception.getMessage().contains("Invalid transition"));

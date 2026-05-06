@@ -6,17 +6,20 @@ import com.fiap.mechanical_hub.domain.exceptions.InvalidOrderTransitionException
 import com.fiap.mechanical_hub.domain.strategies.order_transition.mocks.ServiceOrderMock;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ApproveOrderTransitionTest {
 
     private final ApproveOrderTransition transition = new ApproveOrderTransition();
+    private final UUID userId = UUID.randomUUID();
 
     @Test
     void shouldApproveOrderWhenStatusIsWaitingApproval() {
         ServiceOrder order = ServiceOrderMock.waitingApprovalOrder();
 
-        transition.execute(order);
+        transition.execute(order, userId);
 
         assertEquals(OrderStatusEnum.APROVADO, order.getStatus());
     }
@@ -29,7 +32,7 @@ class ApproveOrderTransitionTest {
 
         InvalidOrderTransitionException exception = assertThrows(
                 InvalidOrderTransitionException.class,
-                () -> transition.execute(order)
+                () -> transition.execute(order, userId)
         );
 
         assertTrue(exception.getMessage().contains("Invalid transition"));

@@ -6,7 +6,9 @@ import lombok.Getter;
 public enum StockMovementTypeEnum {
     ENTRY("ENTRADA"),
     RESERVED("RESERVADO"),
-    RETURN("RETORNO");
+    RETURN("RETORNO"),
+    EXCLUDED("EXCLUIDO"),
+    OUT("SAÍDA");
 
     private final String description;
 

@@ -66,7 +66,7 @@ class ServiceOrderControllerTest {
     private UUID serviceOrderId;
     private UUID customerId;
     private UUID vehicleId;
-    private UUID createdByUserId;
+    private UUID userId;
     private UUID serviceId;
     private CreateServiceOrderRequest createRequest;
     private ServiceOrderResponse serviceOrderResponse;
@@ -82,7 +82,7 @@ class ServiceOrderControllerTest {
         serviceOrderId = UUID.randomUUID();
         customerId = UUID.randomUUID();
         vehicleId = UUID.randomUUID();
-        createdByUserId = UUID.randomUUID();
+        userId = UUID.randomUUID();
         serviceId = UUID.randomUUID();
 
         createRequest = new CreateServiceOrderRequest(
@@ -109,7 +109,7 @@ class ServiceOrderControllerTest {
                 vehicleId,
                 customerId,
                 OrderStatusEnum.RECEBIDO.getDisplayName(),
-                createdByUserId,
+                userId,
                 null,
                 "OS-202605-0001",
                 "Troca de oleo",
@@ -167,12 +167,12 @@ class ServiceOrderControllerTest {
         );
 
         addServicesRequest = new AddServicesToOrderRequest(List.of(serviceId));
-        updateStatusRequest = new UpdateStatusRequest(OrderStatusEnum.EM_DIAGNOSTICO.name(), null);
-        updateTaskStatusRequest = new UpdateStatusRequest("INICIADO", null);
+        updateStatusRequest = new UpdateStatusRequest(OrderStatusEnum.EM_DIAGNOSTICO.name());
+        updateTaskStatusRequest = new UpdateStatusRequest("INICIADO");
 
         Profile mechanicalProfile = Profile.create(ProfileEnum.MECHANICAL);
         User mechanicalUser = User.build(
-                createdByUserId,
+                userId,
                 "Mecanico",
                 "mecanico@email.com",
                 "hash",
@@ -211,7 +211,7 @@ class ServiceOrderControllerTest {
                     )
             );
             serviceOrderResponse.setOrderTasks(orderTaskResponses);
-            when(serviceOrderUseCase.create(createRequest, createdByUserId))
+            when(serviceOrderUseCase.create(createRequest, userId))
                     .thenReturn(serviceOrderResponse);
 
             mockMvc.perform(post("/service-orders")
@@ -224,13 +224,13 @@ class ServiceOrderControllerTest {
                     .andExpect(jsonPath("$.orderNumber").value("OS-202605-0001"))
                     .andExpect(jsonPath("$.status").value(OrderStatusEnum.RECEBIDO.getDisplayName()));
 
-            verify(serviceOrderUseCase).create((createRequest), (createdByUserId));
+            verify(serviceOrderUseCase).create((createRequest), (userId));
         }
 
         @Test
         @DisplayName("Should return 422 when business rule is violated")
         void shouldReturn422WhenBusinessRuleIsViolated() throws Exception {
-            when(serviceOrderUseCase.create((createRequest), (createdByUserId)))
+            when(serviceOrderUseCase.create((createRequest), (userId)))
                     .thenThrow(new BusinessRuleException("A descrição da solicitação não pode ultrapassar 255 caracteres"));
 
             mockMvc.perform(post("/service-orders")
@@ -268,7 +268,7 @@ class ServiceOrderControllerTest {
             updatedOrder.setStatus(OrderStatusEnum.EM_DIAGNOSTICO);
             updatedOrder.setOrderNumber("OS-202605-0001");
 
-            when(serviceOrderUseCase.updateOrderStatus((serviceOrderId), (OrderStatusEnum.EM_DIAGNOSTICO)))
+            when(serviceOrderUseCase.updateOrderStatus((serviceOrderId), (OrderStatusEnum.EM_DIAGNOSTICO), userId))
                     .thenReturn(updatedOrder);
 
             mockMvc.perform(patch("/service-orders/{id}/status", serviceOrderId)
@@ -279,14 +279,14 @@ class ServiceOrderControllerTest {
                     .andExpect(jsonPath("$.id").value(serviceOrderId.toString()))
                     .andExpect(jsonPath("$.status").value(OrderStatusEnum.EM_DIAGNOSTICO.name()));
 
-            verify(serviceOrderUseCase).updateOrderStatus((serviceOrderId), (OrderStatusEnum.EM_DIAGNOSTICO));
+            verify(serviceOrderUseCase).updateOrderStatus((serviceOrderId), (OrderStatusEnum.EM_DIAGNOSTICO), userId);
         }
 
         @Test
         @DisplayName("Should return 400 when status transition is invalid")
         @WithMockUser(roles = "ADMINISTRATOR")
         void shouldReturn400WhenInvalidStatusTransition() throws Exception {
-            when(serviceOrderUseCase.updateOrderStatus((serviceOrderId), (OrderStatusEnum.EM_DIAGNOSTICO)))
+            when(serviceOrderUseCase.updateOrderStatus((serviceOrderId), (OrderStatusEnum.EM_DIAGNOSTICO), userId))
                     .thenThrow(new InvalidOrderTransitionException("Invalid transition"));
 
             mockMvc.perform(patch("/service-orders/{id}/status", serviceOrderId)
@@ -301,7 +301,7 @@ class ServiceOrderControllerTest {
         @DisplayName("Should return 400 when status is not recognized")
         @WithMockUser(roles = "ADMINISTRATOR")
         void shouldReturn400WhenStatusIsInvalid() throws Exception {
-            UpdateStatusRequest invalidRequest = new UpdateStatusRequest("INVALID_STATUS", null);
+            UpdateStatusRequest invalidRequest = new UpdateStatusRequest("INVALID_STATUS");
 
             mockMvc.perform(patch("/service-orders/{id}/status", serviceOrderId)
                             .with(csrf())
@@ -497,7 +497,7 @@ class ServiceOrderControllerTest {
         @DisplayName("Should return 400 when task status is invalid")
         @WithMockUser(roles = "MECHANICAL")
         void shouldReturn400WhenTaskStatusIsInvalid() throws Exception {
-            UpdateStatusRequest invalidRequest = new UpdateStatusRequest("INVALID_STATUS", null);
+            UpdateStatusRequest invalidRequest = new UpdateStatusRequest("INVALID_STATUS");
 
             mockMvc.perform(patch("/service-orders/{id}/services/{taskId}/status", serviceOrderId, serviceId)
                             .with(csrf())

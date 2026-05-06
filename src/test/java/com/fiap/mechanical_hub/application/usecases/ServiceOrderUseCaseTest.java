@@ -61,7 +61,7 @@ class ServiceOrderUseCaseTest {
     @DisplayName("Deve criar uma Ordem de Serviço com sucesso")
     void create_ShouldReturnResponse_WhenRequestIsValid() {
         UUID userId = UUID.randomUUID();
-        var request = createMockRequest(); // Método auxiliar para mockar o DTO complexo
+        var request = createMockRequest();
 
         Customer customer = mock(Customer.class);
         when(customer.getId()).thenReturn(UUID.randomUUID());
@@ -115,7 +115,7 @@ class ServiceOrderUseCaseTest {
         UUID orderId = UUID.randomUUID();
         when(repository.findById(orderId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.updateOrderStatus(orderId, OrderStatusEnum.APROVADO))
+        assertThatThrownBy(() -> useCase.updateOrderStatus(orderId, OrderStatusEnum.APROVADO, null))
                 .isInstanceOf(java.util.NoSuchElementException.class);
     }
 
@@ -131,7 +131,7 @@ class ServiceOrderUseCaseTest {
 
         useCase.approve(orderId);
 
-        verify(transitionTest).execute(order);
+        verify(transitionTest).execute(order, null);
         verify(repository).save(order);
     }
 
@@ -164,9 +164,9 @@ class ServiceOrderUseCaseTest {
         when(factory.get(targetStatus)).thenReturn(transition);
         when(repository.save(order)).thenReturn(order);
 
-        ServiceOrder result = useCase.updateOrderStatus(orderId, targetStatus);
+        ServiceOrder result = useCase.updateOrderStatus(orderId, targetStatus, null);
 
-        verify(transition).execute(order);
+        verify(transition).execute(order, null);
         verify(repository).save(order);
         assertNotNull(result);
     }
@@ -196,7 +196,7 @@ class ServiceOrderUseCaseTest {
 
         useCase.reject(orderId);
 
-        verify(transition).execute(order);
+        verify(transition).execute(order, null);
         verify(repository).save(order);
     }
 
