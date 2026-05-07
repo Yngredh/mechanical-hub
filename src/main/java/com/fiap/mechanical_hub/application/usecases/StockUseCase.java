@@ -8,6 +8,7 @@ import com.fiap.mechanical_hub.application.mappers.StockMapper;
 import com.fiap.mechanical_hub.application.mappers.StockMovementMapper;
 import com.fiap.mechanical_hub.domain.entities.*;
 import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
+import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.MaterialRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.ServiceOrderRepositoryAdapter;
@@ -267,18 +268,37 @@ public class StockUseCase {
             throw new NotFoundException("Material não encontrado: " + materialId);
         }
 
-        log.info("Limpando histórico de movimentações...");
-        stockMovementRepository.deleteByMaterialId(materialId);
-        stockMovementRepository.flush();
+        List<Stock> materialStock = stockRepository.findAllByMaterialId(materialId);
+        if (materialStock.stream().anyMatch(s -> s.getStatus() == StockStatusEnum.RESERVED)) {
+            log.warn("Material {} has reserved stock. Deletion not allowed.", materialId);
+            throw new BusinessRuleException("Não é possível excluir material com estoque reservado.");
+        } else {
+            Integer availableQuantity = stockRepository.findByMaterialIdAndStatus(materialId, StockStatusEnum.AVAILABLE)
+                    .orElseThrow(
+                            () -> new NotFoundException("Estoque disponível não encontrado para o material: " + materialId)
+                    ).getQuantity();
+            stockMovementUseCase.registerStockDeleteMovement(materialId, null, availableQuantity);
+            stockRepository.deleteByMaterialId(materialId);
+            materialRepository.deleteById(materialId);
+        }
+    }
 
-        log.info("Limpando registros de estoque...");
-        stockRepository.deleteByMaterialId(materialId);
-        stockRepository.flush();
+    @Transactional
+    public void registerStockOut(ServiceOrder order, OrderTask task) {
+        for (ServiceMaterial serviceMaterial : task.getServiceData().getMaterials()) {
+            Stock stock = stockRepository.findByMaterialIdAndStatus(
+                    serviceMaterial.getMaterial().getId(), StockStatusEnum.RESERVED)
+                    .orElseThrow(() -> new NotFoundException("Estoque reservado não encontrado para o material: " + serviceMaterial.getMaterial().getId()));
 
-        log.info("Limpando registro do material...");
-        materialRepository.deleteById(materialId);
+            stock.decreaseReserved(serviceMaterial.getQuantity());
+            stockRepository.save(stock);
 
-        log.info("Exclusão completa realizada com sucesso.");
+            stockMovementUseCase.registerStockOutMovement(
+                    serviceMaterial.getMaterial().getId(),
+                    order.getId(),
+                    serviceMaterial.getQuantity()
+            );
+        }
     }
 
 }

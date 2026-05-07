@@ -43,7 +43,7 @@ class StockMovementUseCaseTest {
         StockMovement capturedMovement = movementCaptor.getValue();
         assertThat(capturedMovement.getMaterialId()).isEqualTo(materialId);
         assertThat(capturedMovement.getQuantity()).isEqualTo(quantity);
-        assertThat(capturedMovement.getMovementType()).isEqualTo("ENTRADA"); // Descrição do ENTRY
+        assertThat(capturedMovement.getMovementType()).isEqualTo("ENTRADA");
         assertThat(capturedMovement.getServiceOrderId()).isNull();
     }
 
@@ -63,6 +63,43 @@ class StockMovementUseCaseTest {
         assertThat(capturedMovement.getMaterialId()).isEqualTo(materialId);
         assertThat(capturedMovement.getServiceOrderId()).isEqualTo(serviceOrderId);
         assertThat(capturedMovement.getQuantity()).isEqualTo(quantity);
-        assertThat(capturedMovement.getMovementType()).isEqualTo("RETORNO"); // Descrição do RETURN
+        assertThat(capturedMovement.getMovementType()).isEqualTo("RETORNO");
+    }
+
+    @Test
+    @DisplayName("Deve registrar um movimento de saída de estoque com sucesso")
+    void shouldRegisterStockOutMovement() {
+        UUID materialId = UUID.randomUUID();
+        UUID serviceOrderId = UUID.randomUUID();
+        Integer quantity = 10;
+
+        stockMovementUseCase.registerStockOutMovement(materialId, serviceOrderId, quantity);
+
+        ArgumentCaptor<StockMovement> movementCaptor = ArgumentCaptor.forClass(StockMovement.class);
+        verify(stockMovementRepository, times(1)).save(movementCaptor.capture());
+
+        StockMovement capturedMovement = movementCaptor.getValue();
+        assertThat(capturedMovement.getMaterialId()).isEqualTo(materialId);
+        assertThat(capturedMovement.getServiceOrderId()).isEqualTo(serviceOrderId);
+        assertThat(capturedMovement.getQuantity()).isEqualTo(quantity);
+        assertThat(capturedMovement.getMovementType()).isEqualTo("SAÍDA");
+    }
+
+    @Test
+    @DisplayName("Deve registrar um movimento de deleção de estoque com sucesso")
+    void shouldRegisterStockDeleteMovement() {
+        UUID materialId = UUID.randomUUID();
+        Integer quantity = 25;
+
+        stockMovementUseCase.registerStockDeleteMovement(materialId, null, quantity);
+
+        ArgumentCaptor<StockMovement> movementCaptor = ArgumentCaptor.forClass(StockMovement.class);
+        verify(stockMovementRepository, times(1)).save(movementCaptor.capture());
+
+        StockMovement capturedMovement = movementCaptor.getValue();
+        assertThat(capturedMovement.getMaterialId()).isEqualTo(materialId);
+        assertThat(capturedMovement.getServiceOrderId()).isNull();
+        assertThat(capturedMovement.getQuantity()).isEqualTo(quantity);
+        assertThat(capturedMovement.getMovementType()).isEqualTo("EXCLUIDO");
     }
 }

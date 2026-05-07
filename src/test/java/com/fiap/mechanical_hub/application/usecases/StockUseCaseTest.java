@@ -6,6 +6,7 @@ import com.fiap.mechanical_hub.application.dto.stock.StockSummaryResponse;
 import com.fiap.mechanical_hub.application.mappers.StockMapper;
 import com.fiap.mechanical_hub.domain.entities.*;
 import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
+import com.fiap.mechanical_hub.domain.exceptions.BusinessRuleException;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.MaterialRepositoryAdapter;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.ServiceOrderRepositoryAdapter;
@@ -348,18 +349,41 @@ class StockUseCaseTest {
     void delete_Success() {
         UUID materialId = UUID.randomUUID();
         Material material = mock(Material.class);
+        Stock availableStock = mock(Stock.class);
+        when(availableStock.getQuantity()).thenReturn(100);
 
         when(materialRepository.findById(materialId)).thenReturn(Optional.of(material));
+        when(stockRepository.findAllByMaterialId(materialId)).thenReturn(List.of(availableStock));
+        when(availableStock.getStatus()).thenReturn(StockStatusEnum.AVAILABLE);
+        when(stockRepository.findByMaterialIdAndStatus(materialId, StockStatusEnum.AVAILABLE))
+                .thenReturn(Optional.of(availableStock));
 
         stockUseCase.delete(materialId);
 
-        verify(stockMovementRepository, times(1)).deleteByMaterialId(materialId);
-        verify(stockMovementRepository, times(1)).flush();
+        verify(stockMovementUseCase).registerStockDeleteMovement(materialId, null, 100);
+        verify(stockRepository).deleteByMaterialId(materialId);
+        verify(materialRepository).deleteById(materialId);
+    }
 
-        verify(stockRepository, times(1)).deleteByMaterialId(materialId);
-        verify(stockRepository, times(1)).flush();
+    @Test
+    @DisplayName("Deve lançar BusinessRuleException quando material possui estoque reservado")
+    void delete_ShouldThrowBusinessRuleException_WhenStockIsReserved() {
+        UUID materialId = UUID.randomUUID();
+        Material material = mock(Material.class);
+        Stock reservedStock = mock(Stock.class);
 
-        verify(materialRepository, times(1)).deleteById(materialId);
+        when(reservedStock.getStatus()).thenReturn(StockStatusEnum.RESERVED);
+
+        when(materialRepository.findById(materialId)).thenReturn(Optional.of(material));
+        when(stockRepository.findAllByMaterialId(materialId)).thenReturn(List.of(reservedStock));
+
+        assertThatThrownBy(() -> stockUseCase.delete(materialId))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessage("Não é possível excluir material com estoque reservado.");
+
+        verify(stockMovementUseCase, never()).registerStockDeleteMovement(any(), any(), any());
+        verify(stockRepository, never()).deleteByMaterialId(any());
+        verify(materialRepository, never()).deleteById(any());
     }
 
     @Test
@@ -370,8 +394,115 @@ class StockUseCaseTest {
 
         assertThrows(NotFoundException.class, () -> stockUseCase.delete(materialId));
 
-        verify(stockMovementRepository, never()).deleteByMaterialId(any());
+        verify(stockMovementUseCase, never()).registerStockDeleteMovement(any(), any(), any());
         verify(stockRepository, never()).deleteByMaterialId(any());
         verify(materialRepository, never()).deleteById(any());
+    }
+
+    @Test
+    @DisplayName("Deve registrar saída de estoque com sucesso")
+    void registerStockOut_Success() {
+        UUID materialId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        int quantity = 5;
+
+        Material material = mock(Material.class);
+        when(material.getId()).thenReturn(materialId);
+
+        ServiceMaterial serviceMaterial = mock(ServiceMaterial.class);
+        when(serviceMaterial.getMaterial()).thenReturn(material);
+        when(serviceMaterial.getQuantity()).thenReturn(quantity);
+
+        ServiceData serviceData = mock(ServiceData.class);
+        when(serviceData.getMaterials()).thenReturn(List.of(serviceMaterial));
+
+        OrderTask task = mock(OrderTask.class);
+        when(task.getServiceData()).thenReturn(serviceData);
+
+        ServiceOrder order = mock(ServiceOrder.class);
+        when(order.getId()).thenReturn(orderId);
+
+        Stock reservedStock = mock(Stock.class);
+        when(stockRepository.findByMaterialIdAndStatus(materialId, StockStatusEnum.RESERVED))
+                .thenReturn(Optional.of(reservedStock));
+
+        stockUseCase.registerStockOut(order, task);
+
+        verify(reservedStock).decreaseReserved(quantity);
+        verify(stockRepository).save(reservedStock);
+        verify(stockMovementUseCase).registerStockOutMovement(materialId, orderId, quantity);
+    }
+
+    @Test
+    @DisplayName("Deve lançar NotFoundException quando estoque reservado não existir")
+    void registerStockOut_ReservedStockNotFound() {
+        UUID materialId = UUID.randomUUID();
+
+        Material material = mock(Material.class);
+        when(material.getId()).thenReturn(materialId);
+
+        ServiceMaterial serviceMaterial = mock(ServiceMaterial.class);
+        when(serviceMaterial.getMaterial()).thenReturn(material);
+
+        ServiceData serviceData = mock(ServiceData.class);
+        when(serviceData.getMaterials()).thenReturn(List.of(serviceMaterial));
+
+        OrderTask task = mock(OrderTask.class);
+        when(task.getServiceData()).thenReturn(serviceData);
+
+        ServiceOrder order = mock(ServiceOrder.class);
+
+        when(stockRepository.findByMaterialIdAndStatus(materialId, StockStatusEnum.RESERVED))
+                .thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> stockUseCase.registerStockOut(order, task));
+
+        verify(stockRepository, never()).save(any());
+        verify(stockMovementUseCase, never()).registerStockOutMovement(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("Deve registrar saída de estoque para múltiplos materiais de um serviço")
+    void registerStockOut_MultipleMaterials() {
+        UUID materialId1 = UUID.randomUUID();
+        UUID materialId2 = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+
+        Material material1 = mock(Material.class);
+        when(material1.getId()).thenReturn(materialId1);
+        Material material2 = mock(Material.class);
+        when(material2.getId()).thenReturn(materialId2);
+
+        ServiceMaterial sm1 = mock(ServiceMaterial.class);
+        when(sm1.getMaterial()).thenReturn(material1);
+        when(sm1.getQuantity()).thenReturn(3);
+
+        ServiceMaterial sm2 = mock(ServiceMaterial.class);
+        when(sm2.getMaterial()).thenReturn(material2);
+        when(sm2.getQuantity()).thenReturn(7);
+
+        ServiceData serviceData = mock(ServiceData.class);
+        when(serviceData.getMaterials()).thenReturn(List.of(sm1, sm2));
+
+        OrderTask task = mock(OrderTask.class);
+        when(task.getServiceData()).thenReturn(serviceData);
+
+        ServiceOrder order = mock(ServiceOrder.class);
+        when(order.getId()).thenReturn(orderId);
+
+        Stock reservedStock1 = mock(Stock.class);
+        Stock reservedStock2 = mock(Stock.class);
+
+        when(stockRepository.findByMaterialIdAndStatus(materialId1, StockStatusEnum.RESERVED))
+                .thenReturn(Optional.of(reservedStock1));
+        when(stockRepository.findByMaterialIdAndStatus(materialId2, StockStatusEnum.RESERVED))
+                .thenReturn(Optional.of(reservedStock2));
+
+        stockUseCase.registerStockOut(order, task);
+
+        verify(reservedStock1).decreaseReserved(3);
+        verify(reservedStock2).decreaseReserved(7);
+        verify(stockRepository, times(2)).save(any(Stock.class));
+        verify(stockMovementUseCase, times(2)).registerStockOutMovement(any(), any(), any());
     }
 }

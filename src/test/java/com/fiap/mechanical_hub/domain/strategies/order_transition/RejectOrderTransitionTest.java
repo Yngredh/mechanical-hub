@@ -27,7 +27,7 @@ class RejectOrderTransitionTest {
     void shouldRejectOrderAndRestoreReservedItemsWhenStatusIsWaitingApproval() {
         ServiceOrder order = ServiceOrderMock.waitingApprovalOrder();
 
-        transition.execute(order);
+        transition.execute(order, null);
 
         assertEquals(OrderStatusEnum.RECUSADO, order.getStatus());
         verify(stockUseCase, times(1)).restoreReservedItems(order);
@@ -42,7 +42,7 @@ class RejectOrderTransitionTest {
 
         InvalidOrderTransitionException exception = assertThrows(
                 InvalidOrderTransitionException.class,
-                () -> transition.execute(order)
+                () -> transition.execute(order, null)
         );
 
         assertTrue(exception.getMessage().contains("Invalid transition"));

@@ -21,7 +21,7 @@ import java.util.UUID;
 @Transactional
 public class MaterialUseCase {
 
-    public static final String MATERIAL_NAO_ENCONTRADO_PARA_O_ID = "Material não encontrado para o id: ";
+    public static final String MATERIAL_NOT_FOUND_MESSAGE = "Material não encontrado para o id: ";
     private final MaterialRepositoryAdapter materialRepository;
     private final MaterialMapper materialMapper;
     @Lazy
@@ -46,7 +46,7 @@ public class MaterialUseCase {
 
     public Material findById(UUID id) {
         return materialRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(MATERIAL_NAO_ENCONTRADO_PARA_O_ID + id));
+                .orElseThrow(() -> new NotFoundException(MATERIAL_NOT_FOUND_MESSAGE + id));
     }
     
     @Transactional(readOnly = true)
@@ -68,7 +68,7 @@ public class MaterialUseCase {
     public MaterialResponse update(UUID id, UpsertMaterialRequest updateRequest) {
         log.info("Updating material with id: {}", id);
         Material existingMaterial = materialRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(MATERIAL_NAO_ENCONTRADO_PARA_O_ID + id));
+                .orElseThrow(() -> new NotFoundException(MATERIAL_NOT_FOUND_MESSAGE + id));
 
         existingMaterial.update(
                 updateRequest.name(),
@@ -91,7 +91,6 @@ public class MaterialUseCase {
         }
 
         stockUseCase.delete(id);
-
         materialRepository.deleteById(id);
 
         log.info("Material e todas as dependências de estoque deletadas com sucesso: {}", id);

@@ -66,5 +66,27 @@ public class StockMovement {
                 LocalDateTime.now()
         );
     }
+
+    public static StockMovement registerDelete(UUID materialId, UUID serviceOrderId, Integer quantity) {
+        return new StockMovement(
+                UUID.randomUUID(),
+                materialId,
+                serviceOrderId,
+                StockMovementTypeEnum.EXCLUDED.getDescription(),
+                quantity,
+                LocalDateTime.now()
+        );
+    }
+
+    public static StockMovement registerStockOut(UUID materialId, UUID serviceOrderId, Integer quantity) {
+        return new StockMovement(
+                UUID.randomUUID(),
+                materialId,
+                serviceOrderId,
+                StockMovementTypeEnum.OUT.getDescription(),
+                quantity,
+                LocalDateTime.now()
+        );
+    }
 }
 

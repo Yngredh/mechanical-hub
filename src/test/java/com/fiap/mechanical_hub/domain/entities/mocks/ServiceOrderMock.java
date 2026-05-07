@@ -25,7 +25,7 @@ public class ServiceOrderMock {
                 DEFAULT_REQUEST_DESCRIPTION,
                 DEFAULT_USER_ID
         );
-        order.startDiagnosis();
+        order.startDiagnosis(DEFAULT_USER_ID);
         return order;
     }
 
@@ -37,7 +37,7 @@ public class ServiceOrderMock {
                 DEFAULT_REQUEST_DESCRIPTION,
                 DEFAULT_USER_ID
         );
-        order.startDiagnosis();
+        order.startDiagnosis(DEFAULT_USER_ID);
         order.updateBudget(DEFAULT_ORDER_BUDGET);
         order.submitForApproval();
         return order;

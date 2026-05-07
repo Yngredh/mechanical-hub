@@ -107,5 +107,60 @@ class StockMovementTest {
         assertEquals(StockMovementTypeEnum.RETURN.getDescription(), movement.getMovementType());
     }
 
+    @Test
+    void shouldCreateStockOutMovement() {
+        StockMovement movement = StockMovement.registerStockOut(
+                TestConstants.DEFAULT_MATERIAL_ID,
+                TestConstants.DEFAULT_SERVICE_ORDER_ID,
+                10
+        );
+
+        assertNotNull(movement.getId());
+        assertEquals(TestConstants.DEFAULT_MATERIAL_ID, movement.getMaterialId());
+        assertEquals(TestConstants.DEFAULT_SERVICE_ORDER_ID, movement.getServiceOrderId());
+        assertEquals(StockMovementTypeEnum.OUT.getDescription(), movement.getMovementType());
+        assertEquals(10, movement.getQuantity());
+        assertNotNull(movement.getCreatedAt());
+    }
+
+    @Test
+    void shouldHaveCorrectMovementTypeForStockOut() {
+        StockMovement movement = StockMovement.registerStockOut(
+                TestConstants.DEFAULT_MATERIAL_ID,
+                TestConstants.DEFAULT_SERVICE_ORDER_ID,
+                5
+        );
+
+        assertEquals(StockMovementTypeEnum.OUT.getDescription(), movement.getMovementType());
+    }
+
+    @Test
+    void shouldHaveServiceOrderIdForStockOutMovement() {
+        StockMovement movement = StockMovement.registerStockOut(
+                TestConstants.DEFAULT_MATERIAL_ID,
+                TestConstants.DEFAULT_SERVICE_ORDER_ID,
+                7
+        );
+
+        assertNotNull(movement.getServiceOrderId());
+        assertEquals(TestConstants.DEFAULT_SERVICE_ORDER_ID, movement.getServiceOrderId());
+    }
+
+    @Test
+    void shouldCreateDeleteMovement() {
+        StockMovement movement = StockMovement.registerDelete(
+                TestConstants.DEFAULT_MATERIAL_ID,
+                null,
+                20
+        );
+
+        assertNotNull(movement.getId());
+        assertEquals(TestConstants.DEFAULT_MATERIAL_ID, movement.getMaterialId());
+        assertNull(movement.getServiceOrderId());
+        assertEquals(StockMovementTypeEnum.EXCLUDED.getDescription(), movement.getMovementType());
+        assertEquals(20, movement.getQuantity());
+        assertNotNull(movement.getCreatedAt());
+    }
+
 }
 

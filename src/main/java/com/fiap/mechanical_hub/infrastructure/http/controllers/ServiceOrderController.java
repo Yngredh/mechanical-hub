@@ -64,9 +64,10 @@ public class ServiceOrderController {
             @ApiResponse(responseCode = "404", description = "Ordem não encontrada")
     })
     public ResponseEntity<ServiceOrder> updateStatus(
-            @PathVariable UUID id, @RequestBody UpdateStatusRequest request) {
-        ServiceOrder response = useCase.updateOrderStatus(
-                id, OrderStatusEnum.fromString(request.getStatus()));
+            @PathVariable UUID id, @RequestBody UpdateStatusRequest request,
+            @AuthenticationPrincipal UserSecurityAdapter userDetails) {
+        UUID userId = userDetails.user().getId();
+        ServiceOrder response = useCase.updateOrderStatus(id, OrderStatusEnum.fromString(request.getStatus()), userId);
         return ResponseEntity.ok(response);
     }
 

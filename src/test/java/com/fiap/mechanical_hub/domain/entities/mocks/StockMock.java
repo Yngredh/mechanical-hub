@@ -28,5 +28,9 @@ public class StockMock {
         return stock;
     }
 
+    public static Stock reservedStockWithQuantity(Integer quantity) {
+        return Stock.createReservedStock(DEFAULT_MATERIAL_ID, quantity);
+    }
+
 }
 

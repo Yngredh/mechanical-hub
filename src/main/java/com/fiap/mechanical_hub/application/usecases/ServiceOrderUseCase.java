@@ -110,9 +110,9 @@ public class ServiceOrderUseCase {
         log.info("Successfully added services to service order {}. Has pending items: {}", serviceOrderId, hasStockPending);
     }
 
-    public ServiceOrder updateOrderStatus(UUID orderId, OrderStatusEnum targetStatus) {
+    public ServiceOrder updateOrderStatus(UUID orderId, OrderStatusEnum targetStatus, UUID userId) {
         ServiceOrder order = repository.findById(orderId).orElseThrow();
-        factory.get(targetStatus).execute(order);
+        factory.get(targetStatus).execute(order, userId);
         return repository.save(order);
     }
 
@@ -140,7 +140,7 @@ public class ServiceOrderUseCase {
         ServiceOrder order = repository.findById(serviceOrderId)
                 .orElseThrow(() -> new NotFoundException("Service order with id " + serviceOrderId + " not found"));
 
-        factory.get(OrderStatusEnum.APROVADO).execute(order);
+        factory.get(OrderStatusEnum.APROVADO).execute(order, null);
         repository.save(order);
     }
 
@@ -148,7 +148,7 @@ public class ServiceOrderUseCase {
         ServiceOrder order = repository.findById(serviceOrderId)
                 .orElseThrow(() -> new NotFoundException("Service order with id " + serviceOrderId + " not found"));
 
-        factory.get(OrderStatusEnum.RECUSADO).execute(order);
+        factory.get(OrderStatusEnum.RECUSADO).execute(order, null);
         repository.save(order);
     }
 
@@ -157,7 +157,14 @@ public class ServiceOrderUseCase {
                 () -> new NotFoundException("Ordem de serviço não encontrada"));
         switch (status) {
             case TaskStatusEnum.INICIADO -> order.startTask(taskId);
-            case TaskStatusEnum.FINALIZADO -> order.finishTask(taskId);
+            case TaskStatusEnum.FINALIZADO -> {
+                order.finishTask(taskId);
+                OrderTask task = order.getOrderTasks().stream()
+                        .filter(t -> t.getServiceData().getId().equals(taskId))
+                        .findFirst()
+                        .orElseThrow(() -> new NotFoundException("Tarefa não encontrada"));
+                stockUseCase.registerStockOut(order, task);
+            }
             default -> throw new IllegalArgumentException("Status não reconhecido para atualização: " + status);
         }
         repository.save(order);

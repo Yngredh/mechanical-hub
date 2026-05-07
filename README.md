@@ -143,7 +143,7 @@ export DB_HOST=localhost
 export DB_PORT=5432
 export DB_NAME=mechanical_hub_db
 export DB_USER=admin
-export DB_PASSWORD=PmN2iDvdNz
+export DB_PASSWORD=12345678
 export JWT_SECRET=minha-chave-jwt-mechanical-hub
 export JWT_EXPIRATION_MS=3600000
 ```
@@ -315,8 +315,7 @@ PATCH /service-orders/<order-id>/status
 ```
 ```json
 {
-  "status": "EM_DIAGNOSTICO",
-  "responsibleUserId": ""
+  "status": "EM_DIAGNOSTICO"
 }
 ```
 

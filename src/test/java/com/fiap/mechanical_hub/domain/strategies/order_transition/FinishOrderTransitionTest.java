@@ -9,6 +9,7 @@ import com.fiap.mechanical_hub.domain.strategies.order_transition.mocks.ServiceO
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.fiap.mechanical_hub.domain.strategies.order_transition.constants.TestConstants.DEFAULT_SERVICE_ID;
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class FinishOrderTransitionTest {
 
     private final FinishOrderTransition transition = new FinishOrderTransition();
+    private final UUID userId = UUID.randomUUID();
 
     @Test
     void shouldFinishOrderWhenAllTasksAreFinished() {
@@ -25,7 +27,7 @@ class FinishOrderTransitionTest {
         );
         ServiceOrder order = ServiceOrderMock.inExecutionOrderWithTasks(tasks);
 
-        transition.execute(order);
+        transition.execute(order, userId);
 
         assertEquals(OrderStatusEnum.FINALIZADO, order.getStatus());
         assertNotNull(order.getCompletedAt());
@@ -39,7 +41,7 @@ class FinishOrderTransitionTest {
 
         InvalidOrderTransitionException exception = assertThrows(
                 InvalidOrderTransitionException.class,
-                () -> transition.execute(order)
+                () -> transition.execute(order, null)
         );
 
         assertTrue(exception.getMessage().contains("Não é possível finalizar"));
@@ -52,7 +54,7 @@ class FinishOrderTransitionTest {
 
         InvalidOrderTransitionException exception = assertThrows(
                 InvalidOrderTransitionException.class,
-                () -> transition.execute(order)
+                () -> transition.execute(order, null)
         );
 
         assertTrue(exception.getMessage().contains("Invalid transition"));

@@ -22,5 +22,17 @@ public class StockMovementMock {
         return StockMovement.registerReturn(DEFAULT_MATERIAL_ID, DEFAULT_SERVICE_ORDER_ID, 3);
     }
 
+    public static StockMovement stockOutMovement() {
+        return StockMovement.registerStockOut(DEFAULT_MATERIAL_ID, DEFAULT_SERVICE_ORDER_ID, 8);
+    }
+
+    public static StockMovement stockOutMovementWithQuantity(Integer quantity) {
+        return StockMovement.registerStockOut(DEFAULT_MATERIAL_ID, DEFAULT_SERVICE_ORDER_ID, quantity);
+    }
+
+    public static StockMovement deleteMovement() {
+        return StockMovement.registerDelete(DEFAULT_MATERIAL_ID, null, 15);
+    }
+
 }
 

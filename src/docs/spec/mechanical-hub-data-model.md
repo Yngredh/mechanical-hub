@@ -135,6 +135,7 @@ erDiagram
         UUID id PK
         UUID service_order_id FK
         UUID material_id FK
+        int quantity
         timestamp created_at
     }
 ```
@@ -401,12 +402,13 @@ Histórico de todas as movimentações de estoque, sejam entradas, reservas ou r
 ### STOCK_PENDING_ITEMS *(nova tabela)*
 Registra individualmente cada item em falta por Ordem de Serviço. Utilizada para rastrear e resolver pendências de estoque de forma ordenada, priorizando as pendências mais antigas.
 
-| Coluna | Tipo | Restrições | Descrição |
-|---|---|---|---|
-| `id` | UUID | PK | Identificador único |
-| `service_order_id` | UUID | FK → SERVICE_ORDERS | OS que possui a pendência |
-| `material_id` | UUID | FK → MATERIALS | Material em falta no estoque |
-| `created_at` | timestamp | NOT NULL | Data de criação do registro (usada para ordenar prioridade) |
+| Coluna             | Tipo | Restrições | Descrição                                              |
+|--------------------|---|---|--------------------------------------------------------|
+| `id`               | UUID | PK | Identificador único                                    |
+| `service_order_id` | UUID | FK → SERVICE_ORDERS | OS que possui a pendência                              |
+| `material_id`      | UUID | FK → MATERIALS | Material em falta no estoque                           |
+| `quantity`         | int | NOT NULL | Quantidade pendente do material                        |
+| `created_at`       | timestamp | NOT NULL | Data de criação do registro (usada para ordenar prioridade) |
 
 **Regras:**
 
@@ -423,15 +425,3 @@ Registra individualmente cada item em falta por Ordem de Serviço. Utilizada par
 | Retorno por recusa de OS | Ao devolver itens de uma OS recusada, verificar e resolver pendências dos materiais retornados |
 
 ---
-
-## Resumo das Alterações em Relação à Versão Anterior
-
-| Alteração | Tabela | Detalhe |
-|---|---|---|
-| Nova coluna | `STOCK` | Coluna `status` com enum `disponivel \| reservado`, default `disponivel` |
-| Nova tabela | `STOCK_PENDING_ITEMS` | Rastreamento granular de itens pendentes por OS e material |
-| Novo relacionamento | `SERVICE_ORDERS` → `STOCK_PENDING_ITEMS` | Uma OS pode ter múltiplos registros de pendência |
-| Novo relacionamento | `MATERIALS` → `STOCK_PENDING_ITEMS` | Um material pode estar pendente em múltiplas OS |
-| Novo tipo de movimento | `STOCK_MOVEMENTS` | `movement_type = 'reserva'` substitui o conceito de "saída" ao alocar itens para OS |
-| Novo tipo de movimento | `STOCK_MOVEMENTS` | `movement_type = 'retorno'` ao devolver itens de OS recusada |
-| Tabela adicionada | `CUSTOMER_ADDRESSES` | Presente no diagrama original do projeto, agora incluída formalmente |

@@ -70,9 +70,10 @@ public class ServiceOrder {
         return order;
     }
 
-    public void startDiagnosis() {
+    public void startDiagnosis(UUID userId) {
         validateCurrentStatus(OrderStatusEnum.RECEBIDO);
 
+        this.responsibleUserId = userId;
         this.status = OrderStatusEnum.EM_DIAGNOSTICO;
         this.openedAt = LocalDateTime.now();
     }
@@ -139,7 +140,7 @@ public class ServiceOrder {
                 .anyMatch(ot -> ot.getServiceData().getId().equals(serviceId));
     }
 
-    private OrderTask findTask(UUID taskId){
+    private OrderTask findTask(UUID taskId) {
         return this.getOrderTasks().stream()
                 .filter(t -> t.getServiceData().getId().equals(taskId))
                 .findFirst()
