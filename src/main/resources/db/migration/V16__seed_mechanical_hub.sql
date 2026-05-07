@@ -17,6 +17,10 @@ INSERT INTO customers (id, name, document_type, document_number, telephone, emai
 SELECT 'a6a6e27c-a061-4416-82dc-80233eda96d0', 'Salvio Silva', 'CPF', '12345678909', '551133445566', 'salvio.silva@gmail.com', 'Av. Industrial, 890, Distrito Industrial, Guarulhos - SP, 07220-000'
     WHERE NOT EXISTS (SELECT 1 FROM customers WHERE document_number = '12345678909');
 
+INSERT INTO customers (id, name, document_type, document_number, telephone, email, address)
+SELECT 'eeff0000-b542-47ca-d28e-458796413054', 'Marcos Ferreira', 'CPF', '98765432100', '5511999887766', 'marcos.ferreira@email.com', 'Rua dos Mecânicos, 789, Campinas, SP'
+    WHERE NOT EXISTS (SELECT 1 FROM customers WHERE document_number = '98765432100');
+
 -- ------------------------------------------------------------
 -- VEHICLES
 -- ------------------------------------------------------------
@@ -31,6 +35,10 @@ SELECT '00000000-0000-0000-0000-000000000011', '69c2954a-3606-48f4-a38b-28a50062
 INSERT INTO vehicles (id, customer_id, license_plate, brand, model, year, color)
 SELECT '241ad3cc-f878-49d3-9292-94ca1d4912d9', '69c2954a-3606-48f4-a38b-28a50062e962', 'EFG2142', 'Renault', 'Kwid', 2022, 'Branco'
     WHERE NOT EXISTS (SELECT 1 FROM vehicles WHERE license_plate = 'EFG2142');
+
+INSERT INTO vehicles (id, customer_id, license_plate, brand, model, year, color)
+SELECT 'aaff0000-b544-47cb-d28a-988796413047', 'eeff0000-b542-47ca-d28e-458796413054', 'PQR5H67', 'Fiat', 'Uno 1.0', 2019, 'Vermelho'
+    WHERE NOT EXISTS (SELECT 1 FROM vehicles WHERE license_plate = 'PQR5H67');
 
 -- ------------------------------------------------------------
 -- MATERIALS
@@ -63,6 +71,18 @@ INSERT INTO materials (id, name, description, unit_price, min_stock_quantity)
 SELECT 'b6313df9-9c00-4750-84ad-1af4912f9373', 'Rolamento Esticador de Correia', 'Rolamento esticador para kit de correia dentada, compatível com motores de 1.0 a 2.0.', 55.00, 5
     WHERE NOT EXISTS (SELECT 1 FROM materials WHERE id = 'b6313df9-9c00-4750-84ad-1af4912f9373');
 
+INSERT INTO materials (id, name, description, unit_price, min_stock_quantity)
+SELECT 'eeff1111-1111-1111-1111-000000000001', 'Vela de Ignição', 'Vela de ignição para motores 1.0 a 1.6 flex, resistência iridium para melhor desempenho.', 18.50, 10
+    WHERE NOT EXISTS (SELECT 1 FROM materials WHERE id = 'eeff1111-1111-1111-1111-000000000001');
+
+INSERT INTO materials (id, name, description, unit_price, min_stock_quantity)
+SELECT 'eeff1111-1111-1111-1111-000000000002', 'Cabo de Vela de Ignição', 'Jogo de cabos de vela com blindagem eletromagnética, compatível com motores 1.0 a 2.0.', 55.00, 5
+    WHERE NOT EXISTS (SELECT 1 FROM materials WHERE id = 'eeff1111-1111-1111-1111-000000000002');
+
+INSERT INTO materials (id, name, description, unit_price, min_stock_quantity)
+SELECT 'eeff1111-1111-1111-1111-000000000003', 'Bobina de Ignição', 'Bobina de ignição individual para motores com sistema de ignição direta (DIS).', 135.00, 3
+    WHERE NOT EXISTS (SELECT 1 FROM materials WHERE id = 'eeff1111-1111-1111-1111-000000000003');
+
 -- ------------------------------------------------------------
 -- STOCK
 -- ------------------------------------------------------------
@@ -94,6 +114,30 @@ INSERT INTO stock (id, material_id, quantity, status)
 SELECT uuid_generate_v4(), 'b6313df9-9c00-4750-84ad-1af4912f9373', 5, 'AVAILABLE'
     WHERE NOT EXISTS (SELECT 1 FROM stock WHERE material_id = 'b6313df9-9c00-4750-84ad-1af4912f9373');
 
+INSERT INTO stock (id, material_id, quantity, status)
+SELECT uuid_generate_v4(), 'eeff1111-1111-1111-1111-000000000001', 5, 'AVAILABLE'
+    WHERE NOT EXISTS (SELECT 1 FROM stock WHERE material_id = 'eeff1111-1111-1111-1111-000000000001' AND status = 'AVAILABLE');
+
+INSERT INTO stock (id, material_id, quantity, status)
+SELECT uuid_generate_v4(), 'eeff1111-1111-1111-1111-000000000001', 1, 'RESERVED'
+    WHERE NOT EXISTS (SELECT 1 FROM stock WHERE material_id = 'eeff1111-1111-1111-1111-000000000001' AND status = 'RESERVED');
+
+INSERT INTO stock (id, material_id, quantity, status)
+SELECT uuid_generate_v4(), 'eeff1111-1111-1111-1111-000000000002', 3, 'AVAILABLE'
+    WHERE NOT EXISTS (SELECT 1 FROM stock WHERE material_id = 'eeff1111-1111-1111-1111-000000000002' AND status = 'AVAILABLE');
+
+INSERT INTO stock (id, material_id, quantity, status)
+SELECT uuid_generate_v4(), 'eeff1111-1111-1111-1111-000000000002', 1, 'RESERVED'
+    WHERE NOT EXISTS (SELECT 1 FROM stock WHERE material_id = 'eeff1111-1111-1111-1111-000000000002' AND status = 'RESERVED');
+
+INSERT INTO stock (id, material_id, quantity, status)
+SELECT uuid_generate_v4(), 'eeff1111-1111-1111-1111-000000000003', 2, 'AVAILABLE'
+    WHERE NOT EXISTS (SELECT 1 FROM stock WHERE material_id = 'eeff1111-1111-1111-1111-000000000003' AND status = 'AVAILABLE');
+
+INSERT INTO stock (id, material_id, quantity, status)
+SELECT uuid_generate_v4(), 'eeff1111-1111-1111-1111-000000000003', 1, 'RESERVED'
+    WHERE NOT EXISTS (SELECT 1 FROM stock WHERE material_id = 'eeff1111-1111-1111-1111-000000000003' AND status = 'RESERVED');
+
 -- ------------------------------------------------------------
 -- SERVICES
 -- ------------------------------------------------------------
@@ -108,6 +152,10 @@ SELECT 'b9090e29-c8f8-498f-b536-bb70cb69113e', 'Manutenção de Sistema de Freio
 INSERT INTO services (id, name, description, base_price, labor_cost, total_price)
 SELECT '192c4db5-61b3-4cf7-b02b-54e948a9ce5d', 'Substituição de Correia Dentada', 'Troca da correia dentada e tensores conforme intervalo recomendado pelo fabricante, prevenindo falhas no motor.', 180.00, 200.00, 605.00
     WHERE NOT EXISTS (SELECT 1 FROM services WHERE id = '192c4db5-61b3-4cf7-b02b-54e948a9ce5d');
+
+INSERT INTO services (id, name, description, base_price, labor_cost, total_price)
+SELECT 'eeff2222-2222-2222-2222-000000000001', 'Revisão do Sistema de Ignição', 'Substituição de velas, cabos de vela e bobina de ignição para restaurar o desempenho do motor.', 80.00, 120.00, 408.50
+    WHERE NOT EXISTS (SELECT 1 FROM services WHERE id = 'eeff2222-2222-2222-2222-000000000001');
 
 -- ------------------------------------------------------------
 -- SERVICE_MATERIALS
@@ -139,6 +187,18 @@ SELECT '48aed2ce-2456-468e-a4d6-c7bcf5a79e10', '192c4db5-61b3-4cf7-b02b-54e948a9
 INSERT INTO service_materials (id, service_id, material_id, quantity)
 SELECT '60c9af8c-9334-427d-b35c-4ed19413965c', '192c4db5-61b3-4cf7-b02b-54e948a9ce5d', 'b6313df9-9c00-4750-84ad-1af4912f9373', 1
     WHERE NOT EXISTS (SELECT 1 FROM service_materials WHERE service_id = '192c4db5-61b3-4cf7-b02b-54e948a9ce5d' AND material_id = 'b6313df9-9c00-4750-84ad-1af4912f9373');
+
+INSERT INTO service_materials (id, service_id, material_id, quantity)
+SELECT 'eeff7777-7777-7777-7777-000000000001', 'eeff2222-2222-2222-2222-000000000001', 'eeff1111-1111-1111-1111-000000000001', 1
+    WHERE NOT EXISTS (SELECT 1 FROM service_materials WHERE service_id = 'eeff2222-2222-2222-2222-000000000001' AND material_id = 'eeff1111-1111-1111-1111-000000000001');
+
+INSERT INTO service_materials (id, service_id, material_id, quantity)
+SELECT 'eeff7777-7777-7777-7777-000000000002', 'eeff2222-2222-2222-2222-000000000001', 'eeff1111-1111-1111-1111-000000000002', 1
+    WHERE NOT EXISTS (SELECT 1 FROM service_materials WHERE service_id = 'eeff2222-2222-2222-2222-000000000001' AND material_id = 'eeff1111-1111-1111-1111-000000000002');
+
+INSERT INTO service_materials (id, service_id, material_id, quantity)
+SELECT 'eeff7777-7777-7777-7777-000000000003', 'eeff2222-2222-2222-2222-000000000001', 'eeff1111-1111-1111-1111-000000000003', 1
+    WHERE NOT EXISTS (SELECT 1 FROM service_materials WHERE service_id = 'eeff2222-2222-2222-2222-000000000001' AND material_id = 'eeff1111-1111-1111-1111-000000000003');
 
 -- ------------------------------------------------------------
 -- SERVICE_ORDERS
@@ -192,6 +252,11 @@ SELECT
     CURRENT_TIMESTAMP - INTERVAL '30 minutes'
 WHERE NOT EXISTS (SELECT 1 FROM service_orders WHERE order_number = 'OS-202604-0099');
 
+INSERT INTO service_orders (id, vehicle_id, customer_id, order_status, created_by_user_id, responsible_user_id, order_number, request_description, budget, has_stock_pending, estimated_completion_at, opened_at, completed_at, delivered_at, created_at, updated_at)
+SELECT 'eeff3333-3333-3333-3333-000000000001', 'aaff0000-b544-47cb-d28a-988796413047', 'eeff0000-b542-47ca-d28e-458796413054', 'AGUARDANDO_APROVACAO', (SELECT id FROM users WHERE email = 'mecanico@mechanicalhub.com'), NULL, 'OS-202605-0035', 'Revisão completa do sistema de ignição', 408.50, false, NULL, CURRENT_TIMESTAMP - INTERVAL '2 hours', NULL, NULL, CURRENT_TIMESTAMP - INTERVAL '2 hours', CURRENT_TIMESTAMP - INTERVAL '2 hours'
+WHERE NOT EXISTS (SELECT 1 FROM service_orders WHERE order_number = 'OS-202605-0035');
+
+
 -- ------------------------------------------------------------
 -- ORDER_TASKS
 -- ------------------------------------------------------------
@@ -240,6 +305,10 @@ SELECT
     CURRENT_TIMESTAMP - INTERVAL '2 hours 30 minutes',
     CURRENT_TIMESTAMP - INTERVAL '30 minutes'
 WHERE NOT EXISTS (SELECT 1 FROM order_tasks WHERE id = 'aabbccdd-1111-1111-1111-000000000003');
+
+INSERT INTO order_tasks (id, service_order_id, service_id, service_status, started_at, finished_at)
+SELECT 'eeff4444-4444-4444-4444-000000000001', 'eeff3333-3333-3333-3333-000000000001', 'eeff2222-2222-2222-2222-000000000001', 'PENDENTE', NULL, NULL
+    WHERE NOT EXISTS (SELECT 1 FROM order_tasks WHERE id = 'eeff4444-4444-4444-4444-000000000001');
 
 -- ------------------------------------------------------------
 -- STOCK_PENDING_ITEMS
@@ -332,3 +401,36 @@ SELECT
     1,
     CURRENT_TIMESTAMP - INTERVAL '5 hours'
 WHERE NOT EXISTS (SELECT 1 FROM stock_movements WHERE id = 'aabbccdd-2222-2222-2222-000000000007');
+
+-- Vela de Ignição (Revisão do Sistema de Ignição)
+INSERT INTO stock_movements (id, material_id, service_order_id, movement_type, quantity, created_at)
+SELECT
+    'eeff8888-8888-8888-8888-000000000001',
+    'eeff1111-1111-1111-1111-000000000001',
+    'eeff3333-3333-3333-3333-000000000001',
+    'RESERVED',
+    1,
+    CURRENT_TIMESTAMP - INTERVAL '2 hours'
+WHERE NOT EXISTS (SELECT 1 FROM stock_movements WHERE id = 'eeff8888-8888-8888-8888-000000000001');
+
+-- Cabo de Vela de Ignição (Revisão do Sistema de Ignição)
+INSERT INTO stock_movements (id, material_id, service_order_id, movement_type, quantity, created_at)
+SELECT
+    'eeff8888-8888-8888-8888-000000000002',
+    'eeff1111-1111-1111-1111-000000000002',
+    'eeff3333-3333-3333-3333-000000000001',
+    'RESERVED',
+    1,
+    CURRENT_TIMESTAMP - INTERVAL '2 hours'
+WHERE NOT EXISTS (SELECT 1 FROM stock_movements WHERE id = 'eeff8888-8888-8888-8888-000000000002');
+
+-- Bobina de Ignição (Revisão do Sistema de Ignição)
+INSERT INTO stock_movements (id, material_id, service_order_id, movement_type, quantity, created_at)
+SELECT
+    'eeff8888-8888-8888-8888-000000000003',
+    'eeff1111-1111-1111-1111-000000000003',
+    'eeff3333-3333-3333-3333-000000000001',
+    'RESERVED',
+    1,
+    CURRENT_TIMESTAMP - INTERVAL '2 hours'
+WHERE NOT EXISTS (SELECT 1 FROM stock_movements WHERE id = 'eeff8888-8888-8888-8888-000000000003');
