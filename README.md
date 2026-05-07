@@ -289,7 +289,7 @@ POST /service-orders
     "name": "Maria Souza",
     "documentType": "CPF",
     "documentNumber": "935.411.347-80",
-    "telephone": "(11) 98765-4321",
+    "telephone": "551198765432",
     "email": "maria@email.com",
     "address": "Av. Paulista, 1000 - São Paulo/SP"
   },
@@ -424,33 +424,40 @@ GET /mechanical-hub/service-orders/<order-number>
 
 > Os dados abaixo já estão carregados pelo seed **V16** — não é necessário criar nada do zero.
 
-A OS **`OS-0002`** (`027d61d3-2781-448a-8141-364fe9ab961c`) já está em `AGUARDANDO_APROVACAO` com o serviço **Substituição de Correia Dentada** adicionado (materiais reservados: Correia Dentada, Tensor e Rolamento Esticador).
+A OS **`OS-202605-0035`** (`eeff3333-3333-3333-3333-000000000001`) já está em `AGUARDANDO_APROVACAO` com o serviço **Revisão do Sistema de Ignição** adicionado (materiais reservados: Vela de Ignição, Cabo de Vela e Bobina de Ignição).
 
 **1. (Opcional) Consulte a OS antes de recusar:**
 ```
-GET /service-orders/027d61d3-2781-448a-8141-364fe9ab961c
+GET /service-orders/eeff3333-3333-3333-3333-000000000001
 ```
 
 **2. Recuse o orçamento (endpoint público — sem token):**
 ```
-POST /mechanical-hub/service-orders/027d61d3-2781-448a-8141-364fe9ab961c/reject
+POST /mechanical-hub/service-orders/eeff3333-3333-3333-3333-000000000001/reject
 ```
 
 **3. Verifique que os materiais voltaram ao estoque:**
 
-| Material | ID |
-|---|---|
-| Correia Dentada | `88221fb1-880c-4eb8-b0ed-be3e59d34269` |
-| Tensor de Correia Dentada | `18c8a5ca-1d69-4690-a9c5-0877d928b96a` |
-| Rolamento Esticador de Correia | `b6313df9-9c00-4750-84ad-1af4912f9373` |
-
 ```
-GET /stock/88221fb1-880c-4eb8-b0ed-be3e59d34269
-GET /stock/18c8a5ca-1d69-4690-a9c5-0877d928b96a
-GET /stock/b6313df9-9c00-4750-84ad-1af4912f9373
+GET /stock/eeff1111-1111-1111-1111-000000000001
+GET /stock/eeff1111-1111-1111-1111-000000000002
+GET /stock/eeff1111-1111-1111-1111-000000000003
 ```
 
-> A OS deverá ter status `RECUSADO` e os materiais acima deverão retornar ao status `AVAILABLE`.
+| Material                | ID                                     | `quantityReserved` esperado | `quantityAvailable` esperado |
+|-------------------------|----------------------------------------|-----------------------------|------------------------------|
+| Vela de Ignição         | `eeff1111-1111-1111-1111-000000000001` | `0`                         | `6`                          |
+| Cabo de Vela de Ignição | `eeff1111-1111-1111-1111-000000000002` | `0`                         | `4`                          |
+| Bobina de Ignição       | `eeff1111-1111-1111-1111-000000000003` | `0`                         | `3`                          |
+
+> **O que verificar na resposta:**
+> - `quantityReserved: 0` → nenhuma unidade reservada (reserva liberada)
+> - `quantityAvailable` aumentou em 1 → quantidade devolvida ao estoque
+> - Em `movements`, um registro com `movementType: "RETORNO"` confirma a devolução
+>
+> O array `movements` também exibirá o movimento histórico `RESERVED` do momento em que o estoque foi reservado — isso é esperado e faz parte do log de auditoria.
+>
+> A OS deverá ter status `RECUSADO`.
 
 
 ---
@@ -509,13 +516,6 @@ mvn test -Dtest=CustomerUseCaseTest
 
 # Rodar com relatório detalhado
 mvn test -Dsurefire.useFile=false
-```
-
-> **Atenção:** Os testes de integração precisam de banco PostgreSQL em execução. Use `docker compose up postgres` antes de rodar os testes.
-
-Para gerar o relatório de cobertura (se configurado com JaCoCo):
-```bash
-mvn verify
 ```
 
 ---
