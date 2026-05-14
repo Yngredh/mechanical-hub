@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.shared.utils;
 
-import com.fiap.mechanical_hub.shared.utils.document.DocumentFormatter;
+import com.fiap.mechanical_hub.domain.utils.document.DocumentFormatter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

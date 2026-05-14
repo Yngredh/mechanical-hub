@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.Stock;
 import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
-import com.fiap.mechanical_hub.application.repositories.StockRepository;
+import com.fiap.mechanical_hub.domain.repositories.StockRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.StockModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.StockJpaRepository;
 import lombok.RequiredArgsConstructor;

@@ -4,7 +4,7 @@ package com.fiap.mechanical_hub.application.usecases;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.entities.StockPendingItem;
-import com.fiap.mechanical_hub.application.repositories.StockPendingItemRepository;
+import com.fiap.mechanical_hub.domain.repositories.StockPendingItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

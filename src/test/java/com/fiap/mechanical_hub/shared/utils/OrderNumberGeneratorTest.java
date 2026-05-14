@@ -1,6 +1,7 @@
 package com.fiap.mechanical_hub.shared.utils;
 
-import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
+import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
+import com.fiap.mechanical_hub.domain.utils.OrderNumberGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

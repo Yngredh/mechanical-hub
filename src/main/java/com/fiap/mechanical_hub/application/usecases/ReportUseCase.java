@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.application.usecases;
 
 import com.fiap.mechanical_hub.application.dto.reports.ServiceExecutionTimeResponse;
 import com.fiap.mechanical_hub.application.mappers.ReportsMapper;
-import com.fiap.mechanical_hub.application.repositories.OrderTaskRepository;
+import com.fiap.mechanical_hub.domain.repositories.OrderTaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

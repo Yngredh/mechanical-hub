@@ -5,8 +5,8 @@ import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
 import com.fiap.mechanical_hub.application.mappers.VehicleMapper;
 import com.fiap.mechanical_hub.domain.entities.Vehicle;
 import com.fiap.mechanical_hub.domain.exceptions.DuplicateLicensePlateException;
-import com.fiap.mechanical_hub.application.repositories.CustomerRepository;
-import com.fiap.mechanical_hub.application.repositories.VehicleRepository;
+import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
+import com.fiap.mechanical_hub.domain.repositories.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,8 +16,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.fiap.mechanical_hub.shared.utils.license_plate.LicensePlateFormatter.normalize;
-import static com.fiap.mechanical_hub.shared.utils.license_plate.LicensePlateValidator.validateLicensePlate;
+import static com.fiap.mechanical_hub.domain.utils.license_plate.LicensePlateFormatter.normalize;
+import static com.fiap.mechanical_hub.domain.utils.license_plate.LicensePlateValidator.validateLicensePlate;
 
 
 @Service

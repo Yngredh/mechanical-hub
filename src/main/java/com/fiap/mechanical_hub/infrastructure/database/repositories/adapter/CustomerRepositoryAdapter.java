@@ -1,15 +1,19 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.Customer;
-import com.fiap.mechanical_hub.application.repositories.CustomerRepository;
+import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.CustomerModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.CustomerJpaRepository;
+import com.fiap.mechanical_hub.infrastructure.mappers.CustomerRepositoryMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.fiap.mechanical_hub.infrastructure.mappers.CustomerRepositoryMapper.toDomainEntity;
+import static com.fiap.mechanical_hub.infrastructure.mappers.CustomerRepositoryMapper.toJpaEntity;
 
 @Component
 @RequiredArgsConstructor
@@ -26,18 +30,18 @@ public class CustomerRepositoryAdapter implements CustomerRepository {
 
     @Override
     public Optional<Customer> findById(UUID id) {
-        return jpaRepository.findById(id).map(this::toDomainEntity);
+        return jpaRepository.findById(id).map(CustomerRepositoryMapper::toDomainEntity);
     }
 
     @Override
     public Optional<Customer> findByDocumentNumber(String documentNumber) {
-        return jpaRepository.findByDocumentNumber(documentNumber).map(this::toDomainEntity);
+        return jpaRepository.findByDocumentNumber(documentNumber).map(CustomerRepositoryMapper::toDomainEntity);
     }
 
     @Override
     public List<Customer> findAll() {
         return jpaRepository.findAll().stream()
-                .map(this::toDomainEntity)
+                .map(CustomerRepositoryMapper::toDomainEntity)
                 .toList();
     }
 
@@ -53,34 +57,6 @@ public class CustomerRepositoryAdapter implements CustomerRepository {
 
     public boolean existsByDocumentNumberAndIdNot(String documentNumber, UUID id) {
         return jpaRepository.existsByDocumentNumberAndIdNot(documentNumber, id);
-    }
-
-    private CustomerModel toJpaEntity(Customer customer) {
-        return new CustomerModel(
-                customer.getId(),
-                customer.getName(),
-                customer.getDocumentTypeEnum(),
-                customer.getDocumentNumber(),
-                customer.getTelephone(),
-                customer.getEmail(),
-                customer.getAddress(),
-                customer.getCreatedAt(),
-                customer.getUpdatedAt()
-        );
-    }
-
-    private Customer toDomainEntity(CustomerModel entity) {
-        return new Customer(
-                entity.getId(),
-                entity.getName(),
-                entity.getDocumentTypeEnum(),
-                entity.getDocumentNumber(),
-                entity.getTelephone(),
-                entity.getEmail(),
-                entity.getAddress(),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt()
-        );
     }
 }
 

@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.application.usecases;
 
-import com.fiap.mechanical_hub.application.repositories.ServiceMaterialRepository;
+import com.fiap.mechanical_hub.domain.repositories.ServiceMaterialRepository;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import org.junit.jupiter.api.DisplayName;

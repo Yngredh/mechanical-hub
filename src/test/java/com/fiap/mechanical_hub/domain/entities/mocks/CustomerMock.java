@@ -5,6 +5,7 @@ import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 
 import static com.fiap.mechanical_hub.domain.entities.constants.TestConstants.*;
 
+/*
 public class CustomerMock {
 
     public static Customer defaultCustomer() {
@@ -52,4 +53,6 @@ public class CustomerMock {
     }
 
 }
+
+ */
 

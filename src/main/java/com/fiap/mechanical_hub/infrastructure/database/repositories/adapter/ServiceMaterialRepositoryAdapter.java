@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 import com.fiap.mechanical_hub.application.mappers.ServiceMapper;
 import com.fiap.mechanical_hub.application.mappers.ServiceMaterialMapper;
-import com.fiap.mechanical_hub.application.repositories.ServiceMaterialRepository;
+import com.fiap.mechanical_hub.domain.repositories.ServiceMaterialRepository;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;

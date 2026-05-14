@@ -3,7 +3,7 @@ package com.fiap.mechanical_hub.application.usecases;
 import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.application.dto.service.UpsertServiceRequest;
 import com.fiap.mechanical_hub.application.mappers.ServiceMapper;
-import com.fiap.mechanical_hub.application.repositories.ServiceRepository;
+import com.fiap.mechanical_hub.domain.repositories.ServiceRepository;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;

@@ -1,17 +1,20 @@
 package com.fiap.mechanical_hub.application.usecases;
 
+import com.fiap.mechanical_hub.application.command.FindOrCreateCustomerCommand;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
 import com.fiap.mechanical_hub.application.dto.serviceorder.request.ServiceOrderCustomerView;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
-import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
+import com.fiap.mechanical_hub.application.usecases.customer.FindCustomerByIdUseCase;
+import com.fiap.mechanical_hub.application.usecases.customer.FindOrCreateCustomerUseCase;
+import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.domain.entities.*;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.domain.strategies.order_transition.OrderStatusTransitionFactory;
-import com.fiap.mechanical_hub.shared.utils.OrderNumberGenerator;
+import com.fiap.mechanical_hub.domain.utils.OrderNumberGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,7 +33,8 @@ public class ServiceOrderUseCase {
 
     private final ServiceMaterialUseCase serviceMaterialUseCase;
     private final StockUseCase stockUseCase;
-    private final CustomerUseCase customerUseCase;
+    private final FindCustomerByIdUseCase findCustomerByIdUseCase;
+    private final FindOrCreateCustomerUseCase findOrCreateCustomerUseCase;
     private final VehicleUseCase vehicleUseCase;
     private final ServiceUseCase serviceUseCase;
 
@@ -40,13 +44,15 @@ public class ServiceOrderUseCase {
 
     public ServiceOrderResponse create(CreateServiceOrderRequest request, UUID createdByUserId) {
         var customerData = request.getCustomer();
-        Customer customer = customerUseCase.findByDocumentOrCreate(
-                customerData.getName(),
-                customerData.getDocumentType(),
-                customerData.getDocumentNumber(),
-                customerData.getTelephone(),
-                customerData.getEmail(),
-                customerData.getAddress()
+        Customer customer = findOrCreateCustomerUseCase.execute(
+                new FindOrCreateCustomerCommand(
+                        customerData.getName(),
+                        customerData.getDocumentType(),
+                        customerData.getDocumentNumber(),
+                        customerData.getTelephone(),
+                        customerData.getEmail(),
+                        customerData.getAddress()
+                )
         );
 
         var vehicleData = request.getVehicle();
@@ -122,19 +128,19 @@ public class ServiceOrderUseCase {
                 .map(ServiceOrderMapper::toSummaryResponse).toList();
     }
 
-     public ServiceOrderDetailResponse findById(UUID id) {
-        ServiceOrder order = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Ordem de serviço não encontrada com ID: " + id));
+      public ServiceOrderDetailResponse findById(UUID id) {
+         ServiceOrder order = repository.findById(id)
+                 .orElseThrow(() -> new NotFoundException("Ordem de serviço não encontrada com ID: " + id));
 
-        VehicleResponse vehicle = vehicleUseCase.findById(order.getVehicleId());
-        CustomerResponse customer = customerUseCase.findById(order.getCustomerId());
-         List<ServiceData> serviceData = order.getOrderTasks()
-                 .stream()
-                 .map(OrderTask::getServiceData)
-                 .toList();
+         VehicleResponse vehicle = vehicleUseCase.findById(order.getVehicleId());
+         CustomerResponse customer = findCustomerByIdUseCase.execute(order.getCustomerId());
+          List<ServiceData> serviceData = order.getOrderTasks()
+                  .stream()
+                  .map(OrderTask::getServiceData)
+                  .toList();
 
-        return ServiceOrderMapper.toDetailResponse(order, vehicle, customer, serviceData);
-    }
+         return ServiceOrderMapper.toDetailResponse(order, vehicle, customer, serviceData);
+     }
 
     public void approve(UUID serviceOrderId) {
         ServiceOrder order = repository.findById(serviceOrderId)
@@ -171,17 +177,17 @@ public class ServiceOrderUseCase {
     }
 
     public ServiceOrderCustomerView findByOrderNumber(String orderNumber) {
-        ServiceOrder order = repository.findByOrderNumber(orderNumber)
-                .orElseThrow(() -> new NotFoundException("Ordem de serviço não encontrada com número: " + orderNumber));
+         ServiceOrder order = repository.findByOrderNumber(orderNumber)
+                 .orElseThrow(() -> new NotFoundException("Ordem de serviço não encontrada com número: " + orderNumber));
 
-        VehicleResponse vehicle = vehicleUseCase.findById(order.getVehicleId());
-        CustomerResponse customer = customerUseCase.findById(order.getCustomerId());
-        List<String> services = order.getOrderTasks()
-                .stream()
-                .map(task -> task.getServiceData().getName())
-                .toList();
+         VehicleResponse vehicle = vehicleUseCase.findById(order.getVehicleId());
+         CustomerResponse customer = findCustomerByIdUseCase.execute(order.getCustomerId());
+         List<String> services = order.getOrderTasks()
+                 .stream()
+                 .map(task -> task.getServiceData().getName())
+                 .toList();
 
-        return ServiceOrderMapper.toCustomerView(order, vehicle, customer, services);
-    }
+         return ServiceOrderMapper.toCustomerView(order, vehicle, customer, services);
+     }
 
 }

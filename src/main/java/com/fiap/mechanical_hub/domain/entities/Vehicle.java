@@ -5,8 +5,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.fiap.mechanical_hub.shared.utils.license_plate.LicensePlateFormatter.normalize;
-import static com.fiap.mechanical_hub.shared.utils.license_plate.LicensePlateValidator.validateLicensePlate;
+import static com.fiap.mechanical_hub.domain.utils.license_plate.LicensePlateFormatter.normalize;
+import static com.fiap.mechanical_hub.domain.utils.license_plate.LicensePlateValidator.validateLicensePlate;
 
 
 @Getter

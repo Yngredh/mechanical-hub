@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.application.usecases;
 
 import com.fiap.mechanical_hub.application.dto.reports.ServiceExecutionTimeResponse;
-import com.fiap.mechanical_hub.application.repositories.OrderTaskRepository;
+import com.fiap.mechanical_hub.domain.repositories.OrderTaskRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

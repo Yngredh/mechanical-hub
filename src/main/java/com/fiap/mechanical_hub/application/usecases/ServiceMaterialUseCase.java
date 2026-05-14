@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.application.usecases;
 
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
-import com.fiap.mechanical_hub.application.repositories.ServiceMaterialRepository;
+import com.fiap.mechanical_hub.domain.repositories.ServiceMaterialRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

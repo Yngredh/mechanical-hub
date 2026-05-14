@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.application.usecases;
 
-import com.fiap.mechanical_hub.application.repositories.StockPendingItemRepository;
+import com.fiap.mechanical_hub.domain.repositories.StockPendingItemRepository;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.entities.StockPendingItem;

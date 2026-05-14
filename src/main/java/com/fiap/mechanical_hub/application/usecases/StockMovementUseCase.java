@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.application.usecases;
 
 import com.fiap.mechanical_hub.application.dto.stock.StockEntryRequest;
-import com.fiap.mechanical_hub.application.repositories.StockMovementRepository;
+import com.fiap.mechanical_hub.domain.repositories.StockMovementRepository;
 import com.fiap.mechanical_hub.domain.entities.StockMovement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

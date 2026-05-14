@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.StockPendingItem;
-import com.fiap.mechanical_hub.application.repositories.StockPendingItemRepository;
+import com.fiap.mechanical_hub.domain.repositories.StockPendingItemRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.StockPendingItemModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.StockPendingItemJpaRepository;
 import lombok.RequiredArgsConstructor;

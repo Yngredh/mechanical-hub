@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.application.mappers;
 
 import com.fiap.mechanical_hub.application.dto.stock.StockSummaryResponse;
-import com.fiap.mechanical_hub.application.repositories.MaterialRepository;
+import com.fiap.mechanical_hub.domain.repositories.MaterialRepository;
 import com.fiap.mechanical_hub.domain.entities.Stock;
 import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
 import lombok.RequiredArgsConstructor;

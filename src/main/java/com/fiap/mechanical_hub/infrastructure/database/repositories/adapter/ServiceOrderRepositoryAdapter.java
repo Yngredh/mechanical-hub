@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
-import com.fiap.mechanical_hub.application.repositories.ServiceOrderRepository;
+import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
 
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceOrderModel;
