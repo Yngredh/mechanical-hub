@@ -1,13 +1,10 @@
 package com.fiap.mechanical_hub.application.usecases.customer;
 
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
-import com.fiap.mechanical_hub.application.command.UpdateCustomerCommand;
+import com.fiap.mechanical_hub.application.command.customer.UpdateCustomerCommand;
 import com.fiap.mechanical_hub.domain.entities.Customer;
-import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
-import com.fiap.mechanical_hub.domain.service.CustomerDomainService;
-import com.fiap.mechanical_hub.domain.valueobjects.Document;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

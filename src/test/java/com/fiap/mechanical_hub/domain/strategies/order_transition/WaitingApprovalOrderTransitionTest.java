@@ -28,13 +28,11 @@ class WaitingApprovalOrderTransitionTest {
     @InjectMocks
     private WaitingApprovalOrderTransition transition;
 
-    private final UUID userId = UUID.randomUUID();
-
     @Test
     void shouldSubmitForApprovalAndSendBudgetApprovalRequestWhenBudgetIsGenerated() {
         ServiceOrder order = ServiceOrderMock.inDiagnosisOrderWithBudget(DEFAULT_BUDGET);
 
-        transition.execute(order, userId);
+        transition.execute(order);
 
         assertEquals(OrderStatusEnum.AGUARDANDO_APROVACAO, order.getStatus());
         verify(sendBudgetApproval, times(1)).sendBudgetApprovalRequest(order);
@@ -47,7 +45,7 @@ class WaitingApprovalOrderTransitionTest {
 
         BusinessRuleException exception = assertThrows(
                 BusinessRuleException.class,
-                () -> transition.execute(order, userId)
+                () -> transition.execute(order)
         );
 
         assertEquals("Order budget not generated", exception.getMessage());
@@ -61,7 +59,7 @@ class WaitingApprovalOrderTransitionTest {
 
         BusinessRuleException exception = assertThrows(
                 BusinessRuleException.class,
-                () -> transition.execute(order, userId)
+                () -> transition.execute(order)
         );
 
         assertEquals("Order budget not generated", exception.getMessage());
@@ -75,7 +73,7 @@ class WaitingApprovalOrderTransitionTest {
 
         InvalidOrderTransitionException exception = assertThrows(
                 InvalidOrderTransitionException.class,
-                () -> transition.execute(order, userId)
+                () -> transition.execute(order)
         );
 
         assertTrue(exception.getMessage().contains("Invalid transition"));

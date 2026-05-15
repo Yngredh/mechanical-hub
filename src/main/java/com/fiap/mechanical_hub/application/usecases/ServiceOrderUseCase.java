@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.application.usecases;
 
-import com.fiap.mechanical_hub.application.command.FindOrCreateCustomerCommand;
+import com.fiap.mechanical_hub.application.command.customer.FindOrCreateCustomerCommand;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
 import com.fiap.mechanical_hub.application.dto.serviceorder.request.ServiceOrderCustomerView;

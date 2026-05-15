@@ -1,42 +1,7 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
-import com.fiap.mechanical_hub.application.dto.customer.InsertCustomerRequest;
-import com.fiap.mechanical_hub.application.usecases.AuthorizationUseCase;
-import com.fiap.mechanical_hub.application.usecases.customer.CreateCustomerUseCase;
-import com.fiap.mechanical_hub.application.usecases.customer.DeleteCustomerUseCase;
-import com.fiap.mechanical_hub.application.usecases.customer.FindAllCustomersUseCase;
-import com.fiap.mechanical_hub.application.usecases.customer.FindCustomerByIdUseCase;
-import com.fiap.mechanical_hub.application.usecases.customer.UpdateCustomerUseCase;
-import com.fiap.mechanical_hub.application.command.CreateCustomerCommand;
-import com.fiap.mechanical_hub.application.command.UpdateCustomerCommand;
-import com.fiap.mechanical_hub.domain.exceptions.DuplicatedDocumentException;
-import com.fiap.mechanical_hub.domain.exceptions.InvalidDocumentException;
-import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
-import com.fiap.mechanical_hub.infrastructure.database.repositories.UserJpaRepository;
-import com.fiap.mechanical_hub.infrastructure.security.TokenService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /*
 @WebMvcTest(CustomerController.class)

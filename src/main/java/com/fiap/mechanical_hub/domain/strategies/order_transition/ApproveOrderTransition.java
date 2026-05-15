@@ -7,7 +7,7 @@ import java.util.UUID;
 public class ApproveOrderTransition implements OrderStatusTransition {
 
     @Override
-    public void execute(ServiceOrder order, UUID userId) {
+    public void execute(ServiceOrder order) {
         order.approve();
     }
 

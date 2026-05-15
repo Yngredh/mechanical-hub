@@ -2,8 +2,8 @@ package com.fiap.mechanical_hub.application.mappers;
 
 import com.fiap.mechanical_hub.application.dto.customer.InsertCustomerRequest;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
-import com.fiap.mechanical_hub.application.command.CreateCustomerCommand;
-import com.fiap.mechanical_hub.application.command.UpdateCustomerCommand;
+import com.fiap.mechanical_hub.application.command.customer.CreateCustomerCommand;
+import com.fiap.mechanical_hub.application.command.customer.UpdateCustomerCommand;
 import com.fiap.mechanical_hub.application.dto.customer.UpdateCustomerRequest;
 import com.fiap.mechanical_hub.domain.entities.Customer;
 import org.springframework.stereotype.Component;

@@ -70,10 +70,9 @@ public class ServiceOrder {
         return order;
     }
 
-    public void startDiagnosis(UUID userId) {
+    public void startDiagnosis() {
         validateCurrentStatus(OrderStatusEnum.RECEBIDO);
 
-        this.responsibleUserId = userId;
         this.status = OrderStatusEnum.EM_DIAGNOSTICO;
         this.openedAt = LocalDateTime.now();
     }

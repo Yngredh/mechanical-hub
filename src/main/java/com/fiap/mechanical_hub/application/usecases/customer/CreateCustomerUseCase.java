@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.application.usecases.customer;
 
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
-import com.fiap.mechanical_hub.application.command.CreateCustomerCommand;
+import com.fiap.mechanical_hub.application.command.customer.CreateCustomerCommand;
 import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;

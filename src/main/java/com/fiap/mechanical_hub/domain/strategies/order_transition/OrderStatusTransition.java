@@ -5,5 +5,5 @@ import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import java.util.UUID;
 
 public interface OrderStatusTransition {
-    void execute(ServiceOrder order, UUID userId);
+    void execute(ServiceOrder order);
 }

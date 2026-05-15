@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VehicleData {
+public class InsertVehicleRequest {
     private String licensePlate;
     private String brand;
     private String model;

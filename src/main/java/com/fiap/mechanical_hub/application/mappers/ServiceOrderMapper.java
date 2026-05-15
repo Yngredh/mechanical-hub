@@ -1,6 +1,8 @@
 package com.fiap.mechanical_hub.application.mappers;
 
+import com.fiap.mechanical_hub.application.command.serviceorder.CreateServiceOrderCommand;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
+import com.fiap.mechanical_hub.application.dto.serviceorder.CreateServiceOrderRequest;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderDetailResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
@@ -13,11 +15,30 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class ServiceOrderMapper {
+
+    public CreateServiceOrderCommand toCreateServiceOrderCommand(CreateServiceOrderRequest request, UUID createdByUserId) {
+        return new CreateServiceOrderCommand(
+            request.getCustomer().getName(),
+            request.getCustomer().getDocumentType(),
+            request.getCustomer().getDocumentNumber(),
+            request.getCustomer().getTelephone(),
+            request.getCustomer().getEmail(),
+            request.getCustomer().getAddress(),
+            request.getVehicle().getLicensePlate(),
+            request.getVehicle().getBrand(),
+            request.getVehicle().getModel(),
+            request.getVehicle().getYear(),
+            request.getVehicle().getColor(),
+            request.getRequestDescription(),
+            createdByUserId
+        );
+    }
 
     public ServiceOrderResponse toResponse(ServiceOrder order) {
 

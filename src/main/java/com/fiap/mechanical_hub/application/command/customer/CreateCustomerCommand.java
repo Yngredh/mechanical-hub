@@ -1,6 +1,6 @@
-package com.fiap.mechanical_hub.application.command;
+package com.fiap.mechanical_hub.application.command.customer;
 
-public record FindOrCreateCustomerCommand(
+public record CreateCustomerCommand(
     String name,
     String documentType,
     String documentNumber,
@@ -8,4 +8,3 @@ public record FindOrCreateCustomerCommand(
     String email,
     String address
 ) { }
-
