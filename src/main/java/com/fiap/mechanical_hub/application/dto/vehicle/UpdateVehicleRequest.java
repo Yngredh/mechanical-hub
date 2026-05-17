@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpsertVehicleRequest {
-    private String licensePlate;
+public class UpdateVehicleRequest {
     private String brand;
     private String model;
     private Integer year;

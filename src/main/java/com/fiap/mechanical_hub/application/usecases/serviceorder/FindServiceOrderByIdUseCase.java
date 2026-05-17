@@ -5,7 +5,7 @@ import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
 import com.fiap.mechanical_hub.application.usecases.customer.FindCustomerByIdUseCase;
-import com.fiap.mechanical_hub.application.usecases.VehicleUseCase;
+import com.fiap.mechanical_hub.application.usecases.vehicle.FindVehicleByIdUseCase;
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
@@ -25,7 +25,7 @@ import java.util.UUID;
 public class FindServiceOrderByIdUseCase {
 
     private final ServiceOrderRepository repository;
-    private final VehicleUseCase vehicleUseCase;
+    private final FindVehicleByIdUseCase findVehicleByIdUseCase;
     private final FindCustomerByIdUseCase findCustomerByIdUseCase;
 
     @Transactional(readOnly = true)
@@ -35,7 +35,7 @@ public class FindServiceOrderByIdUseCase {
         ServiceOrder order = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Ordem de serviço não encontrada com ID: " + id));
 
-        VehicleResponse vehicle = vehicleUseCase.findById(order.getVehicleId());
+        VehicleResponse vehicle = findVehicleByIdUseCase.execute(order.getVehicleId());
         CustomerResponse customer = findCustomerByIdUseCase.execute(order.getCustomerId());
         List<ServiceData> serviceData = order.getOrderTasks()
                 .stream()

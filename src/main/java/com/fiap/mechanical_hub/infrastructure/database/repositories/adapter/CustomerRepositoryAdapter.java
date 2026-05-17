@@ -4,7 +4,7 @@ import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.CustomerModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.CustomerJpaRepository;
-import com.fiap.mechanical_hub.infrastructure.mappers.CustomerRepositoryMapper;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.CustomerRepositoryMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.fiap.mechanical_hub.infrastructure.mappers.CustomerRepositoryMapper.toDomainEntity;
-import static com.fiap.mechanical_hub.infrastructure.mappers.CustomerRepositoryMapper.toJpaEntity;
+import static com.fiap.mechanical_hub.infrastructure.database.mappers.CustomerRepositoryMapper.toDomainEntity;
+import static com.fiap.mechanical_hub.infrastructure.database.mappers.CustomerRepositoryMapper.toJpaEntity;
 
 @Component
 @RequiredArgsConstructor

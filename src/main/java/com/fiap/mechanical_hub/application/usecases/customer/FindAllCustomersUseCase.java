@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.application.usecases.customer;
 
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
-import com.fiap.mechanical_hub.application.mappers.CustomerMapper;
+import com.fiap.mechanical_hub.infrastructure.http.mappers.CustomerHttpMapper;
 import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +20,6 @@ public class FindAllCustomersUseCase {
     @Transactional(readOnly = true)
     public List<CustomerResponse> execute() {
         log.info("Retrieving all customers");
-        return customerRepository.findAll().stream().map(CustomerMapper::toResponse).toList();
+        return customerRepository.findAll().stream().map(CustomerHttpMapper::toResponse).toList();
     }
 }

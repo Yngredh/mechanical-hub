@@ -1,8 +1,13 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
-import com.fiap.mechanical_hub.application.dto.vehicle.UpsertVehicleRequest;
+import com.fiap.mechanical_hub.application.dto.vehicle.InsertVehicleRequest;
+import com.fiap.mechanical_hub.application.dto.vehicle.UpdateVehicleRequest;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
-import com.fiap.mechanical_hub.application.usecases.VehicleUseCase;
+import com.fiap.mechanical_hub.application.usecases.vehicle.CreateVehicleUseCase;
+import com.fiap.mechanical_hub.application.usecases.vehicle.DeleteVehicleUseCase;
+import com.fiap.mechanical_hub.application.usecases.vehicle.FindAllVehiclesUseCase;
+import com.fiap.mechanical_hub.application.usecases.vehicle.FindVehicleByIdUseCase;
+import com.fiap.mechanical_hub.application.usecases.vehicle.UpdateVehicleUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -16,6 +21,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+import static com.fiap.mechanical_hub.infrastructure.http.mappers.VehicleHttpMapper.toCreateVehicleCommand;
+import static com.fiap.mechanical_hub.infrastructure.http.mappers.VehicleHttpMapper.toUpdateVehicleCommand;
+
 @RestController
 @RequestMapping("/vehicles")
 @RequiredArgsConstructor
@@ -23,7 +31,11 @@ import java.util.UUID;
 @Tag(name = "Veículos", description = "Endpoints para gerenciamento de veículos de clientes")
 public class VehicleController {
 
-	private final VehicleUseCase vehicleUseCase;
+	private final CreateVehicleUseCase createVehicleUseCase;
+	private final FindVehicleByIdUseCase findVehicleByIdUseCase;
+	private final FindAllVehiclesUseCase findAllVehiclesUseCase;
+	private final UpdateVehicleUseCase updateVehicleUseCase;
+	private final DeleteVehicleUseCase deleteVehicleUseCase;
 
 	@PostMapping
 	@Operation(summary = "Criar novo veículo", description = "Registra um novo veículo para um cliente. Requer perfil de Administrador.")
@@ -36,10 +48,10 @@ public class VehicleController {
 			@ApiResponse(responseCode = "404", description = "Cliente não encontrado")
 	})
 	public ResponseEntity<VehicleResponse> create(
-			@RequestParam("customer_id") UUID customerId,
-			@RequestBody UpsertVehicleRequest request
+			@RequestParam("customer_id") UUID customerId, @RequestBody InsertVehicleRequest request
 	) {
-		VehicleResponse response = vehicleUseCase.create(customerId, request);
+		var command = toCreateVehicleCommand(request, customerId);
+		VehicleResponse response = createVehicleUseCase.execute(command);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
@@ -52,7 +64,7 @@ public class VehicleController {
 			@ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)")
 	})
 	public ResponseEntity<List<VehicleResponse>> findAll() {
-		List<VehicleResponse> vehicles = vehicleUseCase.findAll();
+		List<VehicleResponse> vehicles = findAllVehiclesUseCase.execute();
 		return ResponseEntity.ok(vehicles);
 	}
 
@@ -66,7 +78,7 @@ public class VehicleController {
 			@ApiResponse(responseCode = "404", description = "Veículo não encontrado")
 	})
 	public ResponseEntity<VehicleResponse> findById(@PathVariable UUID id) {
-		VehicleResponse vehicle = vehicleUseCase.findById(id);
+		VehicleResponse vehicle = findVehicleByIdUseCase.execute(id);
 		return ResponseEntity.ok(vehicle);
 	}
 
@@ -80,22 +92,10 @@ public class VehicleController {
 			@ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)"),
 			@ApiResponse(responseCode = "404", description = "Veículo não encontrado")
 	})
-	public ResponseEntity<VehicleResponse> update(@PathVariable UUID id, @RequestBody UpsertVehicleRequest request) {
-		VehicleResponse response = vehicleUseCase.update(id, request);
+	public ResponseEntity<VehicleResponse> update(@PathVariable UUID id, @RequestBody UpdateVehicleRequest request) {
+		var command = toUpdateVehicleCommand(id, request);
+		VehicleResponse response = updateVehicleUseCase.execute(command);
 		return ResponseEntity.ok(response);
 	}
 
-	@DeleteMapping("/{id}")
-	@Operation(summary = "Deletar veículo", description = "Deleta um veículo do sistema. Requer perfil de Administrador.")
-	@SecurityRequirement(name = "bearerAuth")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "204", description = "Veículo deletado com sucesso"),
-			@ApiResponse(responseCode = "401", description = "Não autenticado"),
-			@ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)"),
-			@ApiResponse(responseCode = "404", description = "Veículo não encontrado")
-	})
-	public ResponseEntity<Void> delete(@PathVariable UUID id) {
-		vehicleUseCase.delete(id);
-		return ResponseEntity.noContent().build();
-	}
 }

@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.infrastructure.mappers;
+package com.fiap.mechanical_hub.infrastructure.database.mappers;
 
 import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.valueobjects.Document;
@@ -23,8 +23,7 @@ public class CustomerRepositoryMapper {
     }
 
     public static Customer toDomainEntity(CustomerModel entity) {
-        Document document = new Document(
-                entity.getDocumentTypeEnum(), entity.getDocumentNumber());
+        Document document = new Document(entity.getDocumentTypeEnum(), entity.getDocumentNumber());
 
         return new Customer(
                 entity.getId(),

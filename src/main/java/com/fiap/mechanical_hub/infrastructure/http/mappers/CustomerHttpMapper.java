@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.application.mappers;
+package com.fiap.mechanical_hub.infrastructure.http.mappers;
 
 import com.fiap.mechanical_hub.application.dto.customer.InsertCustomerRequest;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
@@ -13,8 +13,7 @@ import java.util.UUID;
 import static com.fiap.mechanical_hub.domain.utils.document.DocumentFormatter.formatDocument;
 
 @Component
-public class CustomerMapper {
-
+public class CustomerHttpMapper {
 
     public static CustomerResponse toResponse(Customer customer) {
         return new CustomerResponse(

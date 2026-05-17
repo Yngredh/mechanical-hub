@@ -1,5 +1,6 @@
 package com.fiap.mechanical_hub.domain.entities;
 
+import com.fiap.mechanical_hub.domain.valueobjects.LicensePlate;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,7 +18,7 @@ public class Vehicle {
 
 	private UUID id;
 	private UUID customerId;
-	private String licensePlate;
+	private LicensePlate licensePlate;
 	private String brand;
 	private String model;
 	private Integer year;
@@ -26,17 +27,15 @@ public class Vehicle {
 	private LocalDateTime updatedAt;
 
 	public static Vehicle create(UUID customerId,
-								 String licensePlate,
+	                             LicensePlate licensePlate,
 								 String brand,
 								 String model,
 								 Integer year,
 								 String color) {
-		validateLicensePlate(licensePlate);
-
 		Vehicle vehicle = new Vehicle();
 		vehicle.id = UUID.randomUUID();
 		vehicle.customerId = customerId;
-		vehicle.licensePlate = normalize(licensePlate);
+		vehicle.licensePlate = licensePlate;
 		vehicle.brand = brand;
 		vehicle.model = model;
 		vehicle.year = year;
@@ -47,14 +46,7 @@ public class Vehicle {
 		return vehicle;
 	}
 
-	public void update(String licensePlate,
-								  String brand,
-								  String model,
-								  Integer year,
-								  String color) {
-		validateLicensePlate(licensePlate);
-
-		this.licensePlate = normalize(licensePlate);
+	public void update(String brand, String model, Integer year, String color) {
 		this.brand = brand;
 		this.model = model;
 		this.year = year;

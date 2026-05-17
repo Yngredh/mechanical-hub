@@ -1,10 +1,9 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fiap.mechanical_hub.application.dto.vehicle.UpsertVehicleRequest;
+import com.fiap.mechanical_hub.application.dto.vehicle.InsertVehicleRequest;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
 import com.fiap.mechanical_hub.application.usecases.AuthorizationUseCase;
-import com.fiap.mechanical_hub.application.usecases.VehicleUseCase;
 import com.fiap.mechanical_hub.domain.exceptions.DuplicateLicensePlateException;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidLicensePlateException;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.UserJpaRepository;
@@ -57,14 +56,14 @@ class VehicleControllerTest {
     private UUID vehicleId;
     private UUID customerId;
     private VehicleResponse vehicleResponse;
-    private UpsertVehicleRequest upsertRequest;
+    private InsertVehicleRequest upsertRequest;
 
     @BeforeEach
     void setUp() {
         vehicleId = UUID.randomUUID();
         customerId = UUID.randomUUID();
 
-        upsertRequest = new UpsertVehicleRequest(
+        upsertRequest = new InsertVehicleRequest(
                 "ABC-1234",
                 "Toyota",
                 "Corolla",
@@ -93,7 +92,7 @@ class VehicleControllerTest {
         @DisplayName("Should create vehicle and return 201 when request data is valid")
         @WithMockUser(roles = "ADMINISTRATOR")
         void shouldReturn201WhenDataIsValid() throws Exception {
-            when(vehicleUseCase.create(eq(customerId), any(UpsertVehicleRequest.class))).thenReturn(vehicleResponse);
+            when(vehicleUseCase.create(eq(customerId), any(InsertVehicleRequest.class))).thenReturn(vehicleResponse);
 
             mockMvc.perform(post("/vehicles")
                             .with(csrf())
@@ -109,14 +108,14 @@ class VehicleControllerTest {
                     .andExpect(jsonPath("$.year").value(2020))
                     .andExpect(jsonPath("$.color").value("Prata"));
 
-            verify(vehicleUseCase).create(eq(customerId), any(UpsertVehicleRequest.class));
+            verify(vehicleUseCase).create(eq(customerId), any(InsertVehicleRequest.class));
         }
 
         @Test
         @DisplayName("Should return 400 when customer is not found")
         @WithMockUser(roles = "ADMINISTRATOR")
         void shouldReturn400WhenCustomerDoesNotExist() throws Exception {
-            when(vehicleUseCase.create(eq(customerId), any(UpsertVehicleRequest.class)))
+            when(vehicleUseCase.create(eq(customerId), any(InsertVehicleRequest.class)))
                     .thenThrow(new NoSuchElementException("Cliente não encontrado para o id: " + customerId));
 
             mockMvc.perform(post("/vehicles")
@@ -133,7 +132,7 @@ class VehicleControllerTest {
         @DisplayName("Should return 409 when license plate is already registered")
         @WithMockUser(roles = "ADMINISTRATOR")
         void shouldReturn409WhenLicensePlateAlreadyExists() throws Exception {
-            when(vehicleUseCase.create(eq(customerId), any(UpsertVehicleRequest.class)))
+            when(vehicleUseCase.create(eq(customerId), any(InsertVehicleRequest.class)))
                     .thenThrow(new DuplicateLicensePlateException("Veículo com placa ABC1234 já existe"));
 
             mockMvc.perform(post("/vehicles")
@@ -150,7 +149,7 @@ class VehicleControllerTest {
         @DisplayName("Should return 422 when license plate format is invalid")
         @WithMockUser(roles = "ADMINISTRATOR")
         void shouldReturn422WhenLicensePlateIsInvalid() throws Exception {
-            when(vehicleUseCase.create(eq(customerId), any(UpsertVehicleRequest.class)))
+            when(vehicleUseCase.create(eq(customerId), any(InsertVehicleRequest.class)))
                     .thenThrow(new InvalidLicensePlateException("Placa inválida: ABC-XXXX"));
 
             mockMvc.perform(post("/vehicles")
@@ -273,7 +272,7 @@ class VehicleControllerTest {
         @DisplayName("Should update vehicle and return 200 when request data is valid")
         @WithMockUser(roles = "ADMINISTRATOR")
         void shouldReturn200WhenDataIsValid() throws Exception {
-            when(vehicleUseCase.update(eq(vehicleId), any(UpsertVehicleRequest.class)))
+            when(vehicleUseCase.update(eq(vehicleId), any(InsertVehicleRequest.class)))
                     .thenReturn(vehicleResponse);
 
             mockMvc.perform(put("/vehicles/{id}", vehicleId)
@@ -285,14 +284,14 @@ class VehicleControllerTest {
                     .andExpect(jsonPath("$.licensePlate").value("ABC1234"))
                     .andExpect(jsonPath("$.brand").value("Toyota"));
 
-            verify(vehicleUseCase).update(eq(vehicleId), any(UpsertVehicleRequest.class));
+            verify(vehicleUseCase).update(eq(vehicleId), any(InsertVehicleRequest.class));
         }
 
         @Test
         @DisplayName("Should return 400 when vehicle is not found")
         @WithMockUser(roles = "ADMINISTRATOR")
         void shouldReturn400WhenVehicleDoesNotExist() throws Exception {
-            when(vehicleUseCase.update(eq(vehicleId), any(UpsertVehicleRequest.class)))
+            when(vehicleUseCase.update(eq(vehicleId), any(InsertVehicleRequest.class)))
                     .thenThrow(new NoSuchElementException("Veículo não encontrado para o id: " + vehicleId));
 
             mockMvc.perform(put("/vehicles/{id}", vehicleId)
@@ -308,7 +307,7 @@ class VehicleControllerTest {
         @DisplayName("Should return 409 when license plate already belongs to another vehicle")
         @WithMockUser(roles = "ADMINISTRATOR")
         void shouldReturn409WhenLicensePlateBelongsToAnotherVehicle() throws Exception {
-            when(vehicleUseCase.update(eq(vehicleId), any(UpsertVehicleRequest.class)))
+            when(vehicleUseCase.update(eq(vehicleId), any(InsertVehicleRequest.class)))
                     .thenThrow(new DuplicateLicensePlateException("Veículo com placa ABC1234 já existe"));
 
             mockMvc.perform(put("/vehicles/{id}", vehicleId)
@@ -324,7 +323,7 @@ class VehicleControllerTest {
         @DisplayName("Should return 422 when license plate format is invalid")
         @WithMockUser(roles = "ADMINISTRATOR")
         void shouldReturn422WhenLicensePlateIsInvalid() throws Exception {
-            when(vehicleUseCase.update(eq(vehicleId), any(UpsertVehicleRequest.class)))
+            when(vehicleUseCase.update(eq(vehicleId), any(InsertVehicleRequest.class)))
                     .thenThrow(new InvalidLicensePlateException("Placa inválida: ABC-XXXX"));
 
             mockMvc.perform(put("/vehicles/{id}", vehicleId)

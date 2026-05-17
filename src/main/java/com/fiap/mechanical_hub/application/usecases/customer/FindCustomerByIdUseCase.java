@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import static com.fiap.mechanical_hub.application.mappers.CustomerMapper.toResponse;
+import static com.fiap.mechanical_hub.infrastructure.http.mappers.CustomerHttpMapper.toResponse;
 import java.util.UUID;
 
 @Service

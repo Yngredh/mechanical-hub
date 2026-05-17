@@ -1,8 +1,8 @@
 package com.fiap.mechanical_hub.application.usecases;
 
-import com.fiap.mechanical_hub.application.dto.vehicle.UpsertVehicleRequest;
+import com.fiap.mechanical_hub.application.dto.vehicle.InsertVehicleRequest;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
-import com.fiap.mechanical_hub.application.mappers.VehicleMapper;
+import com.fiap.mechanical_hub.infrastructure.http.mappers.VehicleHttpMapper;
 import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
 import com.fiap.mechanical_hub.domain.repositories.VehicleRepository;
 import com.fiap.mechanical_hub.domain.entities.Customer;
@@ -38,7 +38,7 @@ class VehicleUseCaseTest {
     private CustomerRepository customerRepository;
 
     @Spy
-    private VehicleMapper vehicleMapper;
+    private VehicleHttpMapper vehicleHttpMapper;
 
     @InjectMocks
     private VehicleUseCase vehicleUseCase;
@@ -47,7 +47,7 @@ class VehicleUseCaseTest {
     @DisplayName("Deve criar um veículo com sucesso")
     void shouldCreateVehicleSuccessfully() {
         UUID customerId = UUID.randomUUID();
-        UpsertVehicleRequest request = new UpsertVehicleRequest("ABC1234", "Fiat", "Uno", 2010, "Escada");
+        InsertVehicleRequest request = new InsertVehicleRequest("ABC1234", "Fiat", "Uno", 2010, "Escada");
 
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(new Customer()));
         when(vehicleRepository.existsByLicensePlate("ABC1234")).thenReturn(false);
@@ -64,7 +64,7 @@ class VehicleUseCaseTest {
     @DisplayName("Deve lançar exceção quando cliente não existe na criação")
     void shouldThrowExceptionWhenCustomerNotFound() {
         UUID customerId = UUID.randomUUID();
-        UpsertVehicleRequest request = new UpsertVehicleRequest("ABC1234", "Fiat", "Uno", 2010, "Prata");
+        InsertVehicleRequest request = new InsertVehicleRequest("ABC1234", "Fiat", "Uno", 2010, "Prata");
 
         when(customerRepository.findById(customerId)).thenReturn(Optional.empty());
 
@@ -77,7 +77,7 @@ class VehicleUseCaseTest {
     @DisplayName("Deve lançar exceção quando a placa for inválida")
     void shouldThrowExceptionForInvalidPlate() {
         UUID customerId = UUID.randomUUID();
-        UpsertVehicleRequest request = new UpsertVehicleRequest("PLACA-INVALIDA", "Ford", "Ka", 2020, "Preto");
+        InsertVehicleRequest request = new InsertVehicleRequest("PLACA-INVALIDA", "Ford", "Ka", 2020, "Preto");
 
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(new Customer()));
 
@@ -89,7 +89,7 @@ class VehicleUseCaseTest {
     @DisplayName("Deve lançar exceção para placa duplicada na criação")
     void shouldThrowExceptionForDuplicatePlateOnCreate() {
         UUID customerId = UUID.randomUUID();
-        UpsertVehicleRequest request = new UpsertVehicleRequest("ABC1234", "Fiat", "Uno", 2010, "Prata");
+        InsertVehicleRequest request = new InsertVehicleRequest("ABC1234", "Fiat", "Uno", 2010, "Prata");
 
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(new Customer()));
         when(vehicleRepository.existsByLicensePlate("ABC1234")).thenReturn(true);
@@ -111,7 +111,7 @@ class VehicleUseCaseTest {
                 .color("Preto")
                 .build();
 
-        UpsertVehicleRequest updateRequest = new UpsertVehicleRequest("NEW1234", "Toyota", "Corolla", 2022, "Branco");
+        InsertVehicleRequest updateRequest = new InsertVehicleRequest("NEW1234", "Toyota", "Corolla", 2022, "Branco");
 
         when(vehicleRepository.findById(vehicleId)).thenReturn(Optional.of(existingVehicle));
         when(vehicleRepository.existsByLicensePlateAndIdNot("NEW1234", vehicleId)).thenReturn(false);
@@ -157,14 +157,14 @@ class VehicleUseCaseTest {
         VehicleResponse response = new VehicleResponse();
 
         when(vehicleRepository.findById(vehicleId)).thenReturn(Optional.of(vehicle));
-        when(vehicleMapper.toResponse(vehicle)).thenReturn(response);
+        when(vehicleHttpMapper.toResponse(vehicle)).thenReturn(response);
 
         VehicleResponse result = vehicleUseCase.findById(vehicleId);
 
         assertNotNull(result);
         assertEquals(response, result);
         verify(vehicleRepository, times(1)).findById(vehicleId);
-        verify(vehicleMapper, times(1)).toResponse(vehicle);
+        verify(vehicleHttpMapper, times(1)).toResponse(vehicle);
     }
 
     @Test
@@ -179,7 +179,7 @@ class VehicleUseCaseTest {
 
         assertEquals("Veículo não encontrado para o id: " + vehicleId, exception.getMessage());
         verify(vehicleRepository, times(1)).findById(vehicleId);
-        verifyNoInteractions(vehicleMapper);
+        verifyNoInteractions(vehicleHttpMapper);
     }
 
     @Test
@@ -193,8 +193,8 @@ class VehicleUseCaseTest {
         VehicleResponse r2 = new VehicleResponse();
 
         when(vehicleRepository.findAll()).thenReturn(vehicles);
-        when(vehicleMapper.toResponse(v1)).thenReturn(r1);
-        when(vehicleMapper.toResponse(v2)).thenReturn(r2);
+        when(vehicleHttpMapper.toResponse(v1)).thenReturn(r1);
+        when(vehicleHttpMapper.toResponse(v2)).thenReturn(r2);
 
         List<VehicleResponse> result = vehicleUseCase.findAll();
 
@@ -204,7 +204,7 @@ class VehicleUseCaseTest {
         assertTrue(result.contains(r2));
 
         verify(vehicleRepository, times(1)).findAll();
-        verify(vehicleMapper, times(2)).toResponse(any(Vehicle.class));
+        verify(vehicleHttpMapper, times(2)).toResponse(any(Vehicle.class));
     }
 
     @Test
@@ -217,7 +217,7 @@ class VehicleUseCaseTest {
         assertNotNull(result);
         assertTrue(result.isEmpty());
         verify(vehicleRepository, times(1)).findAll();
-        verifyNoInteractions(vehicleMapper);
+        verifyNoInteractions(vehicleHttpMapper);
     }
 
     @Test
@@ -227,7 +227,7 @@ class VehicleUseCaseTest {
         String plate = "ABC1D23";
         String normalizedPlate = "ABC1D23";
 
-        UpsertVehicleRequest request = new UpsertVehicleRequest();
+        InsertVehicleRequest request = new InsertVehicleRequest();
         request.setLicensePlate(plate);
 
         Vehicle existingVehicle = mock(Vehicle.class);

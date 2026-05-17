@@ -3,7 +3,7 @@ package com.fiap.mechanical_hub.application.usecases.serviceorder;
 import com.fiap.mechanical_hub.application.command.serviceorder.CreateServiceOrderCommand;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
-import com.fiap.mechanical_hub.application.usecases.VehicleUseCase;
+import com.fiap.mechanical_hub.application.usecases.vehicle.FindOrCreateVehicleUseCase;
 import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.entities.Vehicle;
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreateServiceOrderUseCase {
 
     private final ServiceOrderRepository repository;
-    private final VehicleUseCase vehicleUseCase;
+    private final FindOrCreateVehicleUseCase findOrCreateVehicleUseCase;
     private final FindOrCreateServiceOrderCustomerUseCase findOrCreateCustomerUseCase;
     private final OrderNumberGenerator orderNumberGenerator;
     private final ServiceOrderMapper mapper;
@@ -38,7 +38,7 @@ public class CreateServiceOrderUseCase {
             command.address()
         );
 
-        Vehicle vehicle = vehicleUseCase.findByLicensePlateOrCreate(
+        Vehicle vehicle = findOrCreateVehicleUseCase.execute(
             customer.getId(),
             command.licensePlate(),
             command.vehicleBrand(),
