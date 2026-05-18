@@ -2,8 +2,8 @@ package com.fiap.mechanical_hub.application.usecases.serviceorder;
 
 import com.fiap.mechanical_hub.application.command.serviceorder.AddTaskIntoServiceOrderCommand;
 import com.fiap.mechanical_hub.application.usecases.ServiceMaterialUseCase;
-import com.fiap.mechanical_hub.application.usecases.ServiceUseCase;
 import com.fiap.mechanical_hub.application.usecases.StockUseCase;
+import com.fiap.mechanical_hub.application.usecases.ordertask.GetServiceByIdUseCase;
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
@@ -27,7 +27,7 @@ public class AddTaskIntoServiceOrderUseCase {
     private final ServiceOrderRepository repository;
     private final ServiceMaterialUseCase serviceMaterialUseCase;
     private final StockUseCase stockUseCase;
-    private final ServiceUseCase serviceUseCase;
+    private final GetServiceByIdUseCase getServiceByIdUseCase;
 
     @Transactional
     public void execute(AddTaskIntoServiceOrderCommand command) {
@@ -44,7 +44,7 @@ public class AddTaskIntoServiceOrderUseCase {
         for (UUID serviceId : command.serviceIds()) {
             if (order.validateTaskNotDuplicated(serviceId)) break;
 
-            ServiceData serviceData = serviceUseCase.findServiceById(serviceId);
+            ServiceData serviceData = getServiceByIdUseCase.execute(serviceId);
 
             log.info("Processing service {} for order {}", serviceId, command.serviceOrderId());
 

@@ -10,6 +10,7 @@ import com.fiap.mechanical_hub.application.usecases.customer.FindCustomerByIdUse
 import com.fiap.mechanical_hub.application.usecases.customer.FindOrCreateCustomerUseCase;
 import com.fiap.mechanical_hub.application.usecases.vehicle.FindVehicleByIdUseCase;
 import com.fiap.mechanical_hub.application.usecases.vehicle.FindOrCreateVehicleUseCase;
+import com.fiap.mechanical_hub.application.usecases.ordertask.GetServiceByIdUseCase;
 import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.domain.entities.*;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
@@ -39,7 +40,7 @@ public class ServiceOrderUseCase {
     private final FindOrCreateCustomerUseCase findOrCreateCustomerUseCase;
     private final FindVehicleByIdUseCase findVehicleByIdUseCase;
     private final FindOrCreateVehicleUseCase findOrCreateVehicleUseCase;
-    private final ServiceUseCase serviceUseCase;
+    private final GetServiceByIdUseCase getServiceByIdUseCase;
 
     private final OrderNumberGenerator orderNumberGenerator;
     private final ServiceOrderMapper mapper;
@@ -92,7 +93,7 @@ public class ServiceOrderUseCase {
         for (UUID serviceId : request.serviceIds()) {
             if (order.validateTaskNotDuplicated(serviceId)) break;
 
-            ServiceData serviceData = serviceUseCase.findServiceById(serviceId);
+            ServiceData serviceData = getServiceByIdUseCase.execute(serviceId);
 
             log.info("Processing service {} for order {}", serviceId, serviceOrderId);
 

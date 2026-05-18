@@ -18,4 +18,6 @@ public interface ServiceRepository {
 
     List<ServiceData> findByIds(List<UUID> serviceIds);
 
+    boolean existsById(UUID id);
+
 }

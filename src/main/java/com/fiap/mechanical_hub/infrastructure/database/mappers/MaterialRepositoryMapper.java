@@ -32,6 +32,10 @@ public class MaterialRepositoryMapper {
         );
     }
 
+    public static MaterialModel toModel(Material material) {
+        return toJpaEntity(material);
+    }
+
 }
 
 

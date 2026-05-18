@@ -1,21 +1,17 @@
-package com.fiap.mechanical_hub.application.mappers;
+package com.fiap.mechanical_hub.infrastructure.database.mappers;
 
-import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
-import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
+import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
-import com.fiap.mechanical_hub.infrastructure.database.mappers.MaterialRepositoryMapper;
-import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
-import org.springframework.stereotype.Component;
+import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class ServiceMapper {
+public class OrderTaskRepositoryMapper {
 
-    private ServiceMapper() {}
+    private OrderTaskRepositoryMapper() {}
 
     public static ServiceData toDomainEntity(ServiceModel model) {
         List<ServiceMaterial> materials = new ArrayList<>();
@@ -43,7 +39,7 @@ public class ServiceMapper {
         );
     }
 
-    public static ServiceModel toJpaEntity(ServiceData serviceData) {
+    public static ServiceModel toModel(ServiceData serviceData) {
         ServiceModel model = new ServiceModel();
 
         model.setId(serviceData.getId());
@@ -59,7 +55,7 @@ public class ServiceMapper {
         for (ServiceMaterial item : serviceData.getMaterials()) {
             ServiceMaterialModel child = new ServiceMaterialModel();
             child.setId(item.getId());
-            child.setMaterial(MaterialRepositoryMapper.toJpaEntity(item.getMaterial()));
+            child.setMaterial(MaterialRepositoryMapper.toModel(item.getMaterial()));
             child.setQuantity(item.getQuantity());
             child.setService(model);
             model.getMaterials().add(child);
@@ -67,19 +63,5 @@ public class ServiceMapper {
 
         return model;
     }
-
-    public static ServiceResponse toResponse(ServiceData serviceData) {
-        return new ServiceResponse(
-                serviceData.getId(),
-                serviceData.getName(),
-                serviceData.getDescription(),
-                serviceData.getLaborCost(),
-                serviceData.getBasePrice(),
-                serviceData.getTotalPrice(),
-                serviceData.getMaterials().stream().map(ServiceMaterialMapper::toResponse).toList(),
-                serviceData.isActive(),
-                serviceData.getCreatedAt(),
-                serviceData.getUpdatedAt()
-        );
-    }
 }
+

@@ -5,6 +5,8 @@ import com.fiap.mechanical_hub.domain.entities.OrderTask;
 import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
 import com.fiap.mechanical_hub.infrastructure.database.models.OrderTaskModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceOrderModel;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.OrderTaskRepositoryMapper;
+import com.fiap.mechanical_hub.infrastructure.http.mappers.ServiceHttpMapper;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +18,7 @@ public class OrderTaskMapper {
         return new OrderTaskModel(
                 task.getId(),
                 parent,
-                ServiceMapper.toJpaEntity(task.getServiceData()),
+                OrderTaskRepositoryMapper.toModel(task.getServiceData()),
                 task.getStatus().name(),
                 task.getStartedAt(),
                 task.getFinishedAt()
@@ -27,7 +29,7 @@ public class OrderTaskMapper {
         return new OrderTask(
                 entity.getId(),
                 entity.getServiceOrder().getId(),
-                ServiceMapper.toDomainEntity(entity.getService()),
+                OrderTaskRepositoryMapper.toDomainEntity(entity.getService()),
                 TaskStatusEnum.valueOf(entity.getServiceStatus()),
                 entity.getStartedAt(),
                 entity.getFinishedAt()
@@ -38,10 +40,14 @@ public class OrderTaskMapper {
         return new OrderTaskResponse(
                 task.getId(),
                 task.getServiceOrderId(),
-                ServiceMapper.toResponse(task.getServiceData()),
+                ServiceHttpMapper.toResponse(task.getServiceData()),
                 task.getStatus().getDisplayName(),
                 task.getStartedAt(),
                 task.getFinishedAt()
         );
     }
 }
+
+
+
+
