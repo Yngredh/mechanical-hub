@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+import static com.fiap.mechanical_hub.infrastructure.http.mappers.CustomerHttpMapper.toResponse;
+
 @RestController
 @RequestMapping("/customers")
 @RequiredArgsConstructor
@@ -48,8 +50,7 @@ public class CustomerController {
     public ResponseEntity<CustomerResponse> create(@RequestBody InsertCustomerRequest request) {
         var command = mapper.toCommand(request);
         var response = createCustomerUseCase.execute(command);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(response));
     }
 
     @GetMapping
@@ -92,7 +93,7 @@ public class CustomerController {
     public ResponseEntity<CustomerResponse> update(@PathVariable UUID id, @RequestBody UpdateCustomerRequest request) {
         var command = mapper.toUpdateCommand(id, request);
         var response = updateCustomerUseCase.execute(command);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(toResponse(response));
     }
 
     @DeleteMapping("/{id}")

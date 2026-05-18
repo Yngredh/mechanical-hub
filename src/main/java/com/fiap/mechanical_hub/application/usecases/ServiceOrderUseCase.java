@@ -121,7 +121,7 @@ public class ServiceOrderUseCase {
 
     public ServiceOrder updateOrderStatus(UUID orderId, OrderStatusEnum targetStatus, UUID userId) {
         ServiceOrder order = repository.findById(orderId).orElseThrow();
-        factory.get(targetStatus).execute(order, userId);
+        factory.get(targetStatus).execute(order);
         return repository.save(order);
     }
 
@@ -149,7 +149,7 @@ public class ServiceOrderUseCase {
         ServiceOrder order = repository.findById(serviceOrderId)
                 .orElseThrow(() -> new NotFoundException("Service order with id " + serviceOrderId + " not found"));
 
-        factory.get(OrderStatusEnum.APROVADO).execute(order, null);
+        factory.get(OrderStatusEnum.APROVADO).execute(order);
         repository.save(order);
     }
 
@@ -157,7 +157,7 @@ public class ServiceOrderUseCase {
         ServiceOrder order = repository.findById(serviceOrderId)
                 .orElseThrow(() -> new NotFoundException("Service order with id " + serviceOrderId + " not found"));
 
-        factory.get(OrderStatusEnum.RECUSADO).execute(order, null);
+        factory.get(OrderStatusEnum.RECUSADO).execute(order);
         repository.save(order);
     }
 

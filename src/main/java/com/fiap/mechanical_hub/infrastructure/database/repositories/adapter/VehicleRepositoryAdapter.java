@@ -55,10 +55,5 @@ public class VehicleRepositoryAdapter implements VehicleRepository {
         return jpaRepository.existsByLicensePlate(licensePlate);
     }
 
-    @Override
-    public boolean existsByLicensePlateAndIdNot(String licensePlate, UUID id) {
-        return jpaRepository.existsByLicensePlateAndIdNot(licensePlate, id);
-    }
-
 }
 

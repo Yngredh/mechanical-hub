@@ -17,14 +17,13 @@ public class DeleteCustomerUseCase {
     private final CustomerRepository repository;
 
     @Transactional
-    public void execute(UUID id) {
-        log.info("Deleting customer with id: {}", id);
+    public void execute(UUID customerId) {
+        log.info("Deleting customer with id: {}", customerId);
 
-        if (repository.findById(id).isEmpty()) throw new NotFoundException("Cliente não encontrado para o id: " + id);
+        if (repository.findById(customerId).isEmpty()) throw new NotFoundException("Cliente não encontrado para o id: " + customerId);
 
-        // TODO Ao excluir um cliente, seu veículo e ordens devem ser excluídos juntos
-        repository.deleteById(id);
-        log.info("Customer with id: {} deleted successfully", id);
+        repository.deleteById(customerId);
+        log.info("Customer with id: {} deleted successfully", customerId);
     }
 }
 

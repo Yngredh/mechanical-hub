@@ -12,7 +12,7 @@ public class CustomerDomainService {
 
     public void validateUniqueDocument(Document document) {
         if (repository.existsByDocumentNumber(document.getNumber())) {
-            throw new DuplicatedDocumentException("Cliente com documento já existe");
+            throw new DuplicatedDocumentException("Documento duplicado");
         }
     }
 
