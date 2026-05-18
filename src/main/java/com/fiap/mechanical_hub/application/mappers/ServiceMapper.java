@@ -4,6 +4,7 @@ import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.MaterialRepositoryMapper;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class ServiceMapper {
         if (model.getMaterials() != null) {
             materials = model.getMaterials().stream()
                     .map(sm -> {
-                        Material material = MaterialMapper.toDomainEntity(sm.getMaterial());
+                        Material material = MaterialRepositoryMapper.toDomainEntity(sm.getMaterial());
                         return ServiceMaterial.create(material, sm.getQuantity());
                     })
                     .toList();
@@ -58,7 +59,7 @@ public class ServiceMapper {
         for (ServiceMaterial item : serviceData.getMaterials()) {
             ServiceMaterialModel child = new ServiceMaterialModel();
             child.setId(item.getId());
-            child.setMaterial(MaterialMapper.toJpaEntity(item.getMaterial()));
+            child.setMaterial(MaterialRepositoryMapper.toJpaEntity(item.getMaterial()));
             child.setQuantity(item.getQuantity());
             child.setService(model);
             model.getMaterials().add(child);

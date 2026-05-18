@@ -4,6 +4,7 @@ import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.application.dto.service.UpsertServiceRequest;
 import com.fiap.mechanical_hub.application.mappers.ServiceMapper;
 import com.fiap.mechanical_hub.domain.repositories.ServiceRepository;
+import com.fiap.mechanical_hub.domain.repositories.MaterialRepository;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
@@ -23,14 +24,15 @@ import java.util.UUID;
 @Slf4j
 public class ServiceUseCase {
 
-    private final MaterialUseCase materialUseCase;
+    private final MaterialRepository materialRepository;
     private final ServiceRepository serviceRepository;
 
     public ServiceResponse create(UpsertServiceRequest request) {
         log.info("Creating new service with name: {}", request.getName());
         List<ServiceMaterial> materials = request.getMaterials().stream()
                 .map(m -> {
-                    Material material = materialUseCase.findById(m.getMaterialId());
+                    Material material = materialRepository.findById(m.getMaterialId())
+                            .orElseThrow(() -> new NotFoundException("Material not found: " + m.getMaterialId()));
                     return ServiceMaterial.create(material, m.getQuantity());
                 })
                 .toList();
@@ -54,7 +56,8 @@ public class ServiceUseCase {
 
         List<ServiceMaterial> materials = request.getMaterials().stream()
                 .map(m -> {
-                    Material material = materialUseCase.findById(m.getMaterialId());
+                    Material material = materialRepository.findById(m.getMaterialId())
+                            .orElseThrow(() -> new NotFoundException("Material not found: " + m.getMaterialId()));
                     return ServiceMaterial.create(material, m.getQuantity());
                 })
                 .toList();
