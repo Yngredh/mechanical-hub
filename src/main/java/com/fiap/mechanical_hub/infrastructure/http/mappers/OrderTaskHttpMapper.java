@@ -2,8 +2,12 @@ package com.fiap.mechanical_hub.infrastructure.http.mappers;
 
 import com.fiap.mechanical_hub.application.dto.serviceorder.OrderTaskResponse;
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
+import org.springframework.stereotype.Component;
 
+@Component
 public class OrderTaskHttpMapper {
+
+    private OrderTaskHttpMapper() {}
 
     public static OrderTaskResponse toTaskResponse(OrderTask task) {
         return new OrderTaskResponse(

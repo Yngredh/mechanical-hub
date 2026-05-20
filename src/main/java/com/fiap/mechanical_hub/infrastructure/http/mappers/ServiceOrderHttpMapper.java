@@ -7,10 +7,12 @@ import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse
 import com.fiap.mechanical_hub.application.dto.serviceorder.request.ServiceOrderCustomerView;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
 
+@Component
 public class ServiceOrderHttpMapper {
 
     public CreateServiceOrderCommand toCreateServiceOrderCommand(CreateServiceOrderRequest request, UUID createdByUserId) {

@@ -7,8 +7,11 @@ import com.fiap.mechanical_hub.application.dto.service.UpsertServiceRequest;
 import com.fiap.mechanical_hub.application.dto.servicematerials.ServiceMaterialResponse;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
+import org.springframework.stereotype.Component;
+
 import java.util.UUID;
 
+@Component
 public class ServiceHttpMapper {
 
     private ServiceHttpMapper() {}

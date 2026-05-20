@@ -13,5 +13,6 @@ public class CustomerResponse {
     private String name;
     private String documentNumber;
     private String email;
+    private String telephone;
 }
 

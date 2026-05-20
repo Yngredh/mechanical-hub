@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 import static com.fiap.mechanical_hub.domain.utils.document.DocumentFormatter.formatDocument;
+import static com.fiap.mechanical_hub.domain.utils.telephone.TelephoneFormatter.formatTelephone;
 
 @Component
 public class CustomerHttpMapper {
@@ -22,7 +23,8 @@ public class CustomerHttpMapper {
                 formatDocument(
                         customer.getDocument().getType().getValue(),
                         customer.getDocument().getNumber()),
-                customer.getEmail()
+                customer.getEmail(),
+                formatTelephone(customer.getTelephone())
         );
     }
 

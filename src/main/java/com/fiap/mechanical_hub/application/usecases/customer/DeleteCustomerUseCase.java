@@ -20,7 +20,11 @@ public class DeleteCustomerUseCase {
     public void execute(UUID customerId) {
         log.info("Deleting customer with id: {}", customerId);
 
-        if (repository.findById(customerId).isEmpty()) throw new NotFoundException("Cliente não encontrado para o id: " + customerId);
+        if (repository.findById(customerId).isEmpty()) {
+            throw new NotFoundException("Cliente não encontrado para o id: " + customerId);
+        }
+
+
 
         repository.deleteById(customerId);
         log.info("Customer with id: {} deleted successfully", customerId);
