@@ -1,6 +1,6 @@
-package com.fiap.mechanical_hub.application.usecases.ordertask;
+package com.fiap.mechanical_hub.application.usecases.service;
 
-import com.fiap.mechanical_hub.application.command.ordertask.UpdateServiceCommand;
+import com.fiap.mechanical_hub.application.command.ordertask.CreateServiceCommand;
 import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
@@ -19,17 +19,14 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class UpdateServiceUseCase {
+public class CreateServiceUseCase {
 
     private final MaterialRepository materialRepository;
     private final ServiceRepository serviceRepository;
 
     @Transactional
-    public ServiceResponse execute(UpdateServiceCommand command) {
-        log.info("Updating service with id: {}", command.id());
-
-        ServiceData serviceData = serviceRepository.findById(command.id())
-                .orElseThrow(() -> new NotFoundException("Serviço não encontrado"));
+    public ServiceResponse execute(CreateServiceCommand command) {
+        log.info("Creating new service with name: {}", command.name());
 
         List<ServiceMaterial> materials = command.materials().stream()
                 .map(m -> {
@@ -39,7 +36,7 @@ public class UpdateServiceUseCase {
                 })
                 .toList();
 
-        serviceData.update(
+        ServiceData serviceData = ServiceData.create(
                 command.name(),
                 command.description(),
                 command.laborCost(),
@@ -47,10 +44,10 @@ public class UpdateServiceUseCase {
                 materials
         );
 
-        ServiceData updatedService = serviceRepository.save(serviceData);
-        log.info("Service updated with id: {}", updatedService.getId());
+        ServiceData savedService = serviceRepository.save(serviceData);
+        log.info("Service created with id: {}", savedService.getId());
 
-        return ServiceHttpMapper.toResponse(updatedService);
+        return ServiceHttpMapper.toResponse(savedService);
     }
 }
 

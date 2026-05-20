@@ -5,8 +5,7 @@ import com.fiap.mechanical_hub.infrastructure.database.models.MaterialModel;
 
 public class MaterialRepositoryMapper {
 
-    private MaterialRepositoryMapper() {
-    }
+    private MaterialRepositoryMapper() {}
 
     public static MaterialModel toJpaEntity(Material material) {
         return new MaterialModel(

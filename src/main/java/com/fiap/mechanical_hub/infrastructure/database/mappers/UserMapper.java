@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.application.mappers;
+package com.fiap.mechanical_hub.infrastructure.database.mappers;
 
 import com.fiap.mechanical_hub.domain.entities.Profile;
 import com.fiap.mechanical_hub.domain.entities.User;
@@ -10,18 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
-    private UserMapper() {
-    }
-
-    public static User toDomain(UserModel model) {
-        return User.build(
-                model.getId(),
-                model.getName(),
-                model.getEmail(),
-                model.getPasswordHash(),
-                Profile.create(ProfileEnum.valueOf(model.getProfile().getName()))
-        );
-    }
+    private UserMapper() {}
 
     public static UserModel toModel(User user, ProfileModel profile) {
         UserModel model = new UserModel();
@@ -34,4 +23,15 @@ public class UserMapper {
 
         return model;
     }
+
+    public static User toDomain(UserModel model) {
+        return User.build(
+                model.getId(),
+                model.getName(),
+                model.getEmail(),
+                model.getPasswordHash(),
+                Profile.create(ProfileEnum.valueOf(model.getProfile().getName()))
+        );
+    }
+
 }

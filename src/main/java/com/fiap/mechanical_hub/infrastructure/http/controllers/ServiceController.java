@@ -6,11 +6,11 @@ import com.fiap.mechanical_hub.application.command.ordertask.FindOrderTaskByIdCo
 import com.fiap.mechanical_hub.application.command.ordertask.UpdateServiceCommand;
 import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.application.dto.service.UpsertServiceRequest;
-import com.fiap.mechanical_hub.application.usecases.ordertask.CreateServiceUseCase;
-import com.fiap.mechanical_hub.application.usecases.ordertask.DeleteServiceUseCase;
-import com.fiap.mechanical_hub.application.usecases.ordertask.FindAllServicesUseCase;
-import com.fiap.mechanical_hub.application.usecases.ordertask.FindServiceByIdUseCase;
-import com.fiap.mechanical_hub.application.usecases.ordertask.UpdateServiceUseCase;
+import com.fiap.mechanical_hub.application.usecases.service.CreateServiceUseCase;
+import com.fiap.mechanical_hub.application.usecases.service.DeleteServiceUseCase;
+import com.fiap.mechanical_hub.application.usecases.service.FindAllServicesUseCase;
+import com.fiap.mechanical_hub.application.usecases.service.FindServiceByIdUseCase;
+import com.fiap.mechanical_hub.application.usecases.service.UpdateServiceUseCase;
 import com.fiap.mechanical_hub.infrastructure.http.mappers.ServiceHttpMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

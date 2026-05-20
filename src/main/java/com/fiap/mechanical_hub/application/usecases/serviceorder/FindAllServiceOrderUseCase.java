@@ -1,7 +1,6 @@
 package com.fiap.mechanical_hub.application.usecases.serviceorder;
 
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
-import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
 import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +21,13 @@ public class FindAllServiceOrderUseCase {
         log.info("Retrieving all service orders");
         return repository.findAllByOrderByCreatedAtDesc()
                 .stream()
-                .map(ServiceOrderMapper::toSummaryResponse)
-                .toList();
+                .map(order -> new ServiceOrderSummaryResponse(
+                        order.getId(),
+                        order.getOrderNumber(),
+                        order.getStatus().getDisplayName(),
+                        order.isHasStockPending(),
+                        order.getCreatedAt()
+                )).toList();
     }
 }
 

@@ -1,18 +1,16 @@
-package com.fiap.mechanical_hub.application.mappers;
+package com.fiap.mechanical_hub.infrastructure.database.mappers;
 
 import com.fiap.mechanical_hub.application.dto.servicematerials.ServiceMaterialResponse;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
-import com.fiap.mechanical_hub.infrastructure.database.mappers.MaterialRepositoryMapper;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ServiceMaterialMapper {
+public class ServiceMaterialRepositoryMapper {
 
-    private ServiceMaterialMapper() {
-    }
+    private ServiceMaterialRepositoryMapper() {}
 
     public static ServiceMaterialModel toJpaEntity(ServiceMaterial entity, ServiceModel parentService) {
         return new ServiceMaterialModel(

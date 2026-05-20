@@ -55,8 +55,5 @@ public class CustomerRepositoryAdapter implements CustomerRepository {
         return jpaRepository.existsByDocumentNumber(documentNumber);
     }
 
-    public boolean existsByDocumentNumberAndIdNot(String documentNumber, UUID id) {
-        return jpaRepository.existsByDocumentNumberAndIdNot(documentNumber, id);
-    }
 }
 

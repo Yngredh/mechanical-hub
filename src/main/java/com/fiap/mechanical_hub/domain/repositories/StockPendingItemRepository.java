@@ -14,8 +14,6 @@ public interface StockPendingItemRepository {
 
     List<StockPendingItem> findByMaterialIdOrderByCreatedAtAsc(UUID materialId);
 
-    List<StockPendingItem> findByServiceOrderId(UUID serviceOrderId);
-
     void deleteById(UUID id);
 
     void delete(StockPendingItem stockPendingItem);

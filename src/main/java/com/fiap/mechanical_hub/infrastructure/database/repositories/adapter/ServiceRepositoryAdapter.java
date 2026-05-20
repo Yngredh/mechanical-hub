@@ -3,6 +3,7 @@ package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.repositories.ServiceRepository;
 import com.fiap.mechanical_hub.infrastructure.database.mappers.OrderTaskRepositoryMapper;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.ServiceRepositoryMapper;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,18 +23,18 @@ public class ServiceRepositoryAdapter implements ServiceRepository {
     public ServiceData save(ServiceData serviceData) {
         ServiceModel entity = OrderTaskRepositoryMapper.toModel(serviceData);
         ServiceModel saved = jpaRepository.save(entity);
-        return OrderTaskRepositoryMapper.toDomainEntity(saved);
+        return ServiceRepositoryMapper.toDomainEntity(saved);
     }
 
     @Override
     public Optional<ServiceData> findById(UUID id) {
-        return jpaRepository.findById(id).map(OrderTaskRepositoryMapper::toDomainEntity);
+        return jpaRepository.findById(id).map(ServiceRepositoryMapper::toDomainEntity);
     }
 
     @Override
     public List<ServiceData> findAll() {
         return jpaRepository.findAll().stream()
-                .map(OrderTaskRepositoryMapper::toDomainEntity)
+                .map(ServiceRepositoryMapper::toDomainEntity)
                 .toList();
     }
 
@@ -45,7 +46,7 @@ public class ServiceRepositoryAdapter implements ServiceRepository {
     @Override
     public List<ServiceData> findByIds(List<UUID> serviceIds) {
         return jpaRepository.findByIdIn(serviceIds)
-                .stream().map(OrderTaskRepositoryMapper::toDomainEntity).toList();
+                .stream().map(ServiceRepositoryMapper::toDomainEntity).toList();
     }
 
     @Override

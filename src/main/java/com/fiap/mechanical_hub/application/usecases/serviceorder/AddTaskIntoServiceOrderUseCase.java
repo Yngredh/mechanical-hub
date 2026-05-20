@@ -1,14 +1,15 @@
 package com.fiap.mechanical_hub.application.usecases.serviceorder;
 
 import com.fiap.mechanical_hub.application.command.serviceorder.AddTaskIntoServiceOrderCommand;
-import com.fiap.mechanical_hub.application.usecases.ServiceMaterialUseCase;
-import com.fiap.mechanical_hub.application.usecases.StockUseCase;
-import com.fiap.mechanical_hub.application.usecases.ordertask.GetServiceByIdUseCase;
+import com.fiap.mechanical_hub.application.command.stock.ReserveStockForServiceOrderCommand;
+import com.fiap.mechanical_hub.application.usecases.service.GetServiceByIdUseCase;
+import com.fiap.mechanical_hub.application.usecases.stock.ReserveStockForServiceOrderUseCase;
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
+import com.fiap.mechanical_hub.domain.repositories.ServiceMaterialRepository;
 import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,10 +25,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AddTaskIntoServiceOrderUseCase {
 
-    private final ServiceOrderRepository repository;
-    private final ServiceMaterialUseCase serviceMaterialUseCase;
-    private final StockUseCase stockUseCase;
     private final GetServiceByIdUseCase getServiceByIdUseCase;
+    private final ReserveStockForServiceOrderUseCase reserveStockForServiceOrderUseCase;
+
+    private final ServiceOrderRepository repository;
+    private final ServiceMaterialRepository serviceMaterialRepository;
 
     @Transactional
     public void execute(AddTaskIntoServiceOrderCommand command) {
@@ -48,7 +50,7 @@ public class AddTaskIntoServiceOrderUseCase {
 
             log.info("Processing service {} for order {}", serviceId, command.serviceOrderId());
 
-            List<ServiceMaterial> serviceMaterials = serviceMaterialUseCase.getServiceMaterials(serviceId);
+            List<ServiceMaterial> serviceMaterials = serviceMaterialRepository.findByServiceId(serviceId);
 
             for (ServiceMaterial sm : serviceMaterials) {
                 UUID materialId = sm.getMaterial().getId();
@@ -56,8 +58,13 @@ public class AddTaskIntoServiceOrderUseCase {
 
                 log.info("Reserving {} units of material {} for service {}", quantity, materialId, serviceId);
 
-                boolean stockPendingRegistered = stockUseCase.reserveForServiceOrder(order, sm.getMaterial(), sm.getQuantity());
-                if (stockPendingRegistered) hasStockPending = true;
+                var reserveCommand = new ReserveStockForServiceOrderCommand(
+                    command.serviceOrderId(),
+                    materialId,
+                    quantity
+                );
+                var result = reserveStockForServiceOrderUseCase.execute(reserveCommand);
+                if (result == null) hasStockPending = true;
             }
 
             totalBudget = totalBudget.add(serviceData.getTotalPrice());

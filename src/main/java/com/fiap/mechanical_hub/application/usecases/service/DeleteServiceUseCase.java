@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.application.usecases.ordertask;
+package com.fiap.mechanical_hub.application.usecases.service;
 
 import com.fiap.mechanical_hub.application.command.ordertask.DeleteOrderTaskCommand;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;

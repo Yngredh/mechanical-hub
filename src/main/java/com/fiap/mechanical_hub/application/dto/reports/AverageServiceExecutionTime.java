@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
-public class ServiceExecutionTimeResponse {
+public class AverageServiceExecutionTime {
 
     private UUID serviceId;
     private String serviceName;

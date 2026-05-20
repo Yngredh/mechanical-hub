@@ -1,10 +1,10 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderSummaryResponse;
-import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
 import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
 
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.ServiceOrderRepositoryMapper;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceOrderModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceOrderJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,15 +29,15 @@ public class ServiceOrderRepositoryAdapter implements ServiceOrderRepository {
     public List<ServiceOrder> findSummaryByCustomerId(UUID customerId) {
         return jpaRepository.findSummaryByCustomerId(customerId)
                 .stream()
-                .map(ServiceOrderMapper::toDomainEntity)
+                .map(ServiceOrderRepositoryMapper::toDomainEntity)
                 .toList();
     }
 
     @Override
     public ServiceOrder save(ServiceOrder order) {
-        ServiceOrderModel entity = ServiceOrderMapper.toJpaEntity(order);
+        ServiceOrderModel entity = ServiceOrderRepositoryMapper.toJpaEntity(order);
         ServiceOrderModel saved = jpaRepository.save(entity);
-        return ServiceOrderMapper.toDomainEntity(saved);
+        return ServiceOrderRepositoryMapper.toDomainEntity(saved);
     }
     @Override
     public Optional<String> findLastOrderNumberByYearMonth(String yearMonth) {
@@ -46,13 +46,13 @@ public class ServiceOrderRepositoryAdapter implements ServiceOrderRepository {
 
     @Override
     public Optional<ServiceOrder> findById(UUID id) {
-        return jpaRepository.findById(id).map(ServiceOrderMapper::toDomainEntity);
+        return jpaRepository.findById(id).map(ServiceOrderRepositoryMapper::toDomainEntity);
     }
 
     @Override
     public List<ServiceOrder> findAll() {
         return jpaRepository.findAll().stream()
-                .map(ServiceOrderMapper::toDomainEntity)
+                .map(ServiceOrderRepositoryMapper::toDomainEntity)
                 .toList();
     }
 
@@ -65,14 +65,14 @@ public class ServiceOrderRepositoryAdapter implements ServiceOrderRepository {
     public List<ServiceOrder> findAllByOrderByCreatedAtDesc() {
         return jpaRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
-                .map(ServiceOrderMapper::toDomainEntity)
+                .map(ServiceOrderRepositoryMapper::toDomainEntity)
                 .toList();
     }
 
     @Override
     public Optional<ServiceOrder> findByOrderNumber(String orderNumber) {
         return jpaRepository.findByOrderNumber(orderNumber)
-                .map(ServiceOrderMapper::toDomainEntity);
+                .map(ServiceOrderRepositoryMapper::toDomainEntity);
     }
 
 }

@@ -11,8 +11,6 @@ public interface StockRepository {
 
     Stock save(Stock stock);
 
-    Optional<Stock> findByMaterialId(UUID materialId);
-
     Optional<Stock> findById(UUID id);
 
     Optional<Stock> findByMaterialIdAndStatus(UUID materialId, StockStatusEnum status);
@@ -25,6 +23,5 @@ public interface StockRepository {
 
     void deleteByMaterialId(UUID materialId);
 
-    void flush();
 }
 

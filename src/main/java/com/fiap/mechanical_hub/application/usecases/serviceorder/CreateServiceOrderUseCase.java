@@ -2,13 +2,13 @@ package com.fiap.mechanical_hub.application.usecases.serviceorder;
 
 import com.fiap.mechanical_hub.application.command.serviceorder.CreateServiceOrderCommand;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
-import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
 import com.fiap.mechanical_hub.application.usecases.vehicle.FindOrCreateVehicleUseCase;
 import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.entities.Vehicle;
 import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.domain.utils.OrderNumberGenerator;
+import com.fiap.mechanical_hub.infrastructure.http.mappers.ServiceOrderHttpMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class CreateServiceOrderUseCase {
     private final FindOrCreateVehicleUseCase findOrCreateVehicleUseCase;
     private final FindOrCreateServiceOrderCustomerUseCase findOrCreateCustomerUseCase;
     private final OrderNumberGenerator orderNumberGenerator;
-    private final ServiceOrderMapper mapper;
+    private final ServiceOrderHttpMapper mapper;
 
     @Transactional
     public ServiceOrderResponse execute(CreateServiceOrderCommand command) {

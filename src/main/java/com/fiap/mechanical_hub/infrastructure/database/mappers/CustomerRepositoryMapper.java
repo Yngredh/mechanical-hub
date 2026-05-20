@@ -3,10 +3,10 @@ package com.fiap.mechanical_hub.infrastructure.database.mappers;
 import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.valueobjects.Document;
 import com.fiap.mechanical_hub.infrastructure.database.models.CustomerModel;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public class CustomerRepositoryMapper {
+
+    private CustomerRepositoryMapper() {}
 
     public static CustomerModel toJpaEntity(Customer customer) {
         return new CustomerModel(

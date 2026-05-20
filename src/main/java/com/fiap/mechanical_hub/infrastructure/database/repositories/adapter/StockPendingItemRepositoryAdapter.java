@@ -2,6 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.StockPendingItem;
 import com.fiap.mechanical_hub.domain.repositories.StockPendingItemRepository;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.StockPendingItemRepositoryMapper;
 import com.fiap.mechanical_hub.infrastructure.database.models.StockPendingItemModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.StockPendingItemJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,29 +20,21 @@ public class StockPendingItemRepositoryAdapter implements StockPendingItemReposi
 
     @Override
     public StockPendingItem save(StockPendingItem stockPendingItem) {
-        StockPendingItemModel model = toJpaEntity(stockPendingItem);
+        StockPendingItemModel model = StockPendingItemRepositoryMapper.toModel(stockPendingItem);
         StockPendingItemModel saved = jpaRepository.save(model);
-        return toDomainEntity(saved);
+        return StockPendingItemRepositoryMapper.toEntity(saved);
     }
 
     @Override
     public Optional<StockPendingItem> findById(UUID id) {
-        return jpaRepository.findById(id).map(this::toDomainEntity);
+        return jpaRepository.findById(id).map(StockPendingItemRepositoryMapper::toEntity);
     }
 
     @Override
     public List<StockPendingItem> findByMaterialIdOrderByCreatedAtAsc(UUID materialId) {
         return jpaRepository.findByMaterialIdOrderByCreatedAtAsc(materialId)
                 .stream()
-                .map(this::toDomainEntity)
-                .toList();
-    }
-
-    @Override
-    public List<StockPendingItem> findByServiceOrderId(UUID serviceOrderId) {
-        return jpaRepository.findByServiceOrderId(serviceOrderId)
-                .stream()
-                .map(this::toDomainEntity)
+                .map(StockPendingItemRepositoryMapper::toEntity)
                 .toList();
     }
 
@@ -52,28 +45,8 @@ public class StockPendingItemRepositoryAdapter implements StockPendingItemReposi
 
     @Override
     public void delete(StockPendingItem stockPendingItem) {
-        StockPendingItemModel model = toJpaEntity(stockPendingItem);
+        StockPendingItemModel model = StockPendingItemRepositoryMapper.toModel(stockPendingItem);
         jpaRepository.delete(model);
-    }
-
-    private StockPendingItemModel toJpaEntity(StockPendingItem stockPendingItem) {
-        return new StockPendingItemModel(
-                stockPendingItem.getId(),
-                stockPendingItem.getServiceOrderId(),
-                stockPendingItem.getMaterialId(),
-                stockPendingItem.getQuantity(),
-                stockPendingItem.getCreatedAt()
-        );
-    }
-
-    private StockPendingItem toDomainEntity(StockPendingItemModel model) {
-        return new StockPendingItem(
-                model.getId(),
-                model.getServiceOrderId(),
-                model.getMaterialId(),
-                model.getQuantity(),
-                model.getCreatedAt()
-        );
     }
 }
 

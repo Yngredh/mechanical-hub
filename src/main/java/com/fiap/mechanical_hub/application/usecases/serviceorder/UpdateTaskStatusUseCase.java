@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.application.usecases.serviceorder;
 
 import com.fiap.mechanical_hub.application.command.serviceorder.UpdateTaskStatusCommand;
-import com.fiap.mechanical_hub.application.usecases.StockUseCase;
+import com.fiap.mechanical_hub.application.usecases.stock.RegisterStockOutUseCase;
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UpdateTaskStatusUseCase {
 
     private final ServiceOrderRepository repository;
-    private final StockUseCase stockUseCase;
+    private final RegisterStockOutUseCase registerStockOutUseCase;
 
     @Transactional
     public void execute(UpdateTaskStatusCommand command) {
@@ -37,7 +37,7 @@ public class UpdateTaskStatusUseCase {
                         .filter(t -> t.getServiceData().getId().equals(command.taskId()))
                         .findFirst()
                         .orElseThrow(() -> new NotFoundException("Tarefa não encontrada"));
-                stockUseCase.registerStockOut(order, task);
+                registerStockOutUseCase.execute(order.getId(), task);
                 log.info("Task {} finished", command.taskId());
             }
             default -> throw new IllegalArgumentException("Status não reconhecido para atualização: " + command.status());
@@ -46,5 +46,7 @@ public class UpdateTaskStatusUseCase {
         repository.save(order);
     }
 }
+
+
 
 

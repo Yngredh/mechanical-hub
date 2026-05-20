@@ -1,41 +1,37 @@
 package com.fiap.mechanical_hub.infrastructure.database.mappers;
 
+import com.fiap.mechanical_hub.domain.entities.OrderTask;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
-import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
+import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
+import com.fiap.mechanical_hub.infrastructure.database.models.OrderTaskModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.fiap.mechanical_hub.infrastructure.database.models.ServiceOrderModel;
 
 public class OrderTaskRepositoryMapper {
 
     private OrderTaskRepositoryMapper() {}
 
-    public static ServiceData toDomainEntity(ServiceModel model) {
-        List<ServiceMaterial> materials = new ArrayList<>();
+    public static OrderTask toDomainEntity(OrderTaskModel entity) {
+        return new OrderTask(
+                entity.getId(),
+                entity.getServiceOrder().getId(),
+                ServiceRepositoryMapper.toDomainEntity(entity.getService()),
+                TaskStatusEnum.valueOf(entity.getServiceStatus()),
+                entity.getStartedAt(),
+                entity.getFinishedAt()
+        );
+    }
 
-        if (model.getMaterials() != null) {
-            materials = model.getMaterials().stream()
-                    .map(sm -> {
-                        Material material = MaterialRepositoryMapper.toDomainEntity(sm.getMaterial());
-                        return ServiceMaterial.create(material, sm.getQuantity());
-                    })
-                    .toList();
-        }
-
-        return new ServiceData(
-                model.getId(),
-                model.getName(),
-                model.getDescription(),
-                model.getLaborCost(),
-                model.getBasePrice(),
-                model.getTotalPrice(),
-                materials,
-                model.isActive(),
-                model.getCreatedAt(),
-                model.getUpdatedAt()
+    public static OrderTaskModel toJpaEntity(OrderTask task, ServiceOrderModel parent) {
+        return new OrderTaskModel(
+                task.getId(),
+                parent,
+                OrderTaskRepositoryMapper.toModel(task.getServiceData()),
+                task.getStatus().name(),
+                task.getStartedAt(),
+                task.getFinishedAt()
         );
     }
 

@@ -3,7 +3,6 @@ package com.fiap.mechanical_hub.application.usecases.serviceorder;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderDetailResponse;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
-import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
 import com.fiap.mechanical_hub.application.usecases.customer.FindCustomerByIdUseCase;
 import com.fiap.mechanical_hub.application.usecases.vehicle.FindVehicleByIdUseCase;
 import com.fiap.mechanical_hub.domain.entities.OrderTask;
@@ -42,7 +41,19 @@ public class FindServiceOrderByIdUseCase {
                 .map(OrderTask::getServiceData)
                 .toList();
 
-        return ServiceOrderMapper.toDetailResponse(order, vehicle, customer, serviceData);
+        return new ServiceOrderDetailResponse(
+                order.getId(),
+                order.getOrderNumber(),
+                customer,
+                vehicle,
+                order.getStatus().name(),
+                order.getRequestDescription(),
+                order.getBudget(),
+                order.isHasStockPending(),
+                serviceData,
+                order.getOrderTasks(),
+                order.getCreatedAt()
+        );
     }
 }
 

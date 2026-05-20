@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
-import com.fiap.mechanical_hub.application.mappers.StockMovementMapper;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.StockMovementRepositoryMapper;
 import com.fiap.mechanical_hub.domain.entities.StockMovement;
 import com.fiap.mechanical_hub.domain.repositories.StockMovementRepository;
 import com.fiap.mechanical_hub.infrastructure.database.models.StockMovementModel;
@@ -19,9 +19,9 @@ public class StockMovementRepositoryAdapter implements StockMovementRepository {
 
     @Override
     public StockMovement save(StockMovement stockMovement) {
-        StockMovementModel model = StockMovementMapper.toJpaEntity(stockMovement);
+        StockMovementModel model = StockMovementRepositoryMapper.toModel(stockMovement);
         StockMovementModel saved = jpaRepository.save(model);
-        return StockMovementMapper.toDomainEntity(saved);
+        return StockMovementRepositoryMapper.toEntity(saved);
     }
 
     @Override
@@ -32,19 +32,9 @@ public class StockMovementRepositoryAdapter implements StockMovementRepository {
     @Override
     public List<StockMovement> findByMaterialId(UUID materialId) {
         return jpaRepository.findByMaterialIdOrderByCreatedAtDesc(materialId).stream()
-                .map(StockMovementMapper::toDomainEntity)
+                .map(StockMovementRepositoryMapper::toEntity)
                 .toList();
     }
 
-    @Override
-    public void deleteByMaterialId(UUID materialId) {
-        List<StockMovementModel> movements = jpaRepository.findAllByMaterialId(materialId);
-        jpaRepository.deleteAll(movements);
-    }
-
-    @Override
-    public void flush() {
-        jpaRepository.flush();
-    }
 }
 

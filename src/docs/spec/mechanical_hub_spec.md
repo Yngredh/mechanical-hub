@@ -15,7 +15,7 @@ The goal of the MVP is to cover the complete lifecycle of Service Orders, includ
 
 ---
 
-# Problema
+# Problem
 
 The current process for vehicle serviceData, diagnosis, repair, and delivery is disorganized, relying on manual notes and spreadsheets, leading to the following problems:
 

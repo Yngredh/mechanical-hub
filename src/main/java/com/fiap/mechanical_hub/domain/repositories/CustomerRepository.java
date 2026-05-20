@@ -20,6 +20,5 @@ public interface CustomerRepository {
 
     boolean existsByDocumentNumber(String documentNumber);
 
-    boolean existsByDocumentNumberAndIdNot(String documentNumber, UUID id);
 }
 

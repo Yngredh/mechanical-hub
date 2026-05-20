@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.application.usecases;
 
 import com.fiap.mechanical_hub.infrastructure.security.UserSecurityAdapter;
 import com.fiap.mechanical_hub.application.dto.authentication.RegisterRequest;
-import com.fiap.mechanical_hub.application.mappers.UserMapper;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.UserMapper;
 import com.fiap.mechanical_hub.domain.entities.Profile;
 import com.fiap.mechanical_hub.domain.entities.User;
 import com.fiap.mechanical_hub.domain.enums.ProfileEnum;
