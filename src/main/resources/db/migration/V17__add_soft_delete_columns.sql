@@ -1,0 +1,6 @@
+ -- Add soft delete columns
+ALTER TABLE customers ADD COLUMN deleted_at TIMESTAMP NULL;
+ALTER TABLE vehicles ADD COLUMN deleted_at TIMESTAMP NULL;
+ALTER TABLE users ADD COLUMN deleted_at TIMESTAMP NULL;
+ALTER TABLE services ADD COLUMN deleted_at TIMESTAMP NULL;
+ALTER TABLE materials ADD COLUMN deleted_at TIMESTAMP NULL;

@@ -35,8 +35,8 @@ public class OrderTaskRepositoryAdapter implements OrderTaskRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
-        jpaRepository.deleteById(id);
+    public List<OrderTask> findAllByServiceId(UUID serviceId) {
+        return jpaRepository.findByServiceId(serviceId).stream().map(OrderTaskRepositoryMapper::toDomainEntity).toList();
     }
 
 }

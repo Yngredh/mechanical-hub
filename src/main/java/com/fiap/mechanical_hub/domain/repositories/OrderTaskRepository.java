@@ -12,9 +12,8 @@ public interface OrderTaskRepository {
 
     List<OrderTask> findAll();
 
-    void deleteById(UUID id);
-
     List<Object[]> findAverageExecutionTimeByService();
 
+    List<OrderTask> findAllByServiceId(UUID serviceId);
 }
 

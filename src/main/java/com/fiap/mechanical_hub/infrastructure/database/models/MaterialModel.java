@@ -35,6 +35,9 @@ public class MaterialModel {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "deleted_at", nullable = true)
+    private LocalDateTime deletedAt;
+
     public MaterialModel() {}
 
     public MaterialModel(UUID id, String name, String description, BigDecimal unitPrice,

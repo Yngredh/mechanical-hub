@@ -8,7 +8,7 @@ public class MaterialRepositoryMapper {
     private MaterialRepositoryMapper() {}
 
     public static MaterialModel toJpaEntity(Material material) {
-        return new MaterialModel(
+        MaterialModel model = new MaterialModel(
                 material.getId(),
                 material.getName(),
                 material.getDescription(),
@@ -17,6 +17,8 @@ public class MaterialRepositoryMapper {
                 material.getCreatedAt(),
                 material.getUpdatedAt()
         );
+        model.setDeletedAt(material.getDeletedAt());
+        return model;
     }
 
     public static Material toDomainEntity(MaterialModel entity) {

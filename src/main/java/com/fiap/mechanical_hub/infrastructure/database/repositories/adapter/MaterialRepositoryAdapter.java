@@ -29,12 +29,12 @@ public class MaterialRepositoryAdapter implements MaterialRepository {
     }
     @Override
     public Optional<Material> findById(UUID id) {
-        return jpaRepository.findById(id).map(MaterialRepositoryMapper::toDomainEntity);
+        return jpaRepository.findByIdAndDeletedAtIsNull(id).map(MaterialRepositoryMapper::toDomainEntity);
     }
 
     @Override
     public List<Material> findAll() {
-        return jpaRepository.findAll().stream()
+        return jpaRepository.findByDeletedAtIsNull().stream()
                 .map(MaterialRepositoryMapper::toDomainEntity)
                 .toList();
     }

@@ -20,17 +20,19 @@ public class UserMapper {
         model.setEmail(user.getEmail());
         model.setPasswordHash(user.getPasswordHash());
         model.setProfile(profile);
+        model.setDeletedAt(user.getDeletedAt());
 
         return model;
     }
 
     public static User toDomain(UserModel model) {
-        return User.build(
+        return new User(
                 model.getId(),
                 model.getName(),
                 model.getEmail(),
                 model.getPasswordHash(),
-                Profile.create(ProfileEnum.valueOf(model.getProfile().getName()))
+                Profile.create(ProfileEnum.valueOf(model.getProfile().getName())),
+                model.getDeletedAt()
         );
     }
 

@@ -6,10 +6,6 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.fiap.mechanical_hub.domain.utils.license_plate.LicensePlateFormatter.normalize;
-import static com.fiap.mechanical_hub.domain.utils.license_plate.LicensePlateValidator.validateLicensePlate;
-
-
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,6 +21,7 @@ public class Vehicle {
 	private String color;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	private LocalDateTime deletedAt;
 
 	public static Vehicle create(UUID customerId,
 	                             LicensePlate licensePlate,
@@ -52,6 +49,15 @@ public class Vehicle {
 		this.year = year;
 		this.color = color;
 		this.updatedAt = LocalDateTime.now();
+	}
+
+	public void deactivate() {
+		this.deletedAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
+	}
+
+	public boolean isActive() {
+		return this.deletedAt == null;
 	}
 }
 

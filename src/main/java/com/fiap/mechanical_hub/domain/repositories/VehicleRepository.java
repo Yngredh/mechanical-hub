@@ -16,9 +16,9 @@ public interface VehicleRepository {
 
     List<Vehicle> findAll();
 
-    void deleteById(UUID id);
-
     boolean existsByLicensePlate(String licensePlate);
+
+    List<Vehicle> findAllVehiclesByCustomerId(UUID customerId);
 
 }
 

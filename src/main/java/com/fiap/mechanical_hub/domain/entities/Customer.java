@@ -1,6 +1,5 @@
 package com.fiap.mechanical_hub.domain.entities;
 
-import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 import com.fiap.mechanical_hub.domain.valueobjects.Document;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static com.fiap.mechanical_hub.domain.utils.Formatter.removeFormatting;
-import static com.fiap.mechanical_hub.domain.utils.document.DocumentValidator.validateDocument;
 import static com.fiap.mechanical_hub.domain.utils.telephone.TelephoneValidator.validateTelephone;
 
 @Getter
@@ -26,6 +24,7 @@ public class Customer {
     private String address;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
 
     public static Customer create(String name, Document document, String telephone, String email, String address) {
         validateTelephone(telephone);
@@ -51,6 +50,15 @@ public class Customer {
         this.email = email;
         this.address = address;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void deactivate() {
+        this.deletedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isActive() {
+        return this.deletedAt == null;
     }
 
 }

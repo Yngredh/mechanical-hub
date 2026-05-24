@@ -4,6 +4,7 @@ import com.fiap.mechanical_hub.infrastructure.database.models.VehicleModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ public interface VehicleJpaRepository extends JpaRepository<VehicleModel, UUID> 
 
     boolean existsByLicensePlate(String licensePlate);
 
-    boolean existsByLicensePlateAndIdNot(String licensePlate, UUID id);
+    List<VehicleModel> findByCustomerId(UUID customerId);
+
 }
 

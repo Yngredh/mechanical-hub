@@ -36,7 +36,8 @@ public class ServiceRepositoryMapper {
                 materials,
                 model.isActive(),
                 model.getCreatedAt(),
-                model.getUpdatedAt()
+                model.getUpdatedAt(),
+                model.getDeletedAt()
         );
     }
 
@@ -52,6 +53,7 @@ public class ServiceRepositoryMapper {
         model.setCreatedAt(serviceData.getCreatedAt());
         model.setUpdatedAt(serviceData.getUpdatedAt());
         model.setActive(serviceData.isActive());
+        model.setDeletedAt(serviceData.getDeletedAt());
 
         for (ServiceMaterial item : serviceData.getMaterials()) {
             ServiceMaterialModel child = new ServiceMaterialModel();

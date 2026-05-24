@@ -23,7 +23,8 @@ public class VehicleRepositoryMapper {
                 vehicle.getYear(),
                 vehicle.getColor(),
                 vehicle.getCreatedAt(),
-                vehicle.getUpdatedAt()
+                vehicle.getUpdatedAt(),
+                vehicle.getDeletedAt()
         );
     }
 
@@ -37,7 +38,8 @@ public class VehicleRepositoryMapper {
                 entity.getYear(),
                 entity.getColor(),
                 entity.getCreatedAt(),
-                entity.getUpdatedAt()
+                entity.getUpdatedAt(),
+                entity.getDeletedAt()
         );
     }
 

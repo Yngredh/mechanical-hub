@@ -41,8 +41,12 @@ public class ServiceMaterialRepositoryAdapter implements ServiceMaterialReposito
     }
 
     @Override
-    public void deleteById(UUID id) {
-        jpaRepository.deleteById(id);
+    public List<ServiceMaterial> findByMaterialId(UUID materialId) {
+        return jpaRepository
+                .findByMaterialId(materialId)
+                .stream()
+                .map(ServiceMaterialRepositoryMapper::toDomainEntity)
+                .toList();
     }
 
 }

@@ -46,13 +46,15 @@ public class VehicleRepositoryAdapter implements VehicleRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
-        jpaRepository.deleteById(id);
+    public boolean existsByLicensePlate(String licensePlate) {
+        return jpaRepository.existsByLicensePlate(licensePlate);
     }
 
     @Override
-    public boolean existsByLicensePlate(String licensePlate) {
-        return jpaRepository.existsByLicensePlate(licensePlate);
+    public List<Vehicle> findAllVehiclesByCustomerId(UUID customerId) {
+        return jpaRepository.findByCustomerId(customerId).stream()
+                .map(VehicleRepositoryMapper::toDomainEntity)
+                .toList();
     }
 
 }

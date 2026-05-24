@@ -14,10 +14,8 @@ public interface ServiceRepository {
 
     List<ServiceData> findAll();
 
+    List<ServiceData> findAllIn(List<UUID> serviceIds);
+
     void deleteById(UUID id);
-
-    List<ServiceData> findByIds(List<UUID> serviceIds);
-
-    boolean existsById(UUID id);
 
 }

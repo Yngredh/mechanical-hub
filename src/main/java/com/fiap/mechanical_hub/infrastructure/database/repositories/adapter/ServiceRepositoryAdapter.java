@@ -28,33 +28,26 @@ public class ServiceRepositoryAdapter implements ServiceRepository {
 
     @Override
     public Optional<ServiceData> findById(UUID id) {
-        return jpaRepository.findById(id).map(ServiceRepositoryMapper::toDomainEntity);
+        return jpaRepository.findByIdAndDeletedAtIsNull(id).map(ServiceRepositoryMapper::toDomainEntity);
     }
 
     @Override
     public List<ServiceData> findAll() {
-        return jpaRepository.findAll().stream()
+        return jpaRepository.findByDeletedAtIsNull().stream()
+                .map(ServiceRepositoryMapper::toDomainEntity)
+                .toList();
+    }
+
+    @Override
+    public List<ServiceData> findAllIn(List<UUID> serviceIds) {
+        return jpaRepository.findAllIn(serviceIds).stream()
                 .map(ServiceRepositoryMapper::toDomainEntity)
                 .toList();
     }
 
     @Override
     public void deleteById(UUID id) {
-        jpaRepository.deleteById(id);
+        jpaRepository.softDelete(id);
     }
 
-    @Override
-    public List<ServiceData> findByIds(List<UUID> serviceIds) {
-        return jpaRepository.findByIdIn(serviceIds)
-                .stream().map(ServiceRepositoryMapper::toDomainEntity).toList();
-    }
-
-    @Override
-    public boolean existsById(UUID id) {
-        return jpaRepository.existsById(id);
-    }
 }
-
-
-
-

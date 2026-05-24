@@ -1,12 +1,13 @@
 package com.fiap.mechanical_hub.application.usecases.vehicle;
 
-import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
+import com.fiap.mechanical_hub.domain.entities.Vehicle;
 import com.fiap.mechanical_hub.domain.repositories.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -17,15 +18,23 @@ public class DeleteVehicleUseCase {
     private final VehicleRepository vehicleRepository;
 
     @Transactional
-    public void execute(UUID id) {
-        log.info("Deleting vehicle with id: {}", id);
+    public void execute(UUID customerId) {
+        log.info("Deleting vehicle from customerId: {}", customerId);
 
-        if (vehicleRepository.findById(id).isEmpty()) {
-            throw new NotFoundException("Veículo não encontrado para o id: " + id);
+        List<Vehicle> vehicles = vehicleRepository.findAllVehiclesByCustomerId(customerId);
+
+        if (vehicles.isEmpty()) {
+            log.warn("No vehicles found for customer with id: {}", customerId);
+            return;
         }
 
-        vehicleRepository.deleteById(id);
-        log.info("Vehicle with id: {} deleted successfully", id);
+        for (Vehicle vehicle : vehicles) {
+            vehicle.deactivate();
+            vehicleRepository.save(vehicle);
+
+            log.info("Vehicle with id: {} inactivated successfully", vehicle.getId());
+        }
+
     }
 }
 

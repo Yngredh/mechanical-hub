@@ -11,6 +11,7 @@ public interface ServiceMaterialRepository {
 
     List<ServiceMaterial> findByServiceId(UUID serviceId);
 
-    void deleteById(UUID id);
+    List<ServiceMaterial> findByMaterialId(UUID materialId);
+
 }
 

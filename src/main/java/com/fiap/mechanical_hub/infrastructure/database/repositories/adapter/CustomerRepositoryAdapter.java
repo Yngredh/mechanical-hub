@@ -1,9 +1,12 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.Customer;
+import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.ServiceOrderRepositoryMapper;
 import com.fiap.mechanical_hub.infrastructure.database.models.CustomerModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.CustomerJpaRepository;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceOrderJpaRepository;
 import com.fiap.mechanical_hub.infrastructure.database.mappers.CustomerRepositoryMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,6 +23,7 @@ import static com.fiap.mechanical_hub.infrastructure.database.mappers.CustomerRe
 public class CustomerRepositoryAdapter implements CustomerRepository {
 
     private final CustomerJpaRepository jpaRepository;
+    private final ServiceOrderJpaRepository serviceOrderJpaRepository;
 
     @Override
     public Customer save(Customer customer) {
@@ -30,7 +34,7 @@ public class CustomerRepositoryAdapter implements CustomerRepository {
 
     @Override
     public Optional<Customer> findById(UUID id) {
-        return jpaRepository.findById(id).map(CustomerRepositoryMapper::toDomainEntity);
+        return jpaRepository.findByIdAndDeletedAtIsNull(id).map(CustomerRepositoryMapper::toDomainEntity);
     }
 
     @Override
@@ -40,7 +44,7 @@ public class CustomerRepositoryAdapter implements CustomerRepository {
 
     @Override
     public List<Customer> findAll() {
-        return jpaRepository.findAll().stream()
+        return jpaRepository.findByDeletedAtIsNull().stream()
                 .map(CustomerRepositoryMapper::toDomainEntity)
                 .toList();
     }
@@ -53,6 +57,14 @@ public class CustomerRepositoryAdapter implements CustomerRepository {
     @Override
     public boolean existsByDocumentNumber(String documentNumber) {
         return jpaRepository.existsByDocumentNumber(documentNumber);
+    }
+
+    @Override
+    public List<ServiceOrder> findOrdersByCustomerId(UUID customerId) {
+        return serviceOrderJpaRepository.findAllOpenOrdersByCustomerId(customerId)
+                .stream()
+                .map(ServiceOrderRepositoryMapper::toDomainEntity)
+                .toList();
     }
 
 }

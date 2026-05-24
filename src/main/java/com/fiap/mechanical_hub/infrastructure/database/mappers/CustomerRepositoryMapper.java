@@ -18,7 +18,8 @@ public class CustomerRepositoryMapper {
                 customer.getEmail(),
                 customer.getAddress(),
                 customer.getCreatedAt(),
-                customer.getUpdatedAt()
+                customer.getUpdatedAt(),
+                customer.getDeletedAt()
         );
     }
 
@@ -33,7 +34,8 @@ public class CustomerRepositoryMapper {
                 entity.getEmail(),
                 entity.getAddress(),
                 entity.getCreatedAt(),
-                entity.getUpdatedAt()
+                entity.getUpdatedAt(),
+                entity.getDeletedAt()
         );
     }
 }

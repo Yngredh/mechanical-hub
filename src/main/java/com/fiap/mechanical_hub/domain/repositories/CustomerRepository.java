@@ -1,6 +1,7 @@
 package com.fiap.mechanical_hub.domain.repositories;
 
 import com.fiap.mechanical_hub.domain.entities.Customer;
+import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,8 @@ public interface CustomerRepository {
     void deleteById(UUID id);
 
     boolean existsByDocumentNumber(String documentNumber);
+
+    List<ServiceOrder> findOrdersByCustomerId(UUID customerId);
 
 }
 
