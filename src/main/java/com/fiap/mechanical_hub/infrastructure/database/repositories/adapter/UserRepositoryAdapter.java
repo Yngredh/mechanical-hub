@@ -2,8 +2,10 @@ package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.User;
 import com.fiap.mechanical_hub.domain.repositories.UserRepository;
-import com.fiap.mechanical_hub.infrastructure.database.mappers.UserMapper;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.UserRepositoryMapper;
+import com.fiap.mechanical_hub.infrastructure.database.models.ProfileModel;
 import com.fiap.mechanical_hub.infrastructure.database.models.UserModel;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.ProfileJpaRepository;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -17,29 +19,36 @@ import java.util.UUID;
 public class UserRepositoryAdapter implements UserRepository {
 
     private final UserJpaRepository jpaRepository;
+    private final ProfileJpaRepository profileRepository;
 
     @Override
     public User save(User user) {
-        UserModel userModel = new UserModel();
-        userModel.setId(user.getId());
-        userModel.setName(user.getName());
-        userModel.setEmail(user.getEmail());
-        userModel.setPasswordHash(user.getPasswordHash());
-        userModel.setDeletedAt(user.getDeletedAt());
+        ProfileModel profile = profileRepository.findByName(user.getProfile().getName());
+        UserModel userModel = UserRepositoryMapper.toModel(
+                user,
+                profile
+        );
 
         UserModel saved = jpaRepository.save(userModel);
-        return UserMapper.toDomain(saved);
+        return UserRepositoryMapper.toDomain(saved);
     }
 
     @Override
     public Optional<User> findById(UUID id) {
-        return jpaRepository.findByIdAndDeletedAtIsNull(id).map(UserMapper::toDomain);
+        return jpaRepository.findByIdAndDeletedAtIsNull(id).map(UserRepositoryMapper::toDomain);
+    }
+
+    public User findByEmail(String email) {
+        UserModel userModel = jpaRepository.findByEmail(email);
+        if (userModel == null) return null;
+
+        return UserRepositoryMapper.toDomain(userModel);
     }
 
     @Override
     public List<User> findAll() {
         return jpaRepository.findByDeletedAtIsNull().stream()
-                .map(UserMapper::toDomain)
+                .map(UserRepositoryMapper::toDomain)
                 .toList();
     }
 

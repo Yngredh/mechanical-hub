@@ -1,14 +1,17 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
+import com.fiap.mechanical_hub.application.dto.authentication.RegisterRequest;
 import com.fiap.mechanical_hub.application.dto.user.UserResponse;
 import com.fiap.mechanical_hub.application.mappers.UserHttpMapper;
 import com.fiap.mechanical_hub.application.usecases.user.DeleteUserUseCase;
 import com.fiap.mechanical_hub.application.usecases.user.FindAllUsersUseCase;
+import com.fiap.mechanical_hub.infrastructure.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +27,7 @@ import java.util.UUID;
 public class UserController {
 
     private final UserHttpMapper mapper;
+    private final UserService userService;
     private final DeleteUserUseCase deleteUserUseCase;
     private final FindAllUsersUseCase findAllUsersUseCase;
 
@@ -53,5 +57,28 @@ public class UserController {
         List<UserResponse> users = findAllUsersUseCase.execute().stream().map(mapper::toResponse).toList();
         return ResponseEntity.ok(users);
     }
+
+    @PostMapping("/register")
+    @Operation(
+            summary = "Registrar novo usuário",
+            description = "Cria um novo usuário no sistema. Requer perfil de Administrador.",
+            tags = {"Autenticação"}
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário registrado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos ou usuário já existe"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)")
+    })
+    public ResponseEntity<String> register(@RequestBody @Valid RegisterRequest request) {
+        try {
+            userService.registerNewUser(request);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+        return ResponseEntity.ok().build();
+    }
+
 }
 

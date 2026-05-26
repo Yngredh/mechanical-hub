@@ -8,9 +8,9 @@ import com.fiap.mechanical_hub.infrastructure.database.models.UserModel;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserMapper {
+public class UserRepositoryMapper {
 
-    private UserMapper() {}
+    private UserRepositoryMapper() {}
 
     public static UserModel toModel(User user, ProfileModel profile) {
         UserModel model = new UserModel();

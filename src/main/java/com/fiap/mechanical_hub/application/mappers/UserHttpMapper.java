@@ -12,9 +12,7 @@ public class UserHttpMapper {
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getProfile().getName(),
-                null,
-                null
+                user.getProfile().getName()
         );
     }
 }

@@ -1,10 +1,9 @@
 package com.fiap.mechanical_hub.infrastructure.security;
 
-import com.fiap.mechanical_hub.application.usecases.AuthorizationUseCase;
+import com.fiap.mechanical_hub.infrastructure.service.AuthorizationService;
 import com.fiap.mechanical_hub.domain.enums.ProfileEnum;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -38,6 +37,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/mechanical-hub/service-orders/**").permitAll()
                         .requestMatchers("/auth/register").hasRole(administrator)
+                        .requestMatchers("/users").hasRole(administrator)
                         .requestMatchers("/customers/**").hasRole(administrator)
                         .requestMatchers("/vehicles/**").hasRole(administrator)
                         .requestMatchers("/services/**").hasRole(administrator)
@@ -71,8 +71,8 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(AuthorizationUseCase authorizationUseCase) {
-        return authorizationUseCase;
+    public UserDetailsService userDetailsService(AuthorizationService authorizationService) {
+        return authorizationService;
     }
 
     @Bean
