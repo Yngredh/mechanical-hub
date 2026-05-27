@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.domain.entities;
 
-import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
+import com.fiap.mechanical_hub.domain.valueobjects.Document;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,9 +8,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.fiap.mechanical_hub.shared.utils.Formatter.removeFormatting;
-import static com.fiap.mechanical_hub.shared.utils.document.DocumentValidator.validateDocument;
-import static com.fiap.mechanical_hub.shared.utils.telephone.TelephoneValidator.validateTelephone;
+import static com.fiap.mechanical_hub.domain.utils.Formatter.removeFormatting;
+import static com.fiap.mechanical_hub.domain.utils.telephone.TelephoneValidator.validateTelephone;
 
 @Getter
 @AllArgsConstructor
@@ -19,24 +18,21 @@ public class Customer {
 
     private UUID id;
     private String name;
-    private DocumentTypeEnum documentTypeEnum;
-    private String documentNumber;
+    private Document document;
     private String telephone;
     private String email;
     private String address;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
 
-    public static Customer create(String name, DocumentTypeEnum documentTypeEnum, String documentNumber,
-                                  String telephone, String email, String address) {
-        validateDocument(documentTypeEnum, documentNumber);
+    public static Customer create(String name, Document document, String telephone, String email, String address) {
         validateTelephone(telephone);
 
         Customer customer = new Customer();
         customer.id = UUID.randomUUID();
         customer.name = name;
-        customer.documentTypeEnum = documentTypeEnum;
-        customer.documentNumber = removeFormatting(documentNumber);
+        customer.document = document;
         customer.telephone = removeFormatting(telephone);
         customer.email = email;
         customer.address = address;
@@ -46,18 +42,23 @@ public class Customer {
         return customer;
     }
 
-    public void update(String name, DocumentTypeEnum documentTypeEnum, String documentNumber,
-                       String telephone, String email, String address) {
-        validateDocument(documentTypeEnum, documentNumber);
+    public void update(String name, String telephone, String email, String address) {
         validateTelephone(telephone);
 
         this.name = name;
-        this.documentTypeEnum = documentTypeEnum;
-        this.documentNumber = removeFormatting(documentNumber);
         this.telephone = removeFormatting(telephone);
         this.email = email;
         this.address = address;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void deactivate() {
+        this.deletedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isActive() {
+        return this.deletedAt == null;
     }
 
 }

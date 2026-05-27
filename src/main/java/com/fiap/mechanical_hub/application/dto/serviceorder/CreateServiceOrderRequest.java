@@ -1,5 +1,6 @@
 package com.fiap.mechanical_hub.application.dto.serviceorder;
 
+import com.fiap.mechanical_hub.application.dto.customer.InsertCustomerRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateServiceOrderRequest {
-    private CustomerData customer;
-    private VehicleData vehicle;
+    private InsertCustomerRequest customer;
+    private InsertVehicleRequest vehicle;
     private String requestDescription;
 }

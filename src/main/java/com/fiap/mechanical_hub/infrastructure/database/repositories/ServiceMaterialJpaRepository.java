@@ -10,5 +10,8 @@ import java.util.UUID;
 @Repository
 public interface ServiceMaterialJpaRepository extends JpaRepository<ServiceMaterialModel, UUID> {
     List<ServiceMaterialModel> findByServiceId(UUID serviceId);
+
+    List<ServiceMaterialModel> findByMaterialId(UUID materialId);
+
 }
 

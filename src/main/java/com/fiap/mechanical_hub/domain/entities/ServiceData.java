@@ -25,6 +25,7 @@ public class ServiceData {
     private boolean active;
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
 
     public ServiceData(UUID id, String name, String description, BigDecimal laborCost, BigDecimal basePrice,
                        BigDecimal totalPrice, List<ServiceMaterial> materials, boolean active, LocalDateTime createdAt, LocalDateTime updatedAt) {
@@ -38,6 +39,22 @@ public class ServiceData {
         this.active = active;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.deletedAt = null;
+    }
+
+    public ServiceData(UUID id, String name, String description, BigDecimal laborCost, BigDecimal basePrice,
+                       BigDecimal totalPrice, List<ServiceMaterial> materials, boolean active, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.laborCost = laborCost;
+        this.basePrice = basePrice;
+        this.totalPrice = totalPrice;
+        this.materials = materials;
+        this.active = active;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.deletedAt = deletedAt;
     }
 
     public static ServiceData create(String name, String description, BigDecimal laborCost,
@@ -100,6 +117,11 @@ public class ServiceData {
 
     public void deactivate() {
         this.active = false;
+        this.deletedAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isActive() {
+        return this.deletedAt == null;
     }
 }

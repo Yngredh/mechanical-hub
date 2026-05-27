@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -29,4 +30,7 @@ public class UserModel {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "profile_id", nullable = false)
     private ProfileModel profile;
+
+    @Column(name = "deleted_at", nullable = true)
+    private LocalDateTime deletedAt;
 }

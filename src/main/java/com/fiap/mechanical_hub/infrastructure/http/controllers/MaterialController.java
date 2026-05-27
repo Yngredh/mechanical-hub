@@ -1,8 +1,14 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
-import com.fiap.mechanical_hub.application.dto.material.UpsertMaterialRequest;
+import com.fiap.mechanical_hub.application.dto.material.InsertMaterialRequest;
 import com.fiap.mechanical_hub.application.dto.material.MaterialResponse;
-import com.fiap.mechanical_hub.application.usecases.MaterialUseCase;
+import com.fiap.mechanical_hub.application.dto.material.UpdateMaterialRequest;
+import com.fiap.mechanical_hub.infrastructure.http.mappers.MaterialHttpMapper;
+import com.fiap.mechanical_hub.application.usecases.material.CreateMaterialUseCase;
+import com.fiap.mechanical_hub.application.usecases.material.DeleteMaterialUseCase;
+import com.fiap.mechanical_hub.application.usecases.material.FindAllMaterialsUseCase;
+import com.fiap.mechanical_hub.application.usecases.material.FindMaterialByIdUseCase;
+import com.fiap.mechanical_hub.application.usecases.material.UpdateMaterialUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -24,7 +30,12 @@ import java.util.UUID;
 @Tag(name = "Materiais", description = "Endpoints para gerenciamento de materiais/peças")
 public class MaterialController {
 
-    private final MaterialUseCase materialUseCase;
+    private final MaterialHttpMapper mapper;
+    private final CreateMaterialUseCase createMaterialUseCase;
+    private final FindMaterialByIdUseCase findMaterialByIdUseCase;
+    private final FindAllMaterialsUseCase findAllMaterialsUseCase;
+    private final UpdateMaterialUseCase updateMaterialUseCase;
+    private final DeleteMaterialUseCase deleteMaterialUseCase;
 
     @PostMapping
     @Operation(summary = "Criar novo material", description = "Cria um novo material/peça no catálogo. Requer perfil de Administrador.")
@@ -35,8 +46,9 @@ public class MaterialController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)")
     })
-    public ResponseEntity<MaterialResponse> create(@Valid @RequestBody UpsertMaterialRequest request) {
-        MaterialResponse response = materialUseCase.create(request);
+    public ResponseEntity<MaterialResponse> create(@Valid @RequestBody InsertMaterialRequest request) {
+        var command = mapper.toCreateCommand(request);
+        var response = createMaterialUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -49,7 +61,7 @@ public class MaterialController {
             @ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)")
     })
     public ResponseEntity<List<MaterialResponse>> findAll() {
-        List<MaterialResponse> materials = materialUseCase.findAll();
+        List<MaterialResponse> materials = findAllMaterialsUseCase.execute();
         return ResponseEntity.ok(materials);
     }
 
@@ -63,8 +75,8 @@ public class MaterialController {
             @ApiResponse(responseCode = "404", description = "Material não encontrado")
     })
     public ResponseEntity<MaterialResponse> findById(@PathVariable UUID id) {
-        MaterialResponse material = materialUseCase.findMaterialById(id);
-        return ResponseEntity.ok(material);
+        var response = findMaterialByIdUseCase.execute(id);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
@@ -79,8 +91,9 @@ public class MaterialController {
     })
     public ResponseEntity<MaterialResponse> update(
             @PathVariable UUID id,
-            @Valid @RequestBody UpsertMaterialRequest request) {
-        MaterialResponse response = materialUseCase.update(id, request);
+            @Valid @RequestBody UpdateMaterialRequest request) {
+        var command = mapper.toUpdateCommand(id, request);
+        var response = updateMaterialUseCase.execute(command);
         return ResponseEntity.ok(response);
     }
 
@@ -94,7 +107,7 @@ public class MaterialController {
             @ApiResponse(responseCode = "404", description = "Material não encontrado")
     })
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        materialUseCase.delete(id);
+        deleteMaterialUseCase.execute(id);
         return ResponseEntity.noContent().build();
     }
 }

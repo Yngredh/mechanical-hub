@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.security;
 
-import com.fiap.mechanical_hub.application.mappers.UserMapper;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.UserRepositoryMapper;
 import com.fiap.mechanical_hub.domain.entities.User;
 import com.fiap.mechanical_hub.infrastructure.database.models.UserModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.UserJpaRepository;
@@ -36,7 +36,7 @@ public class SecurityFilter extends OncePerRequestFilter {
                 UserModel userModel = userRepository.findByEmail(email);
 
                 if (userModel != null) {
-                    User user = UserMapper.toDomain(userModel);
+                    User user = UserRepositoryMapper.toDomain(userModel);
 
                     UserDetails userDetails = new UserSecurityAdapter(user);
 

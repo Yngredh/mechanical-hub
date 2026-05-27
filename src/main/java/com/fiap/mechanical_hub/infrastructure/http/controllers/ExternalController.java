@@ -1,7 +1,12 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
+import com.fiap.mechanical_hub.application.command.serviceorder.ApproveServiceOrderCommand;
+import com.fiap.mechanical_hub.application.command.serviceorder.FindByOrderNumberCommand;
+import com.fiap.mechanical_hub.application.command.serviceorder.RejectServiceOrderCommand;
 import com.fiap.mechanical_hub.application.dto.serviceorder.request.ServiceOrderCustomerView;
-import com.fiap.mechanical_hub.application.usecases.ServiceOrderUseCase;
+import com.fiap.mechanical_hub.application.usecases.serviceorder.ApproveServiceOrderUseCase;
+import com.fiap.mechanical_hub.application.usecases.serviceorder.FindByOrderNumberUseCase;
+import com.fiap.mechanical_hub.application.usecases.serviceorder.RejectServiceOrderUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,7 +23,9 @@ import java.util.UUID;
 @Tag(name = "Consultas Externas", description = "Endpoints públicos para consultas e ações externas")
 public class ExternalController {
 
-    private final ServiceOrderUseCase useCase;
+    private final ApproveServiceOrderUseCase approveServiceOrderUseCase;
+    private final RejectServiceOrderUseCase rejectServiceOrderUseCase;
+    private final FindByOrderNumberUseCase findByOrderNumberUseCase;
 
     @PostMapping("/service-orders/{id}/approve")
     @Operation(
@@ -31,7 +38,8 @@ public class ExternalController {
             @ApiResponse(responseCode = "404", description = "Ordem não encontrada")
     })
     public ResponseEntity<Void> approve(@PathVariable UUID id) {
-        useCase.approve(id);
+        var command = new ApproveServiceOrderCommand(id);
+        approveServiceOrderUseCase.execute(command);
         return ResponseEntity.noContent().build();
     }
 
@@ -46,7 +54,8 @@ public class ExternalController {
             @ApiResponse(responseCode = "404", description = "Ordem não encontrada")
     })
     public ResponseEntity<Void> reject(@PathVariable UUID id) {
-        useCase.reject(id);
+        var command = new RejectServiceOrderCommand(id);
+        rejectServiceOrderUseCase.execute(command);
         return ResponseEntity.noContent().build();
     }
 
@@ -60,7 +69,8 @@ public class ExternalController {
             @ApiResponse(responseCode = "404", description = "Ordem não encontrada")
     })
     public ResponseEntity<ServiceOrderCustomerView> findByOrderNumber(@PathVariable String orderNumber) {
-        var response = useCase.findByOrderNumber(orderNumber);
+        var command = new FindByOrderNumberCommand(orderNumber);
+        var response = findByOrderNumberUseCase.execute(command);
         return ResponseEntity.ok(response);
     }
 }

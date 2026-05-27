@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
-import com.fiap.mechanical_hub.application.dto.reports.ServiceExecutionTimeResponse;
+import com.fiap.mechanical_hub.application.dto.reports.AverageServiceExecutionTime;
 import com.fiap.mechanical_hub.application.usecases.ReportUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -35,8 +35,8 @@ public class ReportsController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)")
     })
-    public ResponseEntity<List<ServiceExecutionTimeResponse>> getAverageExecutionTime() {
-        List<ServiceExecutionTimeResponse> executionTimes = reportUseCase.getAverageExecutionTime();
+    public ResponseEntity<List<AverageServiceExecutionTime>> getAverageExecutionTime() {
+        List<AverageServiceExecutionTime> executionTimes = reportUseCase.getAverageExecutionTime();
         return ResponseEntity.ok(executionTimes);
     }
 }

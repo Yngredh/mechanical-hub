@@ -1,8 +1,17 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
+import com.fiap.mechanical_hub.application.command.ordertask.CreateServiceCommand;
+import com.fiap.mechanical_hub.application.command.ordertask.DeleteOrderTaskCommand;
+import com.fiap.mechanical_hub.application.command.ordertask.FindOrderTaskByIdCommand;
+import com.fiap.mechanical_hub.application.command.ordertask.UpdateServiceCommand;
 import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.application.dto.service.UpsertServiceRequest;
-import com.fiap.mechanical_hub.application.usecases.ServiceUseCase;
+import com.fiap.mechanical_hub.application.usecases.service.CreateServiceUseCase;
+import com.fiap.mechanical_hub.application.usecases.service.DeleteServiceUseCase;
+import com.fiap.mechanical_hub.application.usecases.service.FindAllServicesUseCase;
+import com.fiap.mechanical_hub.application.usecases.service.FindServiceByIdUseCase;
+import com.fiap.mechanical_hub.application.usecases.service.UpdateServiceUseCase;
+import com.fiap.mechanical_hub.infrastructure.http.mappers.ServiceHttpMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -24,7 +33,11 @@ import java.util.UUID;
 @Tag(name = "Serviços", description = "Endpoints para gerenciamento de serviços disponíveis")
 public class ServiceController {
 
-    private final ServiceUseCase serviceUseCase;
+    private final CreateServiceUseCase createServiceUseCase;
+    private final UpdateServiceUseCase updateServiceUseCase;
+    private final FindServiceByIdUseCase findServiceByIdUseCase;
+    private final FindAllServicesUseCase findAllServicesUseCase;
+    private final DeleteServiceUseCase deleteServiceUseCase;
 
     @PostMapping
     @Operation(summary = "Criar novo serviço", description = "Cria um novo tipo de serviço no sistema. Requer perfil de Administrador.")
@@ -36,7 +49,8 @@ public class ServiceController {
             @ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)")
     })
     public ResponseEntity<ServiceResponse> create(@RequestBody @Valid UpsertServiceRequest request) {
-        ServiceResponse response = serviceUseCase.create(request);
+        CreateServiceCommand command = ServiceHttpMapper.toCreateCommand(request);
+        ServiceResponse response = createServiceUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -49,7 +63,7 @@ public class ServiceController {
             @ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)")
     })
     public ResponseEntity<List<ServiceResponse>> findAll() {
-        List<ServiceResponse> services = serviceUseCase.findAll();
+        List<ServiceResponse> services = findAllServicesUseCase.execute();
         return ResponseEntity.ok(services);
     }
 
@@ -63,7 +77,8 @@ public class ServiceController {
             @ApiResponse(responseCode = "404", description = "Serviço não encontrado")
     })
     public ResponseEntity<ServiceResponse> findById(@PathVariable UUID id) {
-        ServiceResponse response = serviceUseCase.findById(id);
+        FindOrderTaskByIdCommand command = new FindOrderTaskByIdCommand(id);
+        ServiceResponse response = findServiceByIdUseCase.execute(command);
         return ResponseEntity.ok(response);
     }
 
@@ -81,7 +96,8 @@ public class ServiceController {
             @PathVariable UUID id,
             @RequestBody @Valid UpsertServiceRequest request
     ) {
-        ServiceResponse response = serviceUseCase.update(id, request);
+        UpdateServiceCommand command = ServiceHttpMapper.toUpdateCommand(id, request);
+        ServiceResponse response = updateServiceUseCase.execute(command);
         return ResponseEntity.ok(response);
     }
 
@@ -95,7 +111,8 @@ public class ServiceController {
             @ApiResponse(responseCode = "404", description = "Serviço não encontrado")
     })
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        serviceUseCase.delete(id);
+        DeleteOrderTaskCommand command = new DeleteOrderTaskCommand(id);
+        deleteServiceUseCase.execute(command);
         return ResponseEntity.noContent().build();
     }
 }

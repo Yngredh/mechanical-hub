@@ -11,7 +11,7 @@ import java.util.UUID;
 @Repository
 public interface OrderTaskJpaRepository extends JpaRepository<OrderTaskModel, UUID> {
 
-    List<OrderTaskModel> findByServiceOrderId(UUID serviceOrderId);
+    List<OrderTaskModel> findByServiceId(UUID serviceId);
 
     @Query(nativeQuery = true, value = """
             SELECT\s

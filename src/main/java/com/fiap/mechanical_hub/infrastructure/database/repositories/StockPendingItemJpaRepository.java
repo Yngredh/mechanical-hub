@@ -12,6 +12,5 @@ public interface StockPendingItemJpaRepository extends JpaRepository<StockPendin
 
     List<StockPendingItemModel> findByMaterialIdOrderByCreatedAtAsc(UUID materialId);
 
-    List<StockPendingItemModel> findByServiceOrderId(UUID serviceOrderId);
 }
 

@@ -1,7 +1,6 @@
 package com.fiap.mechanical_hub.domain.entities;
 
 import lombok.Getter;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -15,6 +14,7 @@ public class Material {
     private Integer minStockQuantity;
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
 
     public Material(
             UUID uuid,
@@ -31,6 +31,7 @@ public class Material {
         this.minStockQuantity = minStockQuantity;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.deletedAt = null;
     }
 
     public static Material create(String name, String description, BigDecimal unitPrice,
@@ -58,6 +59,15 @@ public class Material {
         this.unitPrice = unitPrice;
         this.minStockQuantity = minStockQuantity;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void deactivate() {
+        this.deletedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isActive() {
+        return this.deletedAt == null;
     }
 
 }

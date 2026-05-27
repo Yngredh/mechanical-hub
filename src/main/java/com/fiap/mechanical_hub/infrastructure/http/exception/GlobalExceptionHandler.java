@@ -37,8 +37,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    @ExceptionHandler(DuplicateDocumentException.class)
-    public ResponseEntity<Object> handleDuplicateDocument(DuplicateDocumentException ex) {
+    @ExceptionHandler(DuplicatedDocumentException.class)
+    public ResponseEntity<Object> handleDuplicateDocument(DuplicatedDocumentException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put(STATUS, HttpStatus.CONFLICT.value());
         body.put(ERROR, "Documento duplicado");

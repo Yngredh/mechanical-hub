@@ -1,9 +1,13 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.Customer;
-import com.fiap.mechanical_hub.application.repositories.CustomerRepository;
+import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
+import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.ServiceOrderRepositoryMapper;
 import com.fiap.mechanical_hub.infrastructure.database.models.CustomerModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.CustomerJpaRepository;
+import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceOrderJpaRepository;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.CustomerRepositoryMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,11 +15,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.fiap.mechanical_hub.infrastructure.database.mappers.CustomerRepositoryMapper.toDomainEntity;
+import static com.fiap.mechanical_hub.infrastructure.database.mappers.CustomerRepositoryMapper.toJpaEntity;
+
 @Component
 @RequiredArgsConstructor
 public class CustomerRepositoryAdapter implements CustomerRepository {
 
     private final CustomerJpaRepository jpaRepository;
+    private final ServiceOrderJpaRepository serviceOrderJpaRepository;
 
     @Override
     public Customer save(Customer customer) {
@@ -26,18 +34,18 @@ public class CustomerRepositoryAdapter implements CustomerRepository {
 
     @Override
     public Optional<Customer> findById(UUID id) {
-        return jpaRepository.findById(id).map(this::toDomainEntity);
+        return jpaRepository.findByIdAndDeletedAtIsNull(id).map(CustomerRepositoryMapper::toDomainEntity);
     }
 
     @Override
     public Optional<Customer> findByDocumentNumber(String documentNumber) {
-        return jpaRepository.findByDocumentNumber(documentNumber).map(this::toDomainEntity);
+        return jpaRepository.findByDocumentNumber(documentNumber).map(CustomerRepositoryMapper::toDomainEntity);
     }
 
     @Override
     public List<Customer> findAll() {
-        return jpaRepository.findAll().stream()
-                .map(this::toDomainEntity)
+        return jpaRepository.findByDeletedAtIsNull().stream()
+                .map(CustomerRepositoryMapper::toDomainEntity)
                 .toList();
     }
 
@@ -51,36 +59,13 @@ public class CustomerRepositoryAdapter implements CustomerRepository {
         return jpaRepository.existsByDocumentNumber(documentNumber);
     }
 
-    public boolean existsByDocumentNumberAndIdNot(String documentNumber, UUID id) {
-        return jpaRepository.existsByDocumentNumberAndIdNot(documentNumber, id);
+    @Override
+    public List<ServiceOrder> findOrdersByCustomerId(UUID customerId) {
+        return serviceOrderJpaRepository.findAllOpenOrdersByCustomerId(customerId)
+                .stream()
+                .map(ServiceOrderRepositoryMapper::toDomainEntity)
+                .toList();
     }
 
-    private CustomerModel toJpaEntity(Customer customer) {
-        return new CustomerModel(
-                customer.getId(),
-                customer.getName(),
-                customer.getDocumentTypeEnum(),
-                customer.getDocumentNumber(),
-                customer.getTelephone(),
-                customer.getEmail(),
-                customer.getAddress(),
-                customer.getCreatedAt(),
-                customer.getUpdatedAt()
-        );
-    }
-
-    private Customer toDomainEntity(CustomerModel entity) {
-        return new Customer(
-                entity.getId(),
-                entity.getName(),
-                entity.getDocumentTypeEnum(),
-                entity.getDocumentNumber(),
-                entity.getTelephone(),
-                entity.getEmail(),
-                entity.getAddress(),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt()
-        );
-    }
 }
 

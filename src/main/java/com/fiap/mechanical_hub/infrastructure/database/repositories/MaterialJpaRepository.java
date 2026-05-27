@@ -4,13 +4,15 @@ import com.fiap.mechanical_hub.infrastructure.database.models.MaterialModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface MaterialJpaRepository extends JpaRepository<MaterialModel, UUID> {
 
-    boolean existsByName(String name);
+    Optional<MaterialModel> findByIdAndDeletedAtIsNull(UUID id);
 
-    boolean existsByNameAndIdNot(String name, UUID id);
+    List<MaterialModel> findByDeletedAtIsNull();
 }
 

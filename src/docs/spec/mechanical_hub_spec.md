@@ -15,7 +15,7 @@ The goal of the MVP is to cover the complete lifecycle of Service Orders, includ
 
 ---
 
-# Problema
+# Problem
 
 The current process for vehicle serviceData, diagnosis, repair, and delivery is disorganized, relying on manual notes and spreadsheets, leading to the following problems:
 
@@ -35,12 +35,14 @@ The current process for vehicle serviceData, diagnosis, repair, and delivery is 
 - **Mecânico** — Pessoa especializada responsável por executar as ordens de serviço.
 - **Insumos** — Material consumido durante a execução do serviço (óleo, fluido de freio, etc.).
 - **Peças** — Material utilizado na execução de um serviço.
+- **Materiais** — Se trata dos itens necessários para realizar um serviço, isto é peças e insumos.
+- **Serviço** — Atividade de manutenção que será realizada no veículo.
 - **Diagnóstico** — Análise técnica realizada pelo Mecânico para identificar defeitos ou necessidades de manutenção no veículo.
 - **Orçamento** — Levantamento inicial do custo do trabalho solicitado pelo cliente.
 - **Item Disponível** — Peça ou insumo em estoque sem alocação, podendo ser utilizado em novas ordens.
 - **Item Reservado** — Peça ou insumo em estoque já alocado para uma ordem de serviço específica.
 - **Pendência de Estoque** — Situação em que um item necessário para uma OS não possui quantidade disponível no estoque no momento da adição do serviço.
-- **Materiais** — Se trata dos itens necessários para realizar um serviço, isto é peças e insumos.
+
 
 ---
 

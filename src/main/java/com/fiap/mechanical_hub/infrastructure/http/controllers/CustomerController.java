@@ -1,8 +1,14 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
-import com.fiap.mechanical_hub.application.dto.customer.UpsertCustomerRequest;
-import com.fiap.mechanical_hub.application.usecases.CustomerUseCase;
+import com.fiap.mechanical_hub.application.dto.customer.InsertCustomerRequest;
+import com.fiap.mechanical_hub.application.dto.customer.UpdateCustomerRequest;
+import com.fiap.mechanical_hub.infrastructure.http.mappers.CustomerHttpMapper;
+import com.fiap.mechanical_hub.application.usecases.customer.CreateCustomerUseCase;
+import com.fiap.mechanical_hub.application.usecases.customer.DeleteCustomerUseCase;
+import com.fiap.mechanical_hub.application.usecases.customer.FindAllCustomersUseCase;
+import com.fiap.mechanical_hub.application.usecases.customer.FindCustomerByIdUseCase;
+import com.fiap.mechanical_hub.application.usecases.customer.UpdateCustomerUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -16,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+import static com.fiap.mechanical_hub.infrastructure.http.mappers.CustomerHttpMapper.toResponse;
+
 @RestController
 @RequestMapping("/customers")
 @RequiredArgsConstructor
@@ -23,7 +31,12 @@ import java.util.UUID;
 @Tag(name = "Clientes", description = "Endpoints para gerenciamento de clientes")
 public class CustomerController {
 
-    private final CustomerUseCase customerUseCase;
+    private final CustomerHttpMapper mapper;
+    private final CreateCustomerUseCase createCustomerUseCase;
+    private final FindCustomerByIdUseCase findCustomerByIdUseCase;
+    private final FindAllCustomersUseCase findAllCustomersUseCase;
+    private final UpdateCustomerUseCase updateCustomerUseCase;
+    private final DeleteCustomerUseCase deleteCustomerUseCase;
 
     @PostMapping
     @Operation(summary = "Criar novo cliente", description = "Cria um novo cliente. Requer perfil de Administrador.")
@@ -32,11 +45,12 @@ public class CustomerController {
             @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos"),
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
-            @ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)")
+            @ApiResponse(responseCode = "403", description = "Sem permissão (requer perfil de Administrador)")
     })
-    public ResponseEntity<CustomerResponse> create(@RequestBody UpsertCustomerRequest request) {
-        CustomerResponse response = customerUseCase.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<CustomerResponse> create(@RequestBody InsertCustomerRequest request) {
+        var command = mapper.toCommand(request);
+        var response = createCustomerUseCase.execute(command);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(response));
     }
 
     @GetMapping
@@ -48,7 +62,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)")
     })
     public ResponseEntity<List<CustomerResponse>> findAll() {
-        List<CustomerResponse> customers = customerUseCase.findAll();
+        List<CustomerResponse> customers = findAllCustomersUseCase.execute();
         return ResponseEntity.ok(customers);
     }
 
@@ -62,8 +76,8 @@ public class CustomerController {
             @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
     })
     public ResponseEntity<CustomerResponse> findById(@PathVariable UUID id) {
-        CustomerResponse customer = customerUseCase.findById(id);
-        return ResponseEntity.ok(customer);
+        var response = findCustomerByIdUseCase.execute(id);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
@@ -76,9 +90,10 @@ public class CustomerController {
             @ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)"),
             @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
     })
-    public ResponseEntity<CustomerResponse> update(@PathVariable UUID id, @RequestBody UpsertCustomerRequest request) {
-        CustomerResponse response = customerUseCase.update(id, request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<CustomerResponse> update(@PathVariable UUID id, @RequestBody UpdateCustomerRequest request) {
+        var command = mapper.toUpdateCommand(id, request);
+        var response = updateCustomerUseCase.execute(command);
+        return ResponseEntity.ok(toResponse(response));
     }
 
     @DeleteMapping("/{id}")
@@ -91,7 +106,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
     })
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        customerUseCase.delete(id);
+        deleteCustomerUseCase.execute(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,22 +1,20 @@
 package com.fiap.mechanical_hub.domain.strategies.order_transition;
 
-import com.fiap.mechanical_hub.application.usecases.StockUseCase;
+import com.fiap.mechanical_hub.application.usecases.stock.RestoreReservedStockItemsUseCase;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
-
-import java.util.UUID;
 
 public class RejectOrderTransition implements OrderStatusTransition {
 
-    private final StockUseCase stockUseCase;
+    private final RestoreReservedStockItemsUseCase restoreReservedStockItemsUseCase;
 
-    public RejectOrderTransition(StockUseCase stockUseCase) {
-        this.stockUseCase = stockUseCase;
+    public RejectOrderTransition(RestoreReservedStockItemsUseCase restoreReservedStockItemsUseCase) {
+        this.restoreReservedStockItemsUseCase = restoreReservedStockItemsUseCase;
     }
 
     @Override
-    public void execute(ServiceOrder order, UUID userId) {
+    public void execute(ServiceOrder order) {
         order.reject();
-        stockUseCase.restoreReservedItems(order);
+        restoreReservedStockItemsUseCase.execute(order.getId(), order.getOrderTasks());
     }
 
 }

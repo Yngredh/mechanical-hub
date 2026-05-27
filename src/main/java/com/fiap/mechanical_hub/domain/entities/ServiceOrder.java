@@ -70,10 +70,9 @@ public class ServiceOrder {
         return order;
     }
 
-    public void startDiagnosis(UUID userId) {
+    public void startDiagnosis() {
         validateCurrentStatus(OrderStatusEnum.RECEBIDO);
 
-        this.responsibleUserId = userId;
         this.status = OrderStatusEnum.EM_DIAGNOSTICO;
         this.openedAt = LocalDateTime.now();
     }
@@ -172,6 +171,10 @@ public class ServiceOrder {
         if (!this.getStatus().equals(OrderStatusEnum.EM_DIAGNOSTICO)) {
             throw new BusinessRuleException("Serviços só podem ser adicionados enquanto a OS está em 'Em diagnóstico'.");
         }
+    }
+
+    public boolean isOrderOpen() {
+        return this.getStatus() != OrderStatusEnum.RECUSADO && this.getStatus() != OrderStatusEnum.FINALIZADO;
     }
 
 }

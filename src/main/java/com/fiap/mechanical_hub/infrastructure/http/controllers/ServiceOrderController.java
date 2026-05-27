@@ -1,11 +1,12 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
-import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
+import com.fiap.mechanical_hub.infrastructure.http.mappers.ServiceOrderHttpMapper;
 import com.fiap.mechanical_hub.infrastructure.security.UserSecurityAdapter;
+import com.fiap.mechanical_hub.application.command.serviceorder.*;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
-import com.fiap.mechanical_hub.application.usecases.ServiceOrderUseCase;
+import com.fiap.mechanical_hub.application.usecases.serviceorder.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -29,7 +30,13 @@ import java.util.UUID;
 @Tag(name = "Ordens de Serviço", description = "Endpoints para gerenciamento de ordens de serviço")
 public class ServiceOrderController {
 
-    private final ServiceOrderUseCase useCase;
+    private final CreateServiceOrderUseCase createServiceOrderUseCase;
+    private final AddTaskIntoServiceOrderUseCase addTaskIntoServiceOrderUseCase;
+    private final UpdateServiceOrderStatusUseCase updateServiceOrderStatusUseCase;
+    private final FindAllServiceOrderUseCase findAllServiceOrderUseCase;
+    private final FindServiceOrderByIdUseCase findServiceOrderByIdUseCase;
+    private final UpdateTaskStatusUseCase updateTaskStatusUseCase;
+    private final ServiceOrderHttpMapper mapper;
 
     @PostMapping
     @Operation(
@@ -47,7 +54,8 @@ public class ServiceOrderController {
             @RequestBody CreateServiceOrderRequest request,
             @AuthenticationPrincipal UserSecurityAdapter userDetails) {
         UUID createdByUserId = userDetails.user().getId();
-        ServiceOrderResponse response = useCase.create(request, createdByUserId);
+        var command = mapper.toCreateServiceOrderCommand(request, createdByUserId);
+        ServiceOrderResponse response = createServiceOrderUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -63,12 +71,13 @@ public class ServiceOrderController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "404", description = "Ordem não encontrada")
     })
-    public ResponseEntity<ServiceOrder> updateStatus(
+    public ResponseEntity<Void> updateStatus(
             @PathVariable UUID id, @RequestBody UpdateStatusRequest request,
             @AuthenticationPrincipal UserSecurityAdapter userDetails) {
         UUID userId = userDetails.user().getId();
-        ServiceOrder response = useCase.updateOrderStatus(id, OrderStatusEnum.fromString(request.getStatus()), userId);
-        return ResponseEntity.ok(response);
+        var command = new UpdateServiceOrderStatusCommand(id, OrderStatusEnum.fromString(request.getStatus()), userId);
+        updateServiceOrderStatusUseCase.execute(command);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping
@@ -83,7 +92,7 @@ public class ServiceOrderController {
             @ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)")
     })
     public ResponseEntity<List<ServiceOrderSummaryResponse>> findAll() {
-        return ResponseEntity.ok(useCase.findAll());
+        return ResponseEntity.ok(findAllServiceOrderUseCase.execute());
     }
 
     @GetMapping("/{id}")
@@ -99,7 +108,7 @@ public class ServiceOrderController {
             @ApiResponse(responseCode = "404", description = "Ordem não encontrada")
     })
     public ResponseEntity<ServiceOrderDetailResponse> findById(@PathVariable UUID id) {
-        ServiceOrderDetailResponse response = useCase.findById(id);
+        ServiceOrderDetailResponse response = findServiceOrderByIdUseCase.execute(id);
         return ResponseEntity.ok(response);
     }
 
@@ -117,7 +126,8 @@ public class ServiceOrderController {
     })
     public ResponseEntity<Void> addServices(
             @PathVariable("id") UUID serviceOrderId, @Valid @RequestBody AddServicesToOrderRequest request) {
-        useCase.addServices(serviceOrderId, request);
+        var command = new AddTaskIntoServiceOrderCommand(serviceOrderId, request.serviceIds());
+        addTaskIntoServiceOrderUseCase.execute(command);
         return ResponseEntity.noContent().build();
     }
 
@@ -136,7 +146,8 @@ public class ServiceOrderController {
     })
     public ResponseEntity<Void> updateTaskStatus(@PathVariable UUID id, @PathVariable UUID taskId,
                                                   @RequestBody UpdateStatusRequest request){
-        useCase.updateTaskStatus(id, taskId, TaskStatusEnum.fromString(request.getStatus()));
+        var command = new UpdateTaskStatusCommand(id, taskId, TaskStatusEnum.fromString(request.getStatus()));
+        updateTaskStatusUseCase.execute(command);
         return ResponseEntity.noContent().build();
     }
 

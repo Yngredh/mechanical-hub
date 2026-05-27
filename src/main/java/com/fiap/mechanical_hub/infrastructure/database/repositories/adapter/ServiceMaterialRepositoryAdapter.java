@@ -1,14 +1,14 @@
 package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
-import com.fiap.mechanical_hub.application.mappers.ServiceMapper;
-import com.fiap.mechanical_hub.application.mappers.ServiceMaterialMapper;
-import com.fiap.mechanical_hub.application.repositories.ServiceMaterialRepository;
+
+import com.fiap.mechanical_hub.domain.repositories.ServiceMaterialRepository;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.OrderTaskRepositoryMapper;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.ServiceMaterialRepositoryMapper;
 import com.fiap.mechanical_hub.infrastructure.database.models.ServiceMaterialModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ServiceMaterialJpaRepository;
-import static com.fiap.mechanical_hub.application.mappers.ServiceMaterialMapper.toDomainEntity;
-import static com.fiap.mechanical_hub.application.mappers.ServiceMaterialMapper.toJpaEntity;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -25,8 +25,9 @@ public class ServiceMaterialRepositoryAdapter implements ServiceMaterialReposito
 
     @Override
     public ServiceMaterial save(ServiceMaterial entity, ServiceData serviceData) {
-        ServiceMaterialModel saved = jpaRepository.save(toJpaEntity(entity, ServiceMapper.toJpaEntity(serviceData)));
-        return toDomainEntity(saved);
+        ServiceMaterialModel saved = jpaRepository.save(
+                ServiceMaterialRepositoryMapper.toJpaEntity(entity, OrderTaskRepositoryMapper.toModel(serviceData)));
+        return ServiceMaterialRepositoryMapper.toDomainEntity(saved);
     }
 
     @Override
@@ -35,16 +36,17 @@ public class ServiceMaterialRepositoryAdapter implements ServiceMaterialReposito
         return jpaRepository
                 .findByServiceId(serviceId)
                 .stream()
-                .map(ServiceMaterialMapper::toDomainEntity)
+                .map(ServiceMaterialRepositoryMapper::toDomainEntity)
                 .toList();
     }
 
     @Override
-    public void deleteById(UUID id) {
-        jpaRepository.deleteById(id);
+    public List<ServiceMaterial> findByMaterialId(UUID materialId) {
+        return jpaRepository
+                .findByMaterialId(materialId)
+                .stream()
+                .map(ServiceMaterialRepositoryMapper::toDomainEntity)
+                .toList();
     }
-
-
-
 
 }

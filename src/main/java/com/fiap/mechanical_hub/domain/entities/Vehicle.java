@@ -1,13 +1,10 @@
 package com.fiap.mechanical_hub.domain.entities;
 
+import com.fiap.mechanical_hub.domain.valueobjects.LicensePlate;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import static com.fiap.mechanical_hub.shared.utils.license_plate.LicensePlateFormatter.normalize;
-import static com.fiap.mechanical_hub.shared.utils.license_plate.LicensePlateValidator.validateLicensePlate;
-
 
 @Getter
 @AllArgsConstructor
@@ -17,26 +14,25 @@ public class Vehicle {
 
 	private UUID id;
 	private UUID customerId;
-	private String licensePlate;
+	private LicensePlate licensePlate;
 	private String brand;
 	private String model;
 	private Integer year;
 	private String color;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	private LocalDateTime deletedAt;
 
 	public static Vehicle create(UUID customerId,
-								 String licensePlate,
+	                             LicensePlate licensePlate,
 								 String brand,
 								 String model,
 								 Integer year,
 								 String color) {
-		validateLicensePlate(licensePlate);
-
 		Vehicle vehicle = new Vehicle();
 		vehicle.id = UUID.randomUUID();
 		vehicle.customerId = customerId;
-		vehicle.licensePlate = normalize(licensePlate);
+		vehicle.licensePlate = licensePlate;
 		vehicle.brand = brand;
 		vehicle.model = model;
 		vehicle.year = year;
@@ -47,19 +43,21 @@ public class Vehicle {
 		return vehicle;
 	}
 
-	public void update(String licensePlate,
-								  String brand,
-								  String model,
-								  Integer year,
-								  String color) {
-		validateLicensePlate(licensePlate);
-
-		this.licensePlate = normalize(licensePlate);
+	public void update(String brand, String model, Integer year, String color) {
 		this.brand = brand;
 		this.model = model;
 		this.year = year;
 		this.color = color;
 		this.updatedAt = LocalDateTime.now();
+	}
+
+	public void deactivate() {
+		this.deletedAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
+	}
+
+	public boolean isActive() {
+		return this.deletedAt == null;
 	}
 }
 

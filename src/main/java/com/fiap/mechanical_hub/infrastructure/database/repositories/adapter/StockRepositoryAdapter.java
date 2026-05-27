@@ -2,7 +2,8 @@ package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.Stock;
 import com.fiap.mechanical_hub.domain.enums.StockStatusEnum;
-import com.fiap.mechanical_hub.application.repositories.StockRepository;
+import com.fiap.mechanical_hub.domain.repositories.StockRepository;
+import com.fiap.mechanical_hub.infrastructure.database.mappers.StockRepositoryMapper;
 import com.fiap.mechanical_hub.infrastructure.database.models.StockModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.StockJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,36 +23,30 @@ public class StockRepositoryAdapter implements StockRepository {
     public Stock save(Stock stock) {
         StockModel entity = toJpaEntity(stock);
         StockModel saved = jpaRepository.save(entity);
-        return toDomainEntity(saved);
-    }
-
-    @Override
-    public Optional<Stock> findByMaterialId(UUID materialId) {
-        return jpaRepository.findByMaterialId(materialId).map(this::toDomainEntity);
+        return StockRepositoryMapper.toDomainEntity(saved);
     }
 
     @Override
     public Optional<Stock> findById(UUID id) {
-        return jpaRepository.findById(id).map(this::toDomainEntity);
+        return jpaRepository.findById(id).map(StockRepositoryMapper::toDomainEntity);
     }
-
 
     @Override
     public Optional<Stock> findByMaterialIdAndStatus(UUID materialId, StockStatusEnum status) {
-        return jpaRepository.findByMaterialIdAndStatus(materialId, status).map(this::toDomainEntity);
+        return jpaRepository.findByMaterialIdAndStatus(materialId, status).map(StockRepositoryMapper::toDomainEntity);
     }
 
     @Override
     public List<Stock> findAll() {
         return jpaRepository.findAll().stream()
-                .map(this::toDomainEntity)
+                .map(StockRepositoryMapper::toDomainEntity)
                 .toList();
     }
 
     @Override
     public List<Stock> findAllByMaterialId(UUID materialId) {
         return jpaRepository.findAllByMaterialId(materialId).stream()
-                .map(this::toDomainEntity)
+                .map(StockRepositoryMapper::toDomainEntity)
                 .toList();
     }
 
@@ -77,19 +72,5 @@ public class StockRepositoryAdapter implements StockRepository {
 
     }
 
-    @Override
-    public void flush() {
-        jpaRepository.flush();
-    }
-
-    private Stock toDomainEntity(StockModel entity) {
-        return new Stock(
-                entity.getId(),
-                entity.getMaterialId(),
-                entity.getQuantity(),
-                entity.getStatus(),
-                entity.getUpdatedAt()
-        );
-    }
 }
 
