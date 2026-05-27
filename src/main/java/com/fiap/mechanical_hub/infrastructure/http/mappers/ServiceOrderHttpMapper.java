@@ -1,8 +1,10 @@
 package com.fiap.mechanical_hub.infrastructure.http.mappers;
 
 import com.fiap.mechanical_hub.application.command.serviceorder.CreateServiceOrderCommand;
+import com.fiap.mechanical_hub.application.command.serviceorder.OpenServiceOrderCommand;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.CreateServiceOrderRequest;
+import com.fiap.mechanical_hub.application.dto.serviceorder.OpenServiceOrderRequest;
 import com.fiap.mechanical_hub.application.dto.serviceorder.ServiceOrderResponse;
 import com.fiap.mechanical_hub.application.dto.serviceorder.request.ServiceOrderCustomerView;
 import com.fiap.mechanical_hub.application.dto.vehicle.VehicleResponse;
@@ -28,6 +30,16 @@ public class ServiceOrderHttpMapper {
                 request.getVehicle().getModel(),
                 request.getVehicle().getYear(),
                 request.getVehicle().getColor(),
+                request.getRequestDescription(),
+                createdByUserId
+        );
+    }
+
+    public OpenServiceOrderCommand toOpenServiceOrderCommand(OpenServiceOrderRequest request, UUID createdByUserId) {
+        return new OpenServiceOrderCommand(
+                request.getCustomerId(),
+                request.getVehicleId(),
+                request.getServiceIds(),
                 request.getRequestDescription(),
                 createdByUserId
         );
