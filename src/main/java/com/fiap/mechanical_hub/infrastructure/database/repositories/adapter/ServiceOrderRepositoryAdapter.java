@@ -61,4 +61,12 @@ public class ServiceOrderRepositoryAdapter implements ServiceOrderRepository {
                 .map(ServiceOrderRepositoryMapper::toDomainEntity);
     }
 
+    @Override
+    public List<ServiceOrder> findAllActiveOrdersWithPriority() {
+        return jpaRepository.findAllActiveOrdersWithPriority()
+                .stream()
+                .map(ServiceOrderRepositoryMapper::toDomainEntity)
+                .toList();
+    }
+
 }

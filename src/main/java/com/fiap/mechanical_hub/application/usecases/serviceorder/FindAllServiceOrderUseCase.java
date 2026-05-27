@@ -18,8 +18,8 @@ public class FindAllServiceOrderUseCase {
 
     @Transactional(readOnly = true)
     public List<ServiceOrderSummaryResponse> execute() {
-        log.info("Retrieving all service orders");
-        return repository.findAllByOrderByCreatedAtDesc()
+        log.info("Retrieving all active service orders with priority sorting");
+        return repository.findAllActiveOrdersWithPriority()
                 .stream()
                 .map(order -> new ServiceOrderSummaryResponse(
                         order.getId(),

@@ -22,4 +22,6 @@ public interface ServiceOrderRepository {
 
     Optional<ServiceOrder> findByOrderNumber(String orderNumber);
 
+    List<ServiceOrder> findAllActiveOrdersWithPriority();
+
 }
