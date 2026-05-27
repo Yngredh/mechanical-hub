@@ -1,6 +1,7 @@
 package com.fiap.mechanical_hub.application.usecases.serviceorder;
 
 import com.fiap.mechanical_hub.application.command.serviceorder.RejectServiceOrderCommand;
+import com.fiap.mechanical_hub.application.usecases.stock.RestoreReservedStockItemsUseCase;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
@@ -18,6 +19,7 @@ public class RejectServiceOrderUseCase {
 
     private final ServiceOrderRepository repository;
     private final OrderStatusTransitionFactory factory;
+    private final RestoreReservedStockItemsUseCase restoreReservedStockItemsUseCase;
 
     @Transactional
     public void execute(RejectServiceOrderCommand command) {
@@ -27,6 +29,7 @@ public class RejectServiceOrderUseCase {
                 .orElseThrow(() -> new NotFoundException("Service order with id " + command.serviceOrderId() + " not found"));
 
         factory.get(OrderStatusEnum.RECUSADO).execute(order);
+        restoreReservedStockItemsUseCase.execute(order.getId(), order.getOrderTasks());
         repository.save(order);
 
         log.info("Service order {} rejected successfully", command.serviceOrderId());

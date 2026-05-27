@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.application.interfaces;
+package com.fiap.mechanical_hub.domain.interfaces;
 
 import com.fiap.mechanical_hub.application.dto.notification.NotificationMessage;
 

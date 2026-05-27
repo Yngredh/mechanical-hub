@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.application.usecases;
 
 import com.fiap.mechanical_hub.application.dto.notification.NotificationMessage;
-import com.fiap.mechanical_hub.application.interfaces.AlertNotificationTrigger;
+import com.fiap.mechanical_hub.domain.interfaces.AlertNotificationTrigger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
