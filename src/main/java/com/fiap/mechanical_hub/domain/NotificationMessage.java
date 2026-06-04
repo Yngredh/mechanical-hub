@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.application.dto.notification;
+package com.fiap.mechanical_hub.domain;
 
 public record NotificationMessage(String subject, String body) {
 }

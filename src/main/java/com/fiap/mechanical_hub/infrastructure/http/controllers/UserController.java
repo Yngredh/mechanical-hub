@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.dto.authentication.RegisterRequest;
 import com.fiap.mechanical_hub.application.dto.user.UserResponse;
-import com.fiap.mechanical_hub.application.mappers.UserHttpMapper;
+import com.fiap.mechanical_hub.infrastructure.http.mappers.UserHttpMapper;
 import com.fiap.mechanical_hub.application.usecases.user.DeleteUserUseCase;
 import com.fiap.mechanical_hub.application.usecases.user.FindAllUsersUseCase;
 import com.fiap.mechanical_hub.infrastructure.service.UserService;

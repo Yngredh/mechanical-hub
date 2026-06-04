@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.application.mappers;
+package com.fiap.mechanical_hub.infrastructure.http.mappers;
 
 import com.fiap.mechanical_hub.application.dto.user.UserResponse;
 import com.fiap.mechanical_hub.domain.entities.User;
