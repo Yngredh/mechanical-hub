@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.domain.exceptions;
+package com.fiap.mechanical_hub.infrastructure.exceptions;
 
 import com.auth0.jwt.exceptions.JWTCreationException;
 
