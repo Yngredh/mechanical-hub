@@ -11,7 +11,7 @@ import com.fiap.mechanical_hub.application.usecases.service.DeleteServiceUseCase
 import com.fiap.mechanical_hub.application.usecases.service.FindAllServicesUseCase;
 import com.fiap.mechanical_hub.application.usecases.service.FindServiceByIdUseCase;
 import com.fiap.mechanical_hub.application.usecases.service.UpdateServiceUseCase;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.ServiceHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.ServiceMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -49,7 +49,7 @@ public class ServiceController {
             @ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)")
     })
     public ResponseEntity<ServiceResponse> create(@RequestBody @Valid UpsertServiceRequest request) {
-        CreateServiceCommand command = ServiceHttpMapper.toCreateCommand(request);
+        CreateServiceCommand command = ServiceMapper.toCreateCommand(request);
         ServiceResponse response = createServiceUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -96,7 +96,7 @@ public class ServiceController {
             @PathVariable UUID id,
             @RequestBody @Valid UpsertServiceRequest request
     ) {
-        UpdateServiceCommand command = ServiceHttpMapper.toUpdateCommand(id, request);
+        UpdateServiceCommand command = ServiceMapper.toUpdateCommand(id, request);
         ServiceResponse response = updateServiceUseCase.execute(command);
         return ResponseEntity.ok(response);
     }

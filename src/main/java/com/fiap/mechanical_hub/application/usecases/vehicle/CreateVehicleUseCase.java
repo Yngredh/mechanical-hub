@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.fiap.mechanical_hub.infrastructure.http.mappers.VehicleHttpMapper.toVehicleResponse;
+import static com.fiap.mechanical_hub.application.mappers.VehicleMapper.toVehicleResponse;
 
 @Service
 @Slf4j

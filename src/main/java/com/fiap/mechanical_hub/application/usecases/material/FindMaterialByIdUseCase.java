@@ -5,7 +5,7 @@ import com.fiap.mechanical_hub.application.dto.material.MaterialResponse;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.domain.repositories.MaterialRepository;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.MaterialHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.MaterialMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class FindMaterialByIdUseCase {
         Material material = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException(MATERIAL_NOT_FOUND_MESSAGE + id));
         log.info("Material found: {}", material.getName());
-        return MaterialHttpMapper.toResponse(material);
+        return MaterialMapper.toResponse(material);
     }
 
 }

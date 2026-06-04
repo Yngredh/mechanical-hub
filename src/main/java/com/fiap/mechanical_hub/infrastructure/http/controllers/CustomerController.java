@@ -3,7 +3,7 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 import com.fiap.mechanical_hub.application.dto.customer.CustomerResponse;
 import com.fiap.mechanical_hub.application.dto.customer.InsertCustomerRequest;
 import com.fiap.mechanical_hub.application.dto.customer.UpdateCustomerRequest;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.CustomerHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.CustomerMapper;
 import com.fiap.mechanical_hub.application.usecases.customer.CreateCustomerUseCase;
 import com.fiap.mechanical_hub.application.usecases.customer.DeleteCustomerUseCase;
 import com.fiap.mechanical_hub.application.usecases.customer.FindAllCustomersUseCase;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.fiap.mechanical_hub.infrastructure.http.mappers.CustomerHttpMapper.toResponse;
+import static com.fiap.mechanical_hub.application.mappers.CustomerMapper.toResponse;
 
 @RestController
 @RequestMapping("/customers")
@@ -31,7 +31,7 @@ import static com.fiap.mechanical_hub.infrastructure.http.mappers.CustomerHttpMa
 @Tag(name = "Clientes", description = "Endpoints para gerenciamento de clientes")
 public class CustomerController {
 
-    private final CustomerHttpMapper mapper;
+    private final CustomerMapper mapper;
     private final CreateCustomerUseCase createCustomerUseCase;
     private final FindCustomerByIdUseCase findCustomerByIdUseCase;
     private final FindAllCustomersUseCase findAllCustomersUseCase;

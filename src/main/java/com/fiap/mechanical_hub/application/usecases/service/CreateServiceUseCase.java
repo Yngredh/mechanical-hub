@@ -8,7 +8,7 @@ import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.domain.repositories.MaterialRepository;
 import com.fiap.mechanical_hub.domain.repositories.ServiceRepository;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.ServiceHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.ServiceMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -47,7 +47,7 @@ public class CreateServiceUseCase {
         ServiceData savedService = serviceRepository.save(serviceData);
         log.info("Service created with id: {}", savedService.getId());
 
-        return ServiceHttpMapper.toResponse(savedService);
+        return ServiceMapper.toResponse(savedService);
     }
 }
 

@@ -5,7 +5,7 @@ import com.fiap.mechanical_hub.application.dto.service.ServiceResponse;
 import com.fiap.mechanical_hub.domain.entities.ServiceData;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.domain.repositories.ServiceRepository;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.ServiceHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.ServiceMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class FindServiceByIdUseCase {
                 .orElseThrow(() -> new NotFoundException("Serviço com id " + command.id() + " não encontrado"));
 
         log.info("Service found with id: {}", command.id());
-        return ServiceHttpMapper.toResponse(serviceData);
+        return ServiceMapper.toResponse(serviceData);
     }
 }
 

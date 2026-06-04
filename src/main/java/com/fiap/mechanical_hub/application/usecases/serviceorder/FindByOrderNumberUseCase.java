@@ -9,7 +9,7 @@ import com.fiap.mechanical_hub.application.usecases.vehicle.FindVehicleByIdUseCa
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.ServiceOrderHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,7 +40,7 @@ public class FindByOrderNumberUseCase {
                 .map(task -> task.getServiceData().getName())
                 .toList();
 
-        return ServiceOrderHttpMapper.toCustomerView(order, vehicle, customer, services);
+        return ServiceOrderMapper.toCustomerView(order, vehicle, customer, services);
     }
 }
 

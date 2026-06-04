@@ -10,7 +10,7 @@ import com.fiap.mechanical_hub.domain.repositories.CustomerRepository;
 import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
 import com.fiap.mechanical_hub.domain.repositories.VehicleRepository;
 import com.fiap.mechanical_hub.domain.utils.OrderNumberGenerator;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.ServiceOrderHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class OpenServiceOrderUseCase {
     private final VehicleRepository vehicleRepository;
     private final AddTaskIntoServiceOrderUseCase addTaskIntoServiceOrderUseCase;
     private final OrderNumberGenerator orderNumberGenerator;
-    private final ServiceOrderHttpMapper mapper;
+    private final ServiceOrderMapper mapper;
 
     @Transactional
     public ServiceOrderResponse execute(OpenServiceOrderCommand command) {

@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.ServiceOrderHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
 import com.fiap.mechanical_hub.infrastructure.security.UserSecurityAdapter;
 import com.fiap.mechanical_hub.application.command.serviceorder.*;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
@@ -37,7 +37,7 @@ public class ServiceOrderController {
     private final FindAllServiceOrderUseCase findAllServiceOrderUseCase;
     private final FindServiceOrderByIdUseCase findServiceOrderByIdUseCase;
     private final UpdateTaskStatusUseCase updateTaskStatusUseCase;
-    private final ServiceOrderHttpMapper mapper;
+    private final ServiceOrderMapper mapper;
 
     @PostMapping
     @Operation(

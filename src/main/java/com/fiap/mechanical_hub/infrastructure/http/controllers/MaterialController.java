@@ -3,7 +3,7 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 import com.fiap.mechanical_hub.application.dto.material.InsertMaterialRequest;
 import com.fiap.mechanical_hub.application.dto.material.MaterialResponse;
 import com.fiap.mechanical_hub.application.dto.material.UpdateMaterialRequest;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.MaterialHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.MaterialMapper;
 import com.fiap.mechanical_hub.application.usecases.material.CreateMaterialUseCase;
 import com.fiap.mechanical_hub.application.usecases.material.DeleteMaterialUseCase;
 import com.fiap.mechanical_hub.application.usecases.material.FindAllMaterialsUseCase;
@@ -30,7 +30,7 @@ import java.util.UUID;
 @Tag(name = "Materiais", description = "Endpoints para gerenciamento de materiais/peças")
 public class MaterialController {
 
-    private final MaterialHttpMapper mapper;
+    private final MaterialMapper mapper;
     private final CreateMaterialUseCase createMaterialUseCase;
     private final FindMaterialByIdUseCase findMaterialByIdUseCase;
     private final FindAllMaterialsUseCase findAllMaterialsUseCase;
