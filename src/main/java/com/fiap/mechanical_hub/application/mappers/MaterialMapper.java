@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.infrastructure.http.mappers;
+package com.fiap.mechanical_hub.application.mappers;
 
 import com.fiap.mechanical_hub.application.command.material.CreateMaterialCommand;
 import com.fiap.mechanical_hub.application.command.material.UpdateMaterialCommand;

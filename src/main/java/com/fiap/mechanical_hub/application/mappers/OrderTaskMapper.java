@@ -13,7 +13,7 @@ public class OrderTaskMapper {
         return new OrderTaskResponse(
                 task.getId(),
                 task.getServiceOrderId(),
-                ServiceHttpMapper.toResponse(task.getServiceData()),
+                ServiceMapper.toResponse(task.getServiceData()),
                 task.getStatus().getDisplayName(),
                 task.getStartedAt(),
                 task.getFinishedAt()

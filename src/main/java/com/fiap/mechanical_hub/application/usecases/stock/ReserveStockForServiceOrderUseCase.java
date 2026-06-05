@@ -1,8 +1,10 @@
 package com.fiap.mechanical_hub.application.usecases.stock;
 
+import com.fiap.mechanical_hub.application.command.notification.SendLowStockAlertCommand;
+import com.fiap.mechanical_hub.application.command.notification.SendStockShortageAlertCommand;
 import com.fiap.mechanical_hub.application.command.stock.ReserveStockForServiceOrderCommand;
-import com.fiap.mechanical_hub.application.usecases.notification.SendLowStockAlertUseCase;
-import com.fiap.mechanical_hub.application.usecases.notification.SendStockShortageAlertUseCase;
+import com.fiap.mechanical_hub.application.usecases.notifications.SendLowStockAlertUseCase;
+import com.fiap.mechanical_hub.application.usecases.notifications.SendStockShortageAlertUseCase;
 import com.fiap.mechanical_hub.domain.entities.Stock;
 import com.fiap.mechanical_hub.domain.entities.StockMovement;
 import com.fiap.mechanical_hub.domain.entities.StockPendingItem;
@@ -67,7 +69,8 @@ public class ReserveStockForServiceOrderUseCase {
         if (material != null && order != null) {
             order.setHasStockPending(true);
             serviceOrderRepository.save(order);
-            sendStockShortageAlertUseCase.execute(material.getName(), order.getOrderNumber());
+            sendStockShortageAlertUseCase.execute(new SendStockShortageAlertCommand(material.getName(), order.getOrderNumber())
+            );
         }
     }
 
@@ -109,7 +112,9 @@ public class ReserveStockForServiceOrderUseCase {
             log.warn("Material {} has stock below minimum. Available: {}, Minimum: {}",
                 materialId, stock.getQuantity(), material.getMinStockQuantity());
 
-            sendLowStockAlertUseCase.execute(material.getName(), material.getMinStockQuantity());
+            sendLowStockAlertUseCase.execute(new SendLowStockAlertCommand(
+                    material.getName(), material.getMinStockQuantity())
+            );
         }
     }
 }
