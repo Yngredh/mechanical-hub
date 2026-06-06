@@ -9,19 +9,15 @@ Todo método de teste deve estar dividido em três blocos comentados e visualmen
 ```java
 @Test
 void shouldTransitionToInDiagnosis_whenOrderIsReceived() {
-    // Arrange
     ServiceOrder order = ServiceOrderMock.received();
 
-    // Act
     order.startDiagnosis();
 
-    // Assert
     assertThat(order.getStatus()).isEqualTo(OrderStatus.IN_DIAGNOSIS);
 }
 ```
 
 Nenhum teste deve misturar setup com assertions ou realizar múltiplos `act` no mesmo método.
-Não incluir comentários
 
 ---
 
