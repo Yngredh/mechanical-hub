@@ -6,6 +6,8 @@ import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.exceptions.InvalidOrderTransitionException;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -33,7 +35,7 @@ class ServiceOrderStatusTransitionTest {
     @Test
     void shouldTransitionToWaitingApproval_whenOrderIsInDiagnosis() {
         ServiceOrder order = ServiceOrderMock.inDiagnosis();
-        order.setBudget(java.math.BigDecimal.valueOf(500.00));
+        order.updateBudget(BigDecimal.valueOf(500.00));
 
         order.submitForApproval();
 
