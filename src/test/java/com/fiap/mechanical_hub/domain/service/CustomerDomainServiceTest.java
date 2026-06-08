@@ -13,12 +13,16 @@ import static org.mockito.Mockito.when;
 
 class CustomerDomainServiceTest {
 
+    private static final String VALID_CPF_1 = "52998224725";
+    private static final String VALID_CPF_2 = "71428793860";
+    private static final String VALID_CNPJ = "11222333000181";
+
     private final CustomerRepository customerRepository = mock(CustomerRepository.class);
     private final CustomerDomainService service = new CustomerDomainService(customerRepository);
 
     @Test
     void shouldNotThrowException_whenDocumentIsUnique() {
-        Document document = new Document(DocumentTypeEnum.CPF, "12345678901");
+        Document document = new Document(DocumentTypeEnum.CPF, VALID_CPF_1);
         when(customerRepository.existsByDocumentNumber(document.getNumber())).thenReturn(false);
 
         assertThatCode(() -> service.validateUniqueDocument(document))
@@ -27,7 +31,7 @@ class CustomerDomainServiceTest {
 
     @Test
     void shouldThrowException_whenDocumentAlreadyExists() {
-        Document document = new Document(DocumentTypeEnum.CPF, "12345678901");
+        Document document = new Document(DocumentTypeEnum.CPF, VALID_CPF_1);
         when(customerRepository.existsByDocumentNumber(document.getNumber())).thenReturn(true);
 
         assertThatThrownBy(() -> service.validateUniqueDocument(document))
@@ -37,8 +41,8 @@ class CustomerDomainServiceTest {
 
     @Test
     void shouldValidateCpfDuplication() {
-        Document cpfDocument = new Document(DocumentTypeEnum.CPF, "98765432100");
-        when(customerRepository.existsByDocumentNumber("98765432100")).thenReturn(true);
+        Document cpfDocument = new Document(DocumentTypeEnum.CPF, VALID_CPF_2);
+        when(customerRepository.existsByDocumentNumber(VALID_CPF_2)).thenReturn(true);
 
         assertThatThrownBy(() -> service.validateUniqueDocument(cpfDocument))
                 .isInstanceOf(DuplicatedDocumentException.class);
@@ -46,8 +50,8 @@ class CustomerDomainServiceTest {
 
     @Test
     void shouldValidateCnpjDuplication() {
-        Document cnpjDocument = new Document(DocumentTypeEnum.CNPJ, "12345678901234");
-        when(customerRepository.existsByDocumentNumber("12345678901234")).thenReturn(true);
+        Document cnpjDocument = new Document(DocumentTypeEnum.CNPJ, VALID_CNPJ);
+        when(customerRepository.existsByDocumentNumber(VALID_CNPJ)).thenReturn(true);
 
         assertThatThrownBy(() -> service.validateUniqueDocument(cnpjDocument))
                 .isInstanceOf(DuplicatedDocumentException.class);
@@ -55,11 +59,11 @@ class CustomerDomainServiceTest {
 
     @Test
     void shouldValidateMultipleDifferentDocuments() {
-        Document document1 = new Document(DocumentTypeEnum.CPF, "11111111111");
-        Document document2 = new Document(DocumentTypeEnum.CPF, "22222222222");
+        Document document1 = new Document(DocumentTypeEnum.CPF, VALID_CPF_1);
+        Document document2 = new Document(DocumentTypeEnum.CPF, VALID_CPF_2);
 
-        when(customerRepository.existsByDocumentNumber("11111111111")).thenReturn(false);
-        when(customerRepository.existsByDocumentNumber("22222222222")).thenReturn(false);
+        when(customerRepository.existsByDocumentNumber(VALID_CPF_1)).thenReturn(false);
+        when(customerRepository.existsByDocumentNumber(VALID_CPF_2)).thenReturn(false);
 
         assertThatCode(() -> {
             service.validateUniqueDocument(document1);

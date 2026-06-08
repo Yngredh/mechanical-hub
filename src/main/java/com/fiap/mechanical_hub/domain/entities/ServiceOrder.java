@@ -174,7 +174,9 @@ public class ServiceOrder {
     }
 
     public boolean isOrderOpen() {
-        return this.getStatus() != OrderStatusEnum.RECUSADO && this.getStatus() != OrderStatusEnum.FINALIZADO;
+        return this.getStatus() != OrderStatusEnum.RECUSADO
+                && this.getStatus() != OrderStatusEnum.FINALIZADO
+                && this.getStatus() != OrderStatusEnum.ENTREGUE;
     }
 
 }

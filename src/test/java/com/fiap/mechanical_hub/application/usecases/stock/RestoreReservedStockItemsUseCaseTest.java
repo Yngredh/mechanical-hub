@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +40,7 @@ class RestoreReservedStockItemsUseCaseTest {
         useCase.execute(ORDER_ID, List.of(OrderTaskMock.finished()));
 
         verify(stockMovementRepository).save(any());
-        verify(stockRepository).save(any());
+        verify(stockRepository, times(2)).save(any());
     }
 
     @Test

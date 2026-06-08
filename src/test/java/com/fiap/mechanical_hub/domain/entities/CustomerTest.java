@@ -9,14 +9,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CustomerTest {
 
+    private static final String VALID_CPF = "52998224725";
+    private static final String VALID_TELEPHONE = "5511987654321";
+    private static final String VALID_TELEPHONE_FORMATTED = "55 (11) 98765-4321";
+
     @Test
     void shouldCreateCustomer_withValidData() {
-        Document document = new Document(DocumentTypeEnum.CPF, "12345678901");
+        Document document = new Document(DocumentTypeEnum.CPF, VALID_CPF);
 
         Customer customer = Customer.create(
                 "João Silva",
                 document,
-                "11987654321",
+                VALID_TELEPHONE,
                 "joao@email.com",
                 "Rua A, 123"
         );
@@ -33,7 +37,7 @@ class CustomerTest {
 
         customer.update(
                 "Maria Silva",
-                "11987654321",
+                VALID_TELEPHONE,
                 "maria@email.com",
                 "Rua B, 456"
         );
@@ -69,12 +73,12 @@ class CustomerTest {
 
     @Test
     void shouldRemoveFormattingFromTelephone_whenCreatingCustomer() {
-        Document document = new Document(DocumentTypeEnum.CPF, "12345678901");
+        Document document = new Document(DocumentTypeEnum.CPF, VALID_CPF);
 
         Customer customer = Customer.create(
                 "João Silva",
                 document,
-                "(11) 98765-4321",
+                VALID_TELEPHONE_FORMATTED,
                 "joao@email.com",
                 "Rua A, 123"
         );
@@ -89,7 +93,7 @@ class CustomerTest {
 
         customer.update(
                 "Novo nome",
-                "11987654321",
+                VALID_TELEPHONE,
                 "novo@email.com",
                 "Nova rua"
         );
@@ -97,4 +101,3 @@ class CustomerTest {
         assertThat(customer.getId()).isEqualTo(originalId);
     }
 }
-

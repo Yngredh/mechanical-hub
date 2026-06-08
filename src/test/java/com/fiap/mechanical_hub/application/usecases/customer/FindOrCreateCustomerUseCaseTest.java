@@ -48,8 +48,8 @@ class FindOrCreateCustomerUseCaseTest {
         FindOrCreateCustomerCommand command = new FindOrCreateCustomerCommand(
                 "Maria Santos",
                 "CPF",
-                "98765432100",
-                "11912345678",
+                "52998224725",
+                "5511912345678",
                 "maria@email.com",
                 "Rua C, 789"
         );
@@ -61,7 +61,7 @@ class FindOrCreateCustomerUseCaseTest {
                 command.address()
         );
 
-        when(customerRepository.findByDocumentNumber("98765432100"))
+        when(customerRepository.findByDocumentNumber("52998224725"))
                 .thenReturn(Optional.empty());
         when(customerRepository.save(any(Customer.class))).thenReturn(newCustomer);
 
@@ -97,8 +97,8 @@ class FindOrCreateCustomerUseCaseTest {
         FindOrCreateCustomerCommand command = new FindOrCreateCustomerCommand(
                 "Empresa LTDA",
                 "CNPJ",
-                "12345678901234",
-                "1133334444",
+                "11222333000181",
+                "5511333344440",
                 "empresa@email.com",
                 "Avenida B, 456"
         );
@@ -110,7 +110,7 @@ class FindOrCreateCustomerUseCaseTest {
                 command.address()
         );
 
-        when(customerRepository.findByDocumentNumber("12345678901234"))
+        when(customerRepository.findByDocumentNumber("11222333000181"))
                 .thenReturn(Optional.empty());
         when(customerRepository.save(any(Customer.class))).thenReturn(newCustomer);
 
@@ -145,8 +145,8 @@ class FindOrCreateCustomerUseCaseTest {
         FindOrCreateCustomerCommand command = new FindOrCreateCustomerCommand(
                 "Pedro Costa",
                 "CPF",
-                "55555555555",
-                "11955555555",
+                "52998224725",
+                "5511955555555",
                 "pedro@email.com",
                 "Rua D, 999"
         );
@@ -158,7 +158,7 @@ class FindOrCreateCustomerUseCaseTest {
                 command.address()
         );
 
-        when(customerRepository.findByDocumentNumber("55555555555"))
+        when(customerRepository.findByDocumentNumber("52998224725"))
                 .thenReturn(Optional.empty());
         when(customerRepository.save(any(Customer.class))).thenReturn(newCustomer);
 

@@ -28,7 +28,7 @@ class UpdateCustomerUseCaseTest {
         UpdateCustomerCommand command = new UpdateCustomerCommand(
                 customerId,
                 "João Silva Updated",
-                "11987654321",
+                "5511987654321",
                 "joao.updated@email.com",
                 "Rua B, 456"
         );
@@ -51,7 +51,7 @@ class UpdateCustomerUseCaseTest {
         UpdateCustomerCommand command = new UpdateCustomerCommand(
                 customerId,
                 "João Silva Updated",
-                "11987654321",
+                "5511987654321",
                 "joao.updated@email.com",
                 "Rua B, 456"
         );
@@ -69,7 +69,7 @@ class UpdateCustomerUseCaseTest {
         UpdateCustomerCommand command = new UpdateCustomerCommand(
                 customerId,
                 "João Silva Updated",
-                "11987654321",
+                "5511987654321",
                 "joao.updated@email.com",
                 "Rua B, 456"
         );
@@ -90,7 +90,7 @@ class UpdateCustomerUseCaseTest {
         UpdateCustomerCommand command = new UpdateCustomerCommand(
                 customerId,
                 "Maria Santos",
-                "11955555555",
+                "5511955555555",
                 "maria@email.com",
                 "Avenida C, 789"
         );
@@ -111,7 +111,7 @@ class UpdateCustomerUseCaseTest {
         UpdateCustomerCommand command = new UpdateCustomerCommand(
                 customerId,
                 "João Silva Updated",
-                "11987654321",
+                "5511987654321",
                 "joao.updated@email.com",
                 "Rua B, 456"
         );
@@ -132,7 +132,7 @@ class UpdateCustomerUseCaseTest {
         UpdateCustomerCommand command = new UpdateCustomerCommand(
                 customerId,
                 "Pedro Costa",
-                "11966666666",
+                "5511966666666",
                 "pedro@email.com",
                 "Rua E, 111"
         );

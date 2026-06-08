@@ -51,9 +51,9 @@ class UpdateMaterialUseCaseTest {
         assertThat(result)
                 .isNotNull()
                 .satisfies(response -> {
-                    assertThat(response.name()).isEqualTo("Óleo de motor");
-                    assertThat(response.unitPrice()).isEqualTo(BigDecimal.valueOf(45.00));
-                    assertThat(response.minStockQuantity()).isEqualTo(10);
+                    assertThat(response.name()).isEqualTo("Óleo de motor atualizado");
+                    assertThat(response.unitPrice()).isEqualTo(BigDecimal.valueOf(55.00));
+                    assertThat(response.minStockQuantity()).isEqualTo(15);
                 });
         verify(materialRepository).findById(materialId);
         verify(materialRepository).save(any(Material.class));

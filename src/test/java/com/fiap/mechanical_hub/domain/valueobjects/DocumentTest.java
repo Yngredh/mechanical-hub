@@ -8,9 +8,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DocumentTest {
 
+    private static final String VALID_CPF = "52998224725";
+    private static final String VALID_CPF_FORMATTED = "529.982.247-25";
+    private static final String VALID_CNPJ = "11222333000181";
+    private static final String VALID_CNPJ_FORMATTED = "11.222.333/0001-81";
+
     @Test
     void shouldCreateValidCpf_whenFormatIsCorrect() {
-        Document document = new Document(DocumentTypeEnum.CPF, "12345678901");
+        Document document = new Document(DocumentTypeEnum.CPF, VALID_CPF);
 
         assertThat(document.getType()).isEqualTo(DocumentTypeEnum.CPF);
         assertThat(document.getNumber()).isNotNull();
@@ -18,7 +23,7 @@ class DocumentTest {
 
     @Test
     void shouldCreateValidCnpj_whenFormatIsCorrect() {
-        Document document = new Document(DocumentTypeEnum.CNPJ, "12345678901234");
+        Document document = new Document(DocumentTypeEnum.CNPJ, VALID_CNPJ);
 
         assertThat(document.getType()).isEqualTo(DocumentTypeEnum.CNPJ);
         assertThat(document.getNumber()).isNotNull();
@@ -44,7 +49,7 @@ class DocumentTest {
 
     @Test
     void shouldRemoveFormattingFromCpf_whenCreatingDocument() {
-        Document document = new Document(DocumentTypeEnum.CPF, "123.456.789-01");
+        Document document = new Document(DocumentTypeEnum.CPF, VALID_CPF_FORMATTED);
 
         assertThat(document.getNumber()).doesNotContain(".");
         assertThat(document.getNumber()).doesNotContain("-");
@@ -52,11 +57,10 @@ class DocumentTest {
 
     @Test
     void shouldRemoveFormattingFromCnpj_whenCreatingDocument() {
-        Document document = new Document(DocumentTypeEnum.CNPJ, "12.345.678/0001-90");
+        Document document = new Document(DocumentTypeEnum.CNPJ, VALID_CNPJ_FORMATTED);
 
         assertThat(document.getNumber()).doesNotContain(".");
         assertThat(document.getNumber()).doesNotContain("/");
         assertThat(document.getNumber()).doesNotContain("-");
     }
 }
-

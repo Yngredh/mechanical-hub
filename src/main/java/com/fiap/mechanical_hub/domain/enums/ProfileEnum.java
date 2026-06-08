@@ -4,9 +4,14 @@ import lombok.Getter;
 
 @Getter
 public enum ProfileEnum {
-    MECHANICAL("Mecânico"),
-    ADMINISTRATOR("Administrador");
+    MECHANICAL("MECANICO", "Mecânico"),
+    ADMINISTRATOR("ADMIN", "Administrador");
 
-    ProfileEnum(String description) {
+    private final String displayName;
+    private final String description;
+
+    ProfileEnum(String displayName, String description) {
+        this.displayName = displayName;
+        this.description = description;
     }
 }

@@ -16,8 +16,8 @@ public class MaterialMock {
                 "Óleo 5W30 sintético",
                 BigDecimal.valueOf(45.00),
                 10,
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().minusDays(1)
         );
     }
 

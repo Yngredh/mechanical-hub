@@ -6,23 +6,26 @@ import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 
 public class CustomerMock {
 
+    public static final String VALID_CPF = "52998224725";
+    public static final String VALID_TELEPHONE = "5511987654321";
+
     public static Customer withDefaultValues() {
-        Document document = new Document(DocumentTypeEnum.CPF, "12345678901");
+        Document document = new Document(DocumentTypeEnum.CPF, VALID_CPF);
         return Customer.create(
                 "João Silva",
                 document,
-                "11987654321",
+                VALID_TELEPHONE,
                 "joao@email.com",
                 "Rua A, 123"
         );
     }
 
     public static Customer withName(String name) {
-        Document document = new Document(DocumentTypeEnum.CPF, "12345678901");
+        Document document = new Document(DocumentTypeEnum.CPF, VALID_CPF);
         return Customer.create(
                 name,
                 document,
-                "11987654321",
+                VALID_TELEPHONE,
                 "joao@email.com",
                 "Rua A, 123"
         );
@@ -34,5 +37,3 @@ public class CustomerMock {
         return customer;
     }
 }
-
-

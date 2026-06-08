@@ -28,8 +28,8 @@ class CreateCustomerUseCaseTest {
         CreateCustomerCommand command = new CreateCustomerCommand(
                 "João Silva",
                 "CPF",
-                "12345678901",
-                "11987654321",
+                "52998224725",
+                "5511987654321",
                 "joao@email.com",
                 "Rua A, 123"
         );
@@ -54,8 +54,8 @@ class CreateCustomerUseCaseTest {
         CreateCustomerCommand command = new CreateCustomerCommand(
                 "João Silva",
                 "CPF",
-                "12345678901",
-                "11987654321",
+                "52998224725",
+                "5511987654321",
                 "joao@email.com",
                 "Rua A, 123"
         );
@@ -72,8 +72,8 @@ class CreateCustomerUseCaseTest {
         CreateCustomerCommand command = new CreateCustomerCommand(
                 "Empresa LTDA",
                 "CNPJ",
-                "12345678901234",
-                "1133334444",
+                "11222333000181",
+                "5511333344440",
                 "empresa@email.com",
                 "Avenida B, 456"
         );
@@ -97,8 +97,8 @@ class CreateCustomerUseCaseTest {
         CreateCustomerCommand command = new CreateCustomerCommand(
                 "João Silva",
                 "CPF",
-                "12345678901",
-                "11987654321",
+                "52998224725",
+                "5511987654321",
                 "joao@email.com",
                 "Rua A, 123"
         );
@@ -121,8 +121,8 @@ class CreateCustomerUseCaseTest {
         CreateCustomerCommand command = new CreateCustomerCommand(
                 "Maria Santos",
                 "CPF",
-                "98765432100",
-                "11912345678",
+                "52998224725",
+                "5511912345678",
                 "maria@email.com",
                 "Rua C, 789"
         );

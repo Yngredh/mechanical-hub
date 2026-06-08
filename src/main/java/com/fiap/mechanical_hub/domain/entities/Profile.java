@@ -15,8 +15,8 @@ public class Profile {
     public static Profile create(ProfileEnum profileEnum) {
         Profile profile = new Profile();
         profile.id = UUID.randomUUID();
-        profile.name = profileEnum.name();
-        profile.description = profile.getDescription();
+        profile.name = profileEnum.getDisplayName();
+        profile.description = profileEnum.getDescription();
         return profile;
     }
 
