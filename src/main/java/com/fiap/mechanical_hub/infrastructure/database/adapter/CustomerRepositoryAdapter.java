@@ -1,4 +1,4 @@
-package com.fiap.mechanical_hub.infrastructure.database.repositories.adapter;
+package com.fiap.mechanical_hub.infrastructure.database.adapter;
 
 import com.fiap.mechanical_hub.domain.entities.Customer;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
