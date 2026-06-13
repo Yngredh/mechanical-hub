@@ -19,8 +19,11 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import com.fiap.mechanical_hub.application.command.serviceorder.AddTaskIntoServiceOrderCommand;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class OpenServiceOrderUseCaseTest {
@@ -83,5 +86,25 @@ class OpenServiceOrderUseCaseTest {
 
         assertThatThrownBy(() -> useCase.execute(command))
                 .isInstanceOf(BusinessRuleException.class);
+    }
+
+    @Test
+    void shouldAddServicesAndReturnResponse_whenCommandHasServiceIds() {
+        UUID serviceId = UUID.fromString("00000000-0000-0000-0000-000000000010");
+        when(customerRepository.findById(CUSTOMER_ID)).thenReturn(Optional.of(CustomerMock.withDefaultValues()));
+        when(vehicleRepository.findById(VEHICLE_ID)).thenReturn(Optional.of(VehicleMock.withDefaultValues()));
+        when(orderNumberGenerator.generate()).thenReturn("OS-002");
+        when(serviceOrderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(serviceOrderRepository.findById(any())).thenAnswer(inv -> {
+            com.fiap.mechanical_hub.domain.entities.ServiceOrder order = com.fiap.mechanical_hub.mocks.domain.entities.ServiceOrderMock.inDiagnosis();
+            return Optional.of(order);
+        });
+        when(mapper.toResponse(any())).thenReturn(mock(ServiceOrderResponse.class));
+        OpenServiceOrderCommand command = new OpenServiceOrderCommand(CUSTOMER_ID, VEHICLE_ID, List.of(serviceId), "Diagnóstico", USER_ID);
+
+        ServiceOrderResponse result = useCase.execute(command);
+
+        assertThat(result).isNotNull();
+        verify(addTaskIntoServiceOrderUseCase).execute(any(AddTaskIntoServiceOrderCommand.class));
     }
 }
