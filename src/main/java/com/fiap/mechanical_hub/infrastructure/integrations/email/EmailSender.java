@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.infrastructure.integrations.email;
 
-import com.fiap.mechanical_hub.application.dto.notification.NotificationMessage;
-import com.fiap.mechanical_hub.application.interfaces.AlertNotificationTrigger;
+import com.fiap.mechanical_hub.domain.utils.NotificationMessage;
+import com.fiap.mechanical_hub.domain.interfaces.AlertNotificationTrigger;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

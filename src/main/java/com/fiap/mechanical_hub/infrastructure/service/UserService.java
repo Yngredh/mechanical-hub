@@ -7,7 +7,7 @@ import com.fiap.mechanical_hub.domain.enums.ProfileEnum;
 import com.fiap.mechanical_hub.domain.exceptions.UserNotFoundException;
 import com.fiap.mechanical_hub.infrastructure.database.models.ProfileModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ProfileJpaRepository;
-import com.fiap.mechanical_hub.infrastructure.database.repositories.adapter.UserRepositoryAdapter;
+import com.fiap.mechanical_hub.infrastructure.database.adapter.UserRepositoryAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

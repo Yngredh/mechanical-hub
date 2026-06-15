@@ -1,7 +1,10 @@
 package com.fiap.mechanical_hub.application.usecases.stock;
 
+import com.fiap.mechanical_hub.application.command.notification.SendLowStockAlertCommand;
+import com.fiap.mechanical_hub.application.command.notification.SendStockShortageAlertCommand;
 import com.fiap.mechanical_hub.application.command.stock.ReserveStockForServiceOrderCommand;
-import com.fiap.mechanical_hub.application.usecases.NotificationUseCase;
+import com.fiap.mechanical_hub.application.usecases.notifications.SendLowStockAlertUseCase;
+import com.fiap.mechanical_hub.application.usecases.notifications.SendStockShortageAlertUseCase;
 import com.fiap.mechanical_hub.domain.entities.Stock;
 import com.fiap.mechanical_hub.domain.entities.StockMovement;
 import com.fiap.mechanical_hub.domain.entities.StockPendingItem;
@@ -28,7 +31,8 @@ public class ReserveStockForServiceOrderUseCase {
     private final StockPendingItemRepository stockPendingItemRepository;
     private final MaterialRepository materialRepository;
     private final ServiceOrderRepository serviceOrderRepository;
-    private final NotificationUseCase notificationUseCase;
+    private final SendLowStockAlertUseCase sendLowStockAlertUseCase;
+    private final SendStockShortageAlertUseCase sendStockShortageAlertUseCase;
 
     @Transactional
     public Stock execute(ReserveStockForServiceOrderCommand command) {
@@ -65,7 +69,8 @@ public class ReserveStockForServiceOrderUseCase {
         if (material != null && order != null) {
             order.setHasStockPending(true);
             serviceOrderRepository.save(order);
-            notificationUseCase.sendStockShortageAlert(material.getName(), order.getOrderNumber());
+            sendStockShortageAlertUseCase.execute(new SendStockShortageAlertCommand(material.getName(), order.getOrderNumber())
+            );
         }
     }
 
@@ -107,7 +112,9 @@ public class ReserveStockForServiceOrderUseCase {
             log.warn("Material {} has stock below minimum. Available: {}, Minimum: {}",
                 materialId, stock.getQuantity(), material.getMinStockQuantity());
 
-            notificationUseCase.sendLowStockAlert(material.getName(), material.getMinStockQuantity());
+            sendLowStockAlertUseCase.execute(new SendLowStockAlertCommand(
+                    material.getName(), material.getMinStockQuantity())
+            );
         }
     }
 }

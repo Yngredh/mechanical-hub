@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Getter @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ServiceOrder {
@@ -174,7 +174,9 @@ public class ServiceOrder {
     }
 
     public boolean isOrderOpen() {
-        return this.getStatus() != OrderStatusEnum.RECUSADO && this.getStatus() != OrderStatusEnum.FINALIZADO;
+        return this.getStatus() != OrderStatusEnum.RECUSADO
+                && this.getStatus() != OrderStatusEnum.FINALIZADO
+                && this.getStatus() != OrderStatusEnum.ENTREGUE;
     }
 
 }

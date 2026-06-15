@@ -1,13 +1,15 @@
 package com.fiap.mechanical_hub.domain.strategies.order_transition;
 
-import com.fiap.mechanical_hub.application.interfaces.SendBudgetApproval;
+import com.fiap.mechanical_hub.domain.interfaces.SendBudgetApproval;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
-import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
 public class WaitingApprovalOrderTransition implements OrderStatusTransition {
 
     private final SendBudgetApproval sendBudgetApprovalApprovalRequest;
+
+    public WaitingApprovalOrderTransition(SendBudgetApproval sendBudgetApprovalApprovalRequest) {
+        this.sendBudgetApprovalApprovalRequest = sendBudgetApprovalApprovalRequest;
+    }
 
     @Override
     public void execute(ServiceOrder order) {

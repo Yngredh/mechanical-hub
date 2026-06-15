@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.fiap.mechanical_hub.infrastructure.http.mappers.VehicleHttpMapper.toCreateVehicleCommand;
-import static com.fiap.mechanical_hub.infrastructure.http.mappers.VehicleHttpMapper.toUpdateVehicleCommand;
+import static com.fiap.mechanical_hub.application.mappers.VehicleMapper.toCreateVehicleCommand;
+import static com.fiap.mechanical_hub.application.mappers.VehicleMapper.toUpdateVehicleCommand;
 
 @RestController
 @RequestMapping("/vehicles")

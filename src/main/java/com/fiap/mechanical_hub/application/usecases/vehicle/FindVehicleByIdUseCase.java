@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-import static com.fiap.mechanical_hub.infrastructure.http.mappers.VehicleHttpMapper.toVehicleResponse;
+import static com.fiap.mechanical_hub.application.mappers.VehicleMapper.toVehicleResponse;
 
 @Service
 @Slf4j

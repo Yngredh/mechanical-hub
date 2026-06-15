@@ -4,7 +4,7 @@ import com.fiap.mechanical_hub.application.command.material.CreateMaterialComman
 import com.fiap.mechanical_hub.application.dto.material.MaterialResponse;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.repositories.MaterialRepository;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.MaterialHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.MaterialMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +32,7 @@ public class CreateMaterialUseCase {
         Material savedMaterial = repository.save(material);
         log.info("Material created with id: {}", savedMaterial.getId());
 
-        return MaterialHttpMapper.toResponse(savedMaterial);
+        return MaterialMapper.toResponse(savedMaterial);
     }
 
 }

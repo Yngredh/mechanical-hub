@@ -1,19 +1,18 @@
 package com.fiap.mechanical_hub.domain.utils;
 
 import com.fiap.mechanical_hub.domain.repositories.ServiceOrderRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-@Component
-@RequiredArgsConstructor
 public class OrderNumberGenerator {
 
     private static final DateTimeFormatter YEAR_MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyyMM");
 
     private final ServiceOrderRepository serviceOrderRepository;
+
+    public OrderNumberGenerator(ServiceOrderRepository serviceOrderRepository) {
+        this.serviceOrderRepository = serviceOrderRepository;
+    }
 
     public synchronized String generate() {
         String yearMonth = LocalDate.now().format(YEAR_MONTH_FORMATTER);

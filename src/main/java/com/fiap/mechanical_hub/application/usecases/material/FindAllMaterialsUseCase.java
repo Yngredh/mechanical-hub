@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.application.usecases.material;
 
 import com.fiap.mechanical_hub.application.dto.material.MaterialResponse;
 import com.fiap.mechanical_hub.domain.repositories.MaterialRepository;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.MaterialHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.MaterialMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class FindAllMaterialsUseCase {
     public List<MaterialResponse> execute() {
         log.info("Finding all materials");
         return repository.findAll().stream()
-                .map(MaterialHttpMapper::toResponse)
+                .map(MaterialMapper::toResponse)
                 .toList();
     }
 

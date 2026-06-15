@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.ServiceOrderHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
 import com.fiap.mechanical_hub.infrastructure.security.UserSecurityAdapter;
 import com.fiap.mechanical_hub.application.command.serviceorder.*;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
@@ -31,12 +31,13 @@ import java.util.UUID;
 public class ServiceOrderController {
 
     private final CreateServiceOrderUseCase createServiceOrderUseCase;
+    private final OpenServiceOrderUseCase openServiceOrderUseCase;
     private final AddTaskIntoServiceOrderUseCase addTaskIntoServiceOrderUseCase;
     private final UpdateServiceOrderStatusUseCase updateServiceOrderStatusUseCase;
     private final FindAllServiceOrderUseCase findAllServiceOrderUseCase;
     private final FindServiceOrderByIdUseCase findServiceOrderByIdUseCase;
     private final UpdateTaskStatusUseCase updateTaskStatusUseCase;
-    private final ServiceOrderHttpMapper mapper;
+    private final ServiceOrderMapper mapper;
 
     @PostMapping
     @Operation(
@@ -56,6 +57,30 @@ public class ServiceOrderController {
         UUID createdByUserId = userDetails.user().getId();
         var command = mapper.toCreateServiceOrderCommand(request, createdByUserId);
         ServiceOrderResponse response = createServiceOrderUseCase.execute(command);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/open")
+    @Operation(
+            summary = "Abrir ordem de serviço unificada",
+            description = "Abre uma nova ordem de serviço fornecendo IDs de cliente, veículo e serviços já existentes. " +
+                    "Os serviços devem ter suas peças já associadas. Requer autenticação."
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Ordem aberta com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos ou veículo não pertence ao cliente"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "404", description = "Cliente, veículo ou serviço não encontrado")
+    })
+    public ResponseEntity<ServiceOrderResponse> open(
+            @Valid @RequestBody OpenServiceOrderRequest request,
+            @AuthenticationPrincipal UserSecurityAdapter userDetails) {
+        log.info("Opening service order with customer: {} | vehicle: {} | services count: {}",
+                request.getCustomerId(), request.getVehicleId(), request.getServiceIds().size());
+        UUID createdByUserId = userDetails.user().getId();
+        var command = mapper.toOpenServiceOrderCommand(request, createdByUserId);
+        ServiceOrderResponse response = openServiceOrderUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

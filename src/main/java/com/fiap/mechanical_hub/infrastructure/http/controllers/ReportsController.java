@@ -1,7 +1,7 @@
 package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.dto.reports.AverageServiceExecutionTime;
-import com.fiap.mechanical_hub.application.usecases.ReportUseCase;
+import com.fiap.mechanical_hub.application.usecases.reports.GetAverageExecutionTimeUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -22,7 +22,7 @@ import java.util.List;
 @Tag(name = "Relatórios", description = "Endpoints para gerar relatórios de desempenho")
 public class ReportsController {
 
-    private final ReportUseCase reportUseCase;
+    private final GetAverageExecutionTimeUseCase getAverageExecutionTimeUseCase;
 
     @GetMapping("/execution-time")
     @Operation(
@@ -36,7 +36,7 @@ public class ReportsController {
             @ApiResponse(responseCode = "403", description = "Sem permissão (requer Administrador)")
     })
     public ResponseEntity<List<AverageServiceExecutionTime>> getAverageExecutionTime() {
-        List<AverageServiceExecutionTime> executionTimes = reportUseCase.getAverageExecutionTime();
+        List<AverageServiceExecutionTime> executionTimes = getAverageExecutionTimeUseCase.getAverageExecutionTime();
         return ResponseEntity.ok(executionTimes);
     }
 }

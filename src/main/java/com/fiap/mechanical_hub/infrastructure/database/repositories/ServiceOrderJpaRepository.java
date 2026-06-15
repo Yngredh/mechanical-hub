@@ -27,4 +27,20 @@ public interface ServiceOrderJpaRepository extends JpaRepository<ServiceOrderMod
     @Query(value = "SELECT order_number FROM service_orders WHERE order_number LIKE CONCAT('OS-', :yearMonth, '-%') ORDER BY order_number DESC LIMIT 1", nativeQuery = true)
     Optional<String> findLastOrderNumberByYearMonth(@Param("yearMonth") String yearMonth);
 
+    @Query(value = """
+        SELECT *
+        FROM service_orders
+        WHERE order_status NOT IN ('FINALIZADO', 'ENTREGUE')
+        ORDER BY
+            CASE order_status
+                WHEN 'EM_EXECUCAO' THEN 1
+                WHEN 'AGUARDANDO_APROVACAO' THEN 2
+                WHEN 'EM_DIAGNOSTICO' THEN 3
+                WHEN 'RECEBIDO' THEN 4
+                ELSE 99
+            END ASC,
+            created_at ASC
+        """, nativeQuery = true)
+    List<ServiceOrderModel> findAllActiveOrdersWithPriority();
+
 }

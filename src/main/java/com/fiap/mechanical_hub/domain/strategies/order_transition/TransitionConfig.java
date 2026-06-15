@@ -1,18 +1,12 @@
 package com.fiap.mechanical_hub.domain.strategies.order_transition;
 
-import com.fiap.mechanical_hub.application.interfaces.SendBudgetApproval;
-import com.fiap.mechanical_hub.application.usecases.stock.RestoreReservedStockItemsUseCase;
+import com.fiap.mechanical_hub.domain.interfaces.SendBudgetApproval;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import java.util.Map;
 
-@Configuration
 public class TransitionConfig {
 
-    @Bean
-    public OrderStatusTransitionFactory transitionFactory(RestoreReservedStockItemsUseCase restoreReservedStockItemsUseCase, SendBudgetApproval sendBudgetApproval) {
+    public OrderStatusTransitionFactory transitionFactory(SendBudgetApproval sendBudgetApproval) {
         return new OrderStatusTransitionFactory(
                 Map.of(
                         OrderStatusEnum.EM_DIAGNOSTICO,
@@ -25,7 +19,7 @@ public class TransitionConfig {
                         new ApproveOrderTransition(),
 
                         OrderStatusEnum.RECUSADO,
-                        new RejectOrderTransition(restoreReservedStockItemsUseCase),
+                        new RejectOrderTransition(),
 
                         OrderStatusEnum.FINALIZADO,
                         new FinishOrderTransition(),

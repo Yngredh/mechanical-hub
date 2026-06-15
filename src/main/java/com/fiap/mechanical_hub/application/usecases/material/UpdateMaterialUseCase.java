@@ -5,7 +5,7 @@ import com.fiap.mechanical_hub.application.dto.material.MaterialResponse;
 import com.fiap.mechanical_hub.domain.entities.Material;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.domain.repositories.MaterialRepository;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.MaterialHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.MaterialMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ public class UpdateMaterialUseCase {
         Material savedMaterial = repository.save(existingMaterial);
         log.info("Material updated with id: {}", savedMaterial.getId());
 
-        return MaterialHttpMapper.toResponse(savedMaterial);
+        return MaterialMapper.toResponse(savedMaterial);
     }
 
 }

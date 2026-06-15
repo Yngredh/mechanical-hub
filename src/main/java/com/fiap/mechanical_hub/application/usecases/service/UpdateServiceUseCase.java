@@ -8,7 +8,7 @@ import com.fiap.mechanical_hub.domain.entities.ServiceMaterial;
 import com.fiap.mechanical_hub.domain.exceptions.NotFoundException;
 import com.fiap.mechanical_hub.domain.repositories.MaterialRepository;
 import com.fiap.mechanical_hub.domain.repositories.ServiceRepository;
-import com.fiap.mechanical_hub.infrastructure.http.mappers.ServiceHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.ServiceMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,7 @@ public class UpdateServiceUseCase {
         ServiceData updatedService = serviceRepository.save(serviceData);
         log.info("Service updated with id: {}", updatedService.getId());
 
-        return ServiceHttpMapper.toResponse(updatedService);
+        return ServiceMapper.toResponse(updatedService);
     }
 }
 

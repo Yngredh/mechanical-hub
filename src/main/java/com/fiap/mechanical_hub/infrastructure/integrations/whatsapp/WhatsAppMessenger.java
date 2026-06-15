@@ -1,6 +1,6 @@
 package com.fiap.mechanical_hub.infrastructure.integrations.whatsapp;
 
-import com.fiap.mechanical_hub.application.interfaces.SendBudgetApproval;
+import com.fiap.mechanical_hub.domain.interfaces.SendBudgetApproval;
 import com.fiap.mechanical_hub.domain.entities.ServiceOrder;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

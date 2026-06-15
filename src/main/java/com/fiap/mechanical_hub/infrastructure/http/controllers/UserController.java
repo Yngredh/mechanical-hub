@@ -2,7 +2,7 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 
 import com.fiap.mechanical_hub.application.dto.authentication.RegisterRequest;
 import com.fiap.mechanical_hub.application.dto.user.UserResponse;
-import com.fiap.mechanical_hub.application.mappers.UserHttpMapper;
+import com.fiap.mechanical_hub.application.mappers.UserMapper;
 import com.fiap.mechanical_hub.application.usecases.user.DeleteUserUseCase;
 import com.fiap.mechanical_hub.application.usecases.user.FindAllUsersUseCase;
 import com.fiap.mechanical_hub.infrastructure.service.UserService;
@@ -26,7 +26,7 @@ import java.util.UUID;
 @Tag(name = "Usuários", description = "Endpoints para gerenciamento de usuários")
 public class UserController {
 
-    private final UserHttpMapper mapper;
+    private final UserMapper mapper;
     private final UserService userService;
     private final DeleteUserUseCase deleteUserUseCase;
     private final FindAllUsersUseCase findAllUsersUseCase;
