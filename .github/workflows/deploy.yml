@@ -1,0 +1,237 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: us-east-1
+  EKS_CLUSTER_NAME: mechanical-hub-production-eks
+  TF_VERSION: 1.7.5
+  JAVA_VERSION: '21'
+
+jobs:
+
+  # ── Job 1: Build and test the Java application ──────────────────────────────
+  test:
+    name: Build & Test (Java)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      - name: Run tests
+        run: mvn test -B --no-transfer-progress
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: target/surefire-reports/
+          retention-days: 7
+
+  # ── Job 2: Validate Terraform + run unit tests (no AWS needed) ──────────────
+  terraform-validate:
+    name: Terraform Validate & Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform init (local backend — no AWS)
+        working-directory: infra
+        run: terraform init -backend=false
+
+      - name: Terraform validate
+        working-directory: infra
+        run: terraform validate
+
+      - name: Unit tests — region validation
+        working-directory: infra
+        run: terraform test -filter=tests/unit/region_unit.tftest.hcl
+
+      - name: Unit tests — VPC plan
+        working-directory: infra
+        run: terraform test -filter=tests/unit/vpc_unit.tftest.hcl
+
+      - name: Unit tests — ECR plan
+        working-directory: infra
+        run: terraform test -filter=tests/unit/ecr_unit.tftest.hcl
+
+  # ── Job 3: Build Docker image and push to ECR ───────────────────────────────
+  # Only runs on pushes to main (not on PRs).
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: [test, terraform-validate]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    outputs:
+      image-tag: ${{ steps.image-meta.outputs.tag }}
+      ecr-registry: ${{ steps.login-ecr.outputs.registry }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set image tag (short SHA)
+        id: image-meta
+        run: echo "tag=${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/mechanical-hub/api:${{ steps.image-meta.outputs.tag }}
+            ${{ steps.login-ecr.outputs.registry }}/mechanical-hub/api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── Job 4: Provision / update infrastructure with Terraform ─────────────────
+  terraform-apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    needs: [build-and-push]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    outputs:
+      rds-endpoint: ${{ steps.tf-outputs.outputs.rds_endpoint }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false   # needed so terraform output works cleanly in scripts
+
+      - name: Bootstrap Terraform state bucket
+        # Creates the S3 bucket on first run; safe to re-run (|| true ignores "already exists").
+        run: |
+          aws s3api create-bucket \
+            --bucket mechanical-hub-tfstate-${{ secrets.AWS_ACCOUNT_ID }} \
+            --region ${{ env.AWS_REGION }} || true
+
+      - name: Terraform init
+        working-directory: infra
+        run: |
+          terraform init \
+            -backend-config="bucket=mechanical-hub-tfstate-${{ secrets.AWS_ACCOUNT_ID }}" \
+            -backend-config="key=mechanical-hub/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}"
+
+      - name: Terraform apply
+        working-directory: infra
+        run: |
+          terraform apply -auto-approve \
+            -var="db_password=${{ secrets.DB_PASSWORD }}"
+
+      - name: Capture Terraform outputs
+        id: tf-outputs
+        working-directory: infra
+        run: |
+          echo "rds_endpoint=$(terraform output -raw rds_endpoint)" >> $GITHUB_OUTPUT
+
+  # ── Job 5: Deploy application to EKS ────────────────────────────────────────
+  deploy-k8s:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: [build-and-push, terraform-apply]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Apply Kubernetes manifests
+        env:
+          # From previous jobs
+          ECR_REGISTRY: ${{ needs.build-and-push.outputs.ecr-registry }}
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.image-tag }}
+          DB_HOST: ${{ needs.terraform-apply.outputs.rds-endpoint }}
+          # From GitHub secrets
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          CORS_ALLOWED_ORIGINS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
+        run: |
+          MANIFEST_DIR=src/main/resources/k8s
+
+          # Apply namespace first so subsequent resources have a target.
+          kubectl apply -f $MANIFEST_DIR/namespace.yaml
+
+          # Substitute env vars into each manifest and apply in dependency order.
+          for manifest in \
+            secret.yaml \
+            configmap-app.yaml \
+            deployment-app.yaml \
+            service-app.yaml \
+            hpa-app.yaml; do
+            echo "→ Applying $manifest"
+            envsubst < "$MANIFEST_DIR/$manifest" | kubectl apply -f -
+          done
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/mechanical-hub-api \
+            --namespace production \
+            --timeout=300s
+
+      - name: Print service endpoint
+        run: |
+          echo "──────────────────────────────────────────"
+          kubectl get service mechanical-hub-svc \
+            --namespace production \
+            -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+          echo ""
+          echo "──────────────────────────────────────────"
