@@ -138,7 +138,7 @@ jobs:
 
     outputs:
       image-tag: ${{ steps.image-meta.outputs.tag }}
-      ecr-registry: ${{ steps.login-ecr.outputs.registry }}
+      ecr-registry: ${{ steps.image-meta.outputs.ecr_registry }}
 
     steps:
       - uses: actions/checkout@v4
@@ -155,9 +155,15 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Set image tag (short SHA)
+      - name: Set image tag and ECR URL
         id: image-meta
-        run: echo "tag=${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
+        run: |
+          echo "tag=${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
+          # Construct the ECR URL directly — more reliable than Terraform output propagation.
+          # Format is always: <account>.dkr.ecr.<region>.amazonaws.com/<repo>
+          ECR_REPO="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/mechanical-hub/api"
+          echo "ecr_repo=${ECR_REPO}" >> $GITHUB_OUTPUT
+          echo "ecr_registry=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -168,8 +174,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ needs.terraform-apply.outputs.ecr-repository-url }}:${{ steps.image-meta.outputs.tag }}
-            ${{ needs.terraform-apply.outputs.ecr-repository-url }}:latest
+            ${{ steps.image-meta.outputs.ecr_repo }}:${{ steps.image-meta.outputs.tag }}
+            ${{ steps.image-meta.outputs.ecr_repo }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
