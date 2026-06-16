@@ -16,7 +16,10 @@ spec:
       app: mechanical-hub-api
 
   strategy:
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
 
   template:
     metadata:
@@ -63,13 +66,15 @@ spec:
               port: 8080
             initialDelaySeconds: 30
             periodSeconds: 10
-            failureThreshold: 18   # 30 + 18×10 = 210s max startup window
+            timeoutSeconds: 5
+            failureThreshold: 18
 
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
             periodSeconds: 10
+            timeoutSeconds: 5
             failureThreshold: 3
 
           readinessProbe:
@@ -77,6 +82,7 @@ spec:
               path: /actuator/health/readiness
               port: 8080
             periodSeconds: 5
+            timeoutSeconds: 5
             failureThreshold: 3
 
       restartPolicy: Always
