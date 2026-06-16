@@ -273,13 +273,19 @@ jobs:
           echo "═══════════════ Pod list ═══════════════"
           kubectl get pods -n production -o wide
           echo ""
-          echo "═══════════════ Pod events ══════════════"
-          kubectl describe pods -n production -l app=mechanical-hub-api | tail -60
+          echo "═══════════════ ConfigMap (verify env vars resolved) ════"
+          kubectl get configmap mechanical-hub-config -n production -o yaml || true
           echo ""
-          echo "═══════════════ Container logs ══════════"
+          echo "═══════════════ Pod events ══════════════"
+          kubectl describe pods -n production -l app=mechanical-hub-api | tail -80
+          echo ""
+          echo "═══════════════ Container logs — PREVIOUS crash ══════════"
           for pod in $(kubectl get pods -n production -l app=mechanical-hub-api -o jsonpath='{.items[*].metadata.name}'); do
-            echo "--- logs: $pod ---"
-            kubectl logs "$pod" -n production --tail=80 || true
+            echo "--- previous logs: $pod ---"
+            kubectl logs "$pod" -n production --previous --tail=100 2>/dev/null || echo "(no previous container logs — pod may not have completed a full crash cycle yet)"
+            echo ""
+            echo "--- current logs: $pod ---"
+            kubectl logs "$pod" -n production --tail=100 || true
             echo ""
           done
 

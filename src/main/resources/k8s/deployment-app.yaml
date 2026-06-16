@@ -16,10 +16,7 @@ spec:
       app: mechanical-hub-api
 
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
+    type: Recreate
 
   template:
     metadata:
