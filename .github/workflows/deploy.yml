@@ -197,17 +197,51 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Set up Terraform (for DB_HOST fallback lookup)
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
       - name: Configure kubectl
         run: |
           aws eks update-kubeconfig \
             --name ${{ env.EKS_CLUSTER_NAME }} \
             --region ${{ env.AWS_REGION }}
 
+      - name: Resolve deployment variables
+        id: deploy-vars
+        run: |
+          # ECR registry — constructed directly (no Terraform output hop needed)
+          ECR_REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com"
+          echo "ecr_registry=${ECR_REGISTRY}" >> $GITHUB_OUTPUT
+
+          # DB_HOST — comes from Terraform output; fall back to fetching from
+          # Terraform state if the job-output didn't propagate.
+          DB_HOST="${{ needs.terraform-apply.outputs.rds-endpoint }}"
+          if [ -z "$DB_HOST" ]; then
+            echo "⚠ rds-endpoint job output is empty — fetching from Terraform state"
+            cd infra
+            terraform init -reconfigure \
+              -backend-config="bucket=mechanical-hub-tfstate-${{ secrets.AWS_ACCOUNT_ID }}" \
+              -backend-config="key=mechanical-hub/terraform.tfstate" \
+              -backend-config="region=${{ env.AWS_REGION }}"
+            DB_HOST=$(terraform output -raw rds_endpoint)
+            cd ..
+          fi
+
+          if [ -z "$DB_HOST" ]; then
+            echo "::error::DB_HOST is empty — cannot deploy without a database endpoint"
+            exit 1
+          fi
+          echo "db_host=${DB_HOST}" >> $GITHUB_OUTPUT
+          echo "DB_HOST resolved to: ${DB_HOST}"
+
       - name: Apply Kubernetes manifests
         env:
-          ECR_REGISTRY: ${{ needs.build-and-push.outputs.ecr-registry }}
+          ECR_REGISTRY: ${{ steps.deploy-vars.outputs.ecr_registry }}
           IMAGE_TAG: ${{ needs.build-and-push.outputs.image-tag }}
-          DB_HOST: ${{ needs.terraform-apply.outputs.rds-endpoint }}
+          DB_HOST: ${{ steps.deploy-vars.outputs.db_host }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
@@ -231,7 +265,23 @@ jobs:
         run: |
           kubectl rollout status deployment/mechanical-hub-api \
             --namespace production \
-            --timeout=300s
+            --timeout=360s
+
+      - name: Debug — dump pod state on failure
+        if: failure()
+        run: |
+          echo "═══════════════ Pod list ═══════════════"
+          kubectl get pods -n production -o wide
+          echo ""
+          echo "═══════════════ Pod events ══════════════"
+          kubectl describe pods -n production -l app=mechanical-hub-api | tail -60
+          echo ""
+          echo "═══════════════ Container logs ══════════"
+          for pod in $(kubectl get pods -n production -l app=mechanical-hub-api -o jsonpath='{.items[*].metadata.name}'); do
+            echo "--- logs: $pod ---"
+            kubectl logs "$pod" -n production --tail=80 || true
+            echo ""
+          done
 
       - name: Print service endpoint
         run: |

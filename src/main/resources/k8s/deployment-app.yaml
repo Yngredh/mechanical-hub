@@ -51,20 +51,27 @@ spec:
                 secretKeyRef:
                   name: mechanical-hub-secrets
                   key: jwt-secret
-
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Xmx384m -Xms128m -XX:+UseContainerSupport"
           resources:
             requests:
               cpu: "250m"
-              memory: "256Mi"
-            limits:
-              cpu: "500m"
               memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "768Mi"
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 18   # 30 + 18×10 = 210s max startup window
 
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 3
 
@@ -72,7 +79,6 @@ spec:
             httpGet:
               path: /actuator/health/readiness
               port: 8080
-            initialDelaySeconds: 20
             periodSeconds: 5
             failureThreshold: 3
 
