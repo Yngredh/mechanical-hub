@@ -53,7 +53,7 @@ module "rds" {
   environment        = var.environment
   vpc_id             = module.vpc.vpc_id
   private_subnet_ids = module.vpc.private_subnet_ids
-  eks_sg_id          = module.eks.node_security_group_id
+  eks_sg_id          = module.eks.cluster_security_group_id
   db_instance_class  = var.db_instance_class
   db_name            = var.db_name
   db_username        = var.db_username
