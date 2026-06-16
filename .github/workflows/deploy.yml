@@ -265,7 +265,7 @@ jobs:
         run: |
           kubectl rollout status deployment/mechanical-hub-api \
             --namespace production \
-            --timeout=360s
+            --timeout=600s
 
       - name: Debug — dump pod state on failure
         if: failure()
