@@ -93,7 +93,7 @@ Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 DB_HOST=postgres
 DB_PORT=5432
 DB_NAME=mechanical_hub_db
-DB_USER=admin
+DB_USERNAME=admin
 DB_PASSWORD=12345678
 JWT_SECRET=minha-chave-jwt-mechanical-hub
 JWT_EXPIRATION_MS=3600000
