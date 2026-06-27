@@ -26,8 +26,8 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity httpSecurity,
             SecurityFilter securityFilter) throws Exception {
-        final String administrator = ProfileEnum.ADMINISTRATOR.name();
-        final String mechanical = ProfileEnum.MECHANICAL.name();
+        final String administrator = ProfileEnum.ADMINISTRATOR.getDisplayName();
+        final String mechanical = ProfileEnum.MECHANICAL.getDisplayName();
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->

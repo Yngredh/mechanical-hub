@@ -62,7 +62,7 @@ public class ServiceOrderController {
 
     @PostMapping("/open")
     @Operation(
-            summary = "Abrir ordem de serviço unificada",
+            summary = "Abrir ordem de serviço completa",
             description = "Abre uma nova ordem de serviço fornecendo IDs de cliente, veículo e serviços já existentes. " +
                     "Os serviços devem ter suas peças já associadas. Requer autenticação."
     )

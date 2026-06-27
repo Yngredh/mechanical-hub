@@ -16,7 +16,7 @@ jobs:
 
   # ── Job 1: Build and test the Java application ──────────────────────────────
   test:
-    name: Build & Test (Java)
+    name: Build & Test
     runs-on: ubuntu-latest
 
     steps:
@@ -102,7 +102,6 @@ jobs:
           terraform_wrapper: false
 
       - name: Bootstrap Terraform state bucket
-        # Creates the S3 bucket on first run; safe to re-run (|| true ignores "already exists").
         run: |
           aws s3api create-bucket \
             --bucket mechanical-hub-tfstate-${{ secrets.AWS_ACCOUNT_ID }} \
