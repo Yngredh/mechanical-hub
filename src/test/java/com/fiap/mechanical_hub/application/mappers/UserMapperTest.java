@@ -17,7 +17,7 @@ class UserMapperTest {
 
     private static User userWithProfile(ProfileEnum profileEnum) {
         Profile profile = Profile.create(profileEnum);
-        return User.build(UserMock.USER_ID, "João Silva", "joao@email.com", "hashed_password_123", profile);
+        return User.build(UserMock.USER_ID, "João Silva", "joao@email.com", UserMock.DOCUMENT_NUMBER, "hashed_password_123", profile);
     }
 
     @Test
@@ -29,6 +29,7 @@ class UserMapperTest {
         assertThat(response.id()).isEqualTo(user.getId());
         assertThat(response.name()).isEqualTo(user.getName());
         assertThat(response.email()).isEqualTo(user.getEmail());
+        assertThat(response.documentNumber()).isEqualTo("529.982.247-25");
     }
 
     @Test
@@ -37,7 +38,7 @@ class UserMapperTest {
 
         UserResponse response = mapper.toResponse(user);
 
-        assertThat(response.profile()).isEqualTo(ProfileEnum.ADMINISTRATOR.getDisplayName());
+        assertThat(response.profile()).isEqualTo(ProfileEnum.ADMINISTRATOR.name());
     }
 
     @Test
@@ -46,6 +47,6 @@ class UserMapperTest {
 
         UserResponse response = mapper.toResponse(user);
 
-        assertThat(response.profile()).isEqualTo(ProfileEnum.MECHANICAL.getDisplayName());
+        assertThat(response.profile()).isEqualTo(ProfileEnum.MECHANICAL.name());
     }
 }

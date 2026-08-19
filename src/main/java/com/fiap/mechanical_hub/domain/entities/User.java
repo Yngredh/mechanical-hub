@@ -1,6 +1,8 @@
 package com.fiap.mechanical_hub.domain.entities;
 
+import com.fiap.mechanical_hub.domain.enums.DocumentTypeEnum;
 import com.fiap.mechanical_hub.domain.exceptions.UserAlreadyDeletedException;
+import com.fiap.mechanical_hub.domain.valueobjects.Document;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -12,16 +14,18 @@ public class User {
     private UUID id;
     private String name;
     private String email;
+    private String documentNumber;
     private String passwordHash;
     private Profile profile;
     private LocalDateTime deletedAt;
 
     public User() {}
 
-    public User(UUID id, String name, String email, String passwordHash, Profile profile, LocalDateTime deletedAt) {
+    public User(UUID id, String name, String email, String documentNumber, String passwordHash, Profile profile, LocalDateTime deletedAt) {
         this.id = id;
         this.name = name;
         this.email = email;
+        this.documentNumber = documentNumber;
         this.passwordHash = passwordHash;
         this.profile = profile;
         this.deletedAt = deletedAt;
@@ -30,6 +34,7 @@ public class User {
     public static User create(
             String name,
             String email,
+            String documentNumber,
             String passwordHash,
             Profile profile
     ) {
@@ -37,6 +42,7 @@ public class User {
         user.id = UUID.randomUUID();
         user.name = name;
         user.email = email;
+        user.documentNumber = new Document(DocumentTypeEnum.CPF, documentNumber).getNumber();
         user.passwordHash = passwordHash;
         user.profile = profile;
 
@@ -47,6 +53,7 @@ public class User {
             UUID id,
             String name,
             String email,
+            String documentNumber,
             String passwordHash,
             Profile profile
     ) {
@@ -55,6 +62,7 @@ public class User {
         user.id = id;
         user.name = name;
         user.email = email;
+        user.documentNumber = documentNumber;
         user.passwordHash = passwordHash;
         user.profile = profile;
 

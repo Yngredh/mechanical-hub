@@ -18,6 +18,7 @@ public class UserRepositoryMapper {
         model.setId(user.getId());
         model.setName(user.getName());
         model.setEmail(user.getEmail());
+        model.setDocumentNumber(user.getDocumentNumber());
         model.setPasswordHash(user.getPasswordHash());
         model.setProfile(profile);
         model.setDeletedAt(user.getDeletedAt());
@@ -30,6 +31,7 @@ public class UserRepositoryMapper {
                 model.getId(),
                 model.getName(),
                 model.getEmail(),
+                model.getDocumentNumber(),
                 model.getPasswordHash(),
                 Profile.create(ProfileEnum.valueOf(model.getProfile().getName())),
                 model.getDeletedAt()

@@ -8,8 +8,8 @@ metadata:
 
 data:
   DB_HOST: "${DB_HOST}"
-  DB_PORT: "5432"
-  DB_NAME: mechanical_hub
+  DB_PORT: "${DB_PORT}"
+  DB_NAME: "${DB_NAME}"
   DB_USERNAME: "${DB_USERNAME}"
   SPRING_PROFILES_ACTIVE: production
   SERVER_PORT: "8080"

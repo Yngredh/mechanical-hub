@@ -95,6 +95,26 @@ class UserRepositoryAdapterTest {
     }
 
     @Test
+    void shouldReturnUser_whenFindByDocumentNumberAndUserExists() {
+        when(jpaRepository.findByDocumentNumber(UserModelMock.DOCUMENT_NUMBER))
+                .thenReturn(UserModelMock.active());
+
+        User result = adapter.findByDocumentNumber(UserModelMock.DOCUMENT_NUMBER);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getDocumentNumber()).isEqualTo(UserModelMock.DOCUMENT_NUMBER);
+    }
+
+    @Test
+    void shouldReturnNull_whenFindByDocumentNumberAndUserDoesNotExist() {
+        when(jpaRepository.findByDocumentNumber("11144477735")).thenReturn(null);
+
+        User result = adapter.findByDocumentNumber("11144477735");
+
+        assertThat(result).isNull();
+    }
+
+    @Test
     void shouldReturnAllUsers_whenFindAll() {
         when(jpaRepository.findByDeletedAtIsNull()).thenReturn(List.of(UserModelMock.active()));
 

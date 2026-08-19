@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class UserTest {
 
     private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000100");
+    private static final String DOCUMENT_NUMBER = "52998224725";
 
     @Test
     void shouldCreateUser_withValidData() {
@@ -19,6 +20,7 @@ class UserTest {
         User user = User.create(
                 "João Silva",
                 "joao@email.com",
+                DOCUMENT_NUMBER,
                 "hashed_password_123",
                 profile
         );
@@ -36,6 +38,7 @@ class UserTest {
                 USER_ID,
                 "Maria Silva",
                 "maria@email.com",
+                DOCUMENT_NUMBER,
                 "hashed_password_456",
                 profile
         );
@@ -49,6 +52,7 @@ class UserTest {
         User user = User.create(
                 "João Silva",
                 "joao@email.com",
+                DOCUMENT_NUMBER,
                 "hashed_password",
                 new Profile()
         );
@@ -64,6 +68,7 @@ class UserTest {
         User user = User.create(
                 "João Silva",
                 "joao@email.com",
+                DOCUMENT_NUMBER,
                 "hashed_password",
                 new Profile()
         );
@@ -79,6 +84,7 @@ class UserTest {
         User user = User.create(
                 "João Silva",
                 "joao@email.com",
+                DOCUMENT_NUMBER,
                 "hashed_password",
                 new Profile()
         );
@@ -92,6 +98,7 @@ class UserTest {
         User user = User.create(
                 "João Silva",
                 "joao@email.com",
+                DOCUMENT_NUMBER,
                 "hashed_password",
                 new Profile()
         );
@@ -104,6 +111,7 @@ class UserTest {
         User user = User.create(
                 "João Silva",
                 "joao@email.com",
+                DOCUMENT_NUMBER,
                 "hashed_password",
                 new Profile()
         );
@@ -116,6 +124,7 @@ class UserTest {
         User user = User.create(
                 "João Silva",
                 "joao@email.com",
+                DOCUMENT_NUMBER,
                 "hashed_password",
                 new Profile()
         );
