@@ -6,34 +6,57 @@ Sistema de Gestão de Oficina Mecânica — automatiza o atendimento ao cliente,
 
 ## 📋 Sumário
 
-- [Visão Geral](#visão-geral)
+- [Visão Geral e Objetivos da Fase 1](#visão-geral-fase1)
+- [Visão Geral e Objetivos da Fase 2](#visão-geral)
 - [Tecnologias](#tecnologias)
-- [Arquitetura](#arquitetura)
-- [Regras de Negócio](#regras-de-negócio)
-- [Entidades do Domínio](#entidades-do-domínio)
+- [Arquitetura](docs/ARCHITECTURE.md)
 - [Pré-requisitos](#pré-requisitos)
 - [Configuração de Ambiente](#configuração-de-ambiente)
-- [Como Executar](#como-executar)
-  - [Com Docker (recomendado)](#com-docker-recomendado)
-  - [Localmente (sem Docker)](#localmente-sem-docker)
+- [Execução Local](#execução-local)
+- [Deploy em Kubernetes e infraestrutura consumida](docs/DEPLOY.md)
 - [Usuários Padrão](#usuários-padrão)
-- [Documentação da API - Endpoints](#documentação-da-api)
-- [Como Testar o Projeto](#como-testar-o-projeto)
-  - [Fluxo completo passo a passo](#fluxo-completo-passo-a-passo)
-  - [Testes automatizados](#testes-automatizados)
+- [Documentação Endpoints da API](#documentação-da-api)
+- [Como Testar o Projeto](docs/TESTING.md)
+
+---
+
+<a id="visão-geral-fase1"></a>
+## 💡 Objetivos da Fase 1
+
+A Fase 1 estabeleceu o MVP do back-end aplicando Domain-Driven Design como base de modelagem, com foco em organizar o caos operacional da oficina em um sistema coeso e seguro. O domínio foi mapeado via Event Storming, a lógica de negócio encapsulada em casos de uso e a API protegida com JWT — tudo containerizado e coberto por testes desde o início.
+
+| Competência | Como foi aplicada                                                                                            |
+|---|--------------------------------------------------------------------------------------------------------------|
+| **Domain-Driven Design (DDD)** | Event Storming dos fluxos de OS e estoque; Linguagem Ubíqua definida e aplicada no código                    |
+| **Arquitetura em camadas** | Back-end monolítico estruturado em domínio, aplicação, infraestrutura e interface (base para Clean Architecture) |
+| **APIs RESTful** | Endpoints documentados via Swagger/OpenAPI cobrindo todos os fluxos do sistema                               |
+| **Segurança** | JWT nas rotas administrativas; validação de CPF/CNPJ e placa; análise de vulnerabilidades com relatório de scan |
+| **Qualidade de código** | Cobertura ≥ 80% nos domínios críticos; testes unitários e de integração                                      |
+| **Containerização** | Dockerfile multi-stage + docker-compose orquestrando aplicação e banco                                       |
+| **Banco de dados** | Banco de dados relacional PostgreSQL; migrations com Flyway                                                 |
+| **Documentação** | README completo, documentação DDD e relatório de vulnerabilidades                          |
 
 ---
 
 <a id="visão-geral"></a>
-## 💡 Visão Geral
+## 💡 Objetivos da Fase 2
 
-O Mechanical Hub resolve os problemas de uma oficina mecânica que opera com anotações manuais e planilhas isoladas:
+A Fase 2 evoluiu a aplicação do MVP para um ambiente de produção real na AWS, com foco em escalabilidade, resiliência e automação. O código foi refatorado para Clean Architecture, toda a infraestrutura foi provisionada como código via Terraform e o ciclo de entrega foi completamente automatizado por um pipeline CI/CD no GitHub Actions — do commit ao deploy em Kubernetes.
 
-- **Gestão de Ordens de Serviço** — ciclo completo: abertura, diagnóstico, aprovação, execução, finalização e entrega.
-- **Controle de Estoque** — entrada, reserva automática por OS, rastreamento de pendências e notificações de estoque mínimo.
-- **Orçamento Automático** — cálculo baseado nos serviços e materiais incluídos na OS.
-- **Métricas de Execução** — relatório de tempo médio de execução por tipo de serviço.
-- **Portal do Cliente** — o cliente recebe o orçamento via WhatsApp e pode aprovar ou recusar sem precisar de login.
+| Competência | Como foi aplicada |
+|---|---|
+| **Clean Architecture** | Refatoração do monolito em camadas para separação explícita de domínio, aplicação, infraestrutura e interface |
+| **Clean Code** | Nomes claros, coesão de responsabilidades e eliminação de acoplamentos desnecessários |
+| **Orquestração com Kubernetes** | Deployment com RollingUpdate, Service LoadBalancer, HPA (CPU/memória), ConfigMap e Secret no Amazon EKS |
+| **Infraestrutura como Código (IaC)** | Terraform com módulos independentes para VPC, EKS, RDS e ECR; estado remoto em S3; testes unitários e de integração |
+| **CI/CD** | Pipeline GitHub Actions com 5 jobs: testes, validação Terraform, apply de infra, build/push ECR e deploy K8s |
+| **Containerização** | Dockerfile multi-stage (Maven → JRE 21); imagem publicada no Amazon ECR com política de retenção |
+| **Escalabilidade** | HPA escalando de 2 a 4 réplicas com base em CPU (70%) e memória (300 Mi); node group EKS com min:1 / max:4 |
+| **Qualidade de código** | Testes automatizados integrados ao pipeline; falha em testes bloqueia o deploy |
+| **Documentação** | README reestruturado com arquitetura, fluxo de deploy e instruções separados em `docs/` |
+
+### Vídeo Fase 2
+- Link: https://drive.google.com/file/d/1i0_eIoHsf6tH4nhqJVDjZRtqenv4d8UX/view?usp=drive_link
 
 ---
 
@@ -49,38 +72,36 @@ O Mechanical Hub resolve os problemas de uma oficina mecânica que opera com ano
 | Documentação | SpringDoc OpenAPI 3 (Swagger UI) |
 | Build | Maven |
 | Contêineres | Docker + Docker Compose |
-
----
-
-<a id="arquitetura"></a>
-## 🏗️ Arquitetura
-
-- [Estrutura do Projeto](src/docs/rules/rules.md#project-structure)
-
----
-
-<a id="regras-de-negócio"></a>
-## 📖 Regras de Negócio
-
-- [Regras de Negócio](src/docs/spec/mechanical_hub_spec.md#regras-de-negócio)
-- [Linguagem Ubíqua](src/docs/spec/mechanical_hub_spec.md#linguagem-ubíqua)
-- [Fluxo de Status da OS](src/docs/spec/mechanical_hub_spec.md#fluxo-de-status)
-- [Perfis e Controle de Acesso](src/docs/spec/mechanical_hub_spec.md#perfis-e-controle-de-acesso)
-
----
-
-<a id="entidades-do-domínio"></a>
-## 🗃️ Entidades do Domínio
-
-- [Modelagem de Dados](src/docs/spec/mechanical-hub-data-model.md)
+| Orquestração | Kubernetes (Amazon EKS 1.33) |
+| IaC | Terraform ≥ 1.7 |
+| Registry | Amazon ECR |
+| CI/CD | GitHub Actions |
+| Nuvem | AWS (us-east-1) |
 
 ---
 
 <a id="pré-requisitos"></a>
 ## ✅ Pré-requisitos
 
-- Executar via contêiner - [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/)
-- Executar Localmente - JDK 21 + Maven 3.9+ + PostgreSQL 16
+**Execução local:**
+- Docker e Docker Compose
+
+**Execução local sem Docker:**
+- JDK 21, Maven 3.9+, PostgreSQL 16
+
+**Deploy em Kubernetes:**
+- `kubectl` configurado para o cluster EKS
+- AWS CLI com credenciais válidas
+
+**Leitura dos states de infraestrutura (`ci/remote-state/`):**
+- Terraform ≥ 1.7
+- AWS CLI com credenciais (AWS Academy: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`)
+- `mechanical-hub-infra` e `mechanical-hub-database` já aplicados
+
+> Desde a Fase 3 este repositório não provisiona infraestrutura (ADR-0002).
+> VPC, EKS e ECR vivem em `mechanical-hub-infra`; o RDS, em
+> `mechanical-hub-database`. Aqui só existe a leitura desses states, em
+> [`ci/remote-state/`](ci/remote-state/README.md).
 
 ---
 
@@ -101,10 +122,9 @@ JWT_EXPIRATION_MS=3600000
 
 ---
 
-<a id="como-executar"></a>
-## 🚀 Como Executar
+<a id="execução-local"></a>
+## 🚀 Execução Local
 
-<a id="com-docker-recomendado"></a>
 ### 🐳 Com Docker (recomendado)
 
 ```bash
@@ -116,7 +136,7 @@ cd mechanical-hub
 docker compose up --build
 
 # 3. A API estará disponível em:
-http://localhost:8080
+# http://localhost:8080
 ```
 
 Para parar os serviços:
@@ -129,7 +149,6 @@ Para parar e remover o volume do banco (dados serão apagados):
 docker compose down -v
 ```
 
-<a id="localmente-sem-docker"></a>
 ### 💻 Localmente (sem Docker)
 
 **1. Suba apenas o banco com Docker:**
@@ -142,7 +161,7 @@ docker compose up postgres
 export DB_HOST=localhost
 export DB_PORT=5432
 export DB_NAME=mechanical_hub_db
-export DB_USER=admin
+export DB_USERNAME=admin
 export DB_PASSWORD=12345678
 export JWT_SECRET=minha-chave-jwt-mechanical-hub
 export JWT_EXPIRATION_MS=3600000
@@ -151,11 +170,6 @@ export JWT_EXPIRATION_MS=3600000
 **3. Execute a aplicação:**
 ```bash
 ./mvnw spring-boot:run
-```
-
-**ou com Maven instalado:**
-```bash
-mvn spring-boot:run
 ```
 
 **4. Para gerar o JAR e executar:**
@@ -181,7 +195,7 @@ O Flyway cria automaticamente dois usuários na primeira execução (migration `
 ---
 
 <a id="documentação-da-api"></a>
-## 📚 Documentação da API
+## 📚 Documentação de Endpoints da API
 
 Com a aplicação rodando, acesse o Swagger UI:
 
@@ -196,326 +210,10 @@ http://localhost:8080/v3/api-docs
 
 ---
 
-<a id="como-testar-o-projeto"></a>
-## 🧪 Como Testar o Projeto
-
-<a id="fluxo-completo-passo-a-passo"></a>
-### Fluxo completo passo a passo
-
-O fluxo abaixo cobre o ciclo completo de uma Ordem de Serviço desde a criação até a entrega do veículo. Use o Swagger (`http://localhost:8080/swagger-ui/index.html`) ou um cliente HTTP como Insomnia / Postman.
-
----
-
-#### Passo 1 — Autenticar
-
-```
-POST /auth/login
-```
-```json
-{
-  "login": "admin@mechanicalhub.com",
-  "password": "<senha-no-pdf>"
-}
-```
-Copie o `token` da resposta e use-o em todos os próximos requests no header:
-```
-Authorization: Bearer <token>
-```
-
----
-
-#### Passo 2 — Cadastrar material
-
-```
-POST /materials
-```
-```json
-{
-  "name": "Filtro de Óleo",
-  "description": "Filtro de óleo para motor 1.8",
-  "unitPrice": 25.00,
-  "minStockQuantity": 5
-}
-```
-Salve o `id` retornado.
-
----
-
-#### Passo 3 — Dar entrada no estoque
-
-```
-POST /stock/entry
-```
-```json
-{
-  "materialId": "<id-do-material>",
-  "quantity": 10
-}
-```
-
----
-
-#### Passo 4 — Cadastrar um serviço
-
-```
-POST /services
-```
-```json
-{
-  "name": "Troca de Filtro de Óleo",
-  "description": "Substituição do filtro de óleo",
-  "basePrice": 85.00,
-  "laborCost": 60.00,
-  "materials": [
-    {
-      "materialId": "<id-do-material>",
-      "quantity": 1
-    }
-  ]
-}
-```
-Salve o `id` do serviço.
-
----
-
-#### Passo 5 — Criar a Ordem de Serviço
-
-```
-POST /service-orders
-```
-```json
-{
-  "customer": {
-    "name": "Maria Souza",
-    "documentType": "CPF",
-    "documentNumber": "935.411.347-80",
-    "telephone": "551198765432",
-    "email": "maria@email.com",
-    "address": "Av. Paulista, 1000 - São Paulo/SP"
-  },
-  "vehicle": {
-    "licensePlate": "DCA2E23",
-    "brand": "Honda",
-    "model": "Civic",
-    "year": 2021,
-    "color": "Preto"
-  },
-  "requestDescription": "Troca de filtro de óleo preventiva."
-}
-```
-Salve o `id` e o `orderNumber` da OS.
-
----
-
-#### Passo 6 — Iniciar diagnóstico (Mecânico)
-
-Autentique-se como mecânico ou use o token de admin:
-```
-PATCH /service-orders/<order-id>/status
-```
-```json
-{
-  "status": "EM_DIAGNOSTICO"
-}
-```
-
----
-
-#### Passo 7 — Adicionar serviços à OS
-
-```
-POST /service-orders/<id>/services
-```
-```json
-{
-  "serviceIds": ["<id-do-servico>"]
-}
-```
-O sistema calcula o orçamento e reserva os materiais do estoque.
-
----
-
-#### Passo 8 — Enviar orçamento para aprovação
-
-```
-PATCH /service-orders/<id>/status
-```
-```json
-{
-  "status": "AGUARDANDO_APROVACAO"
-}
-```
-Neste ponto o sistema enviaria o orçamento ao cliente via WhatsApp (mockado).
-
----
-
-#### Passo 9 — Cliente aprova o orçamento (endpoint público)
-
-```
-POST /mechanical-hub/service-orders/<id>/approve
-```
-> Sem token — endpoint público.
-
----
-
-#### Passo 10 — Iniciar execução do serviço
-
-```
-PATCH /service-orders/<id>/services/<taskId>/status
-```
-```json
-{
-  "status": "INICIADO"
-}
-```
-A OS muda automaticamente para `EM_EXECUCAO`.
-
----
-
-#### Passo 11 — Finalizar o serviço
-
-```
-PATCH /service-orders/<id>/services/<taskId>/status
-```
-```json
-{
-  "status": "FINALIZADO"
-}
-```
-
----
-
-#### Passo 12 — Finalizar a OS
-
-```
-PATCH /service-orders/<id>/status
-```
-```json
-{
-  "status": "FINALIZADO"
-}
-```
-> Só é possível quando **todos** os serviços da OS estiverem `FINALIZADO`.
-
----
-
-#### Passo 13 — Registrar entrega do veículo
-
-```
-PATCH /service-orders/<id>/status
-```
-```json
-{
-  "status": "ENTREGUE"
-}
-```
-
----
-
-#### Consultar OS pelo número (visão do cliente — sem token)
-
-```
-GET /mechanical-hub/service-orders/<order-number>
-```
-
----
-
-### ❌ Cenário de teste: Recusa de orçamento e retorno de estoque
-
-> Os dados abaixo já estão carregados pelo seed **V16** — não é necessário criar nada do zero.
-
-A OS **`OS-202605-0035`** (`eeff3333-3333-3333-3333-000000000001`) já está em `AGUARDANDO_APROVACAO` com o serviço **Revisão do Sistema de Ignição** adicionado (materiais reservados: Vela de Ignição, Cabo de Vela e Bobina de Ignição).
-
-**1. (Opcional) Consulte a OS antes de recusar:**
-```
-GET /service-orders/eeff3333-3333-3333-3333-000000000001
-```
-
-**2. Recuse o orçamento (endpoint público — sem token):**
-```
-POST /mechanical-hub/service-orders/eeff3333-3333-3333-3333-000000000001/reject
-```
-
-**3. Verifique que os materiais voltaram ao estoque:**
-
-```
-GET /stock/eeff1111-1111-1111-1111-000000000001
-GET /stock/eeff1111-1111-1111-1111-000000000002
-GET /stock/eeff1111-1111-1111-1111-000000000003
-```
-
-| Material                | ID                                     | `quantityReserved` esperado | `quantityAvailable` esperado |
-|-------------------------|----------------------------------------|-----------------------------|------------------------------|
-| Vela de Ignição         | `eeff1111-1111-1111-1111-000000000001` | `0`                         | `6`                          |
-| Cabo de Vela de Ignição | `eeff1111-1111-1111-1111-000000000002` | `0`                         | `4`                          |
-| Bobina de Ignição       | `eeff1111-1111-1111-1111-000000000003` | `0`                         | `3`                          |
-
-> **O que verificar na resposta:**
-> - `quantityReserved: 0` → nenhuma unidade reservada (reserva liberada)
-> - `quantityAvailable` aumentou em 1 → quantidade devolvida ao estoque
-> - Em `movements`, um registro com `movementType: "RETORNO"` confirma a devolução
->
-> O array `movements` também exibirá o movimento histórico `RESERVED` do momento em que o estoque foi reservado — isso é esperado e faz parte do log de auditoria.
->
-> A OS deverá ter status `RECUSADO`.
-
-
----
-
-### ⚠️ Cenário de teste: Pendência de estoque
-
-> Os dados abaixo já estão carregados pelo seed **V16** — não é necessário criar nada do zero.
-
-A OS **`OS-202604-0001`** (`5cce96e4-d0b2-42c1-a2b9-62fb6e97786e`) já está em `RECEBIDO` com o serviço **Manutenção de Sistema de Freios** adicionado e `hasStockPending = true`, pois os materiais desse serviço têm estoque 0:
-
-| Material | ID | Estoque |
-|---|---|---|
-| Pastilha de Freio Dianteira | `99370d9f-1cbc-468d-8043-94588108b7c2` | 0 |
-| Fluido de Freio DOT 4 | `a7f744e8-2a29-41ba-85f4-6eb13317af07` | 0 |
-
-**1. Consulte a OS e confirme `hasStockPending = true`:**
-```
-GET /service-orders/5cce96e4-d0b2-42c1-a2b9-62fb6e97786e
-```
-
-**2. Consulte o estoque dos materiais e confirme quantidade 0:**
-```
-GET /stock/99370d9f-1cbc-468d-8043-94588108b7c2
-GET /stock/a7f744e8-2a29-41ba-85f4-6eb13317af07
-```
-
-**3. Dê entrada no estoque dos materiais pendentes:**
-```
-POST /stock/entry
-```
-```json
-{ "materialId": "99370d9f-1cbc-468d-8043-94588108b7c2", "quantity": 5 }
-```
-```json
-{ "materialId": "a7f744e8-2a29-41ba-85f4-6eb13317af07", "quantity": 5 }
-```
-
-**4. Verifique que `hasStockPending` foi automaticamente resolvido para `false`:**
-```
-GET /service-orders/5cce96e4-d0b2-42c1-a2b9-62fb6e97786e
-```
-
----
-
-<a id="testes-automatizados"></a>
-### 🤖 Testes automatizados
-
-Execute os testes com Maven:
-
-```bash
-# Rodar todos os testes
-mvn test
-
-# Rodar um teste específico
-mvn test -Dtest=CustomerUseCaseTest
-
-# Rodar com relatório detalhado
-mvn test -Dsurefire.useFile=false
-```
-
----
+## 📂 Documentação Complementar
+
+| Documento | Conteúdo |
+|---|---|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Componentes da aplicação, infraestrutura AWS e fluxo de deploy |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Deploy manual em Kubernetes e leitura dos states de infraestrutura |
+| [docs/TESTING.md](docs/TESTING.md) | Fluxo completo de teste da API, cenários pré-carregados e testes automatizados |
