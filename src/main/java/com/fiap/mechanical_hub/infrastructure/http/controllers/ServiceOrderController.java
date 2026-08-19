@@ -3,7 +3,7 @@ package com.fiap.mechanical_hub.infrastructure.http.controllers;
 import com.fiap.mechanical_hub.domain.enums.OrderStatusEnum;
 import com.fiap.mechanical_hub.domain.enums.TaskStatusEnum;
 import com.fiap.mechanical_hub.application.mappers.ServiceOrderMapper;
-import com.fiap.mechanical_hub.infrastructure.security.UserSecurityAdapter;
+import com.fiap.mechanical_hub.infrastructure.security.GatewayPrincipal;
 import com.fiap.mechanical_hub.application.command.serviceorder.*;
 import com.fiap.mechanical_hub.application.dto.serviceorder.*;
 import com.fiap.mechanical_hub.application.usecases.serviceorder.*;
@@ -53,8 +53,8 @@ public class ServiceOrderController {
     })
     public ResponseEntity<ServiceOrderResponse> create(
             @RequestBody CreateServiceOrderRequest request,
-            @AuthenticationPrincipal UserSecurityAdapter userDetails) {
-        UUID createdByUserId = userDetails.user().getId();
+            @AuthenticationPrincipal GatewayPrincipal principal) {
+        UUID createdByUserId = principal.id();
         var command = mapper.toCreateServiceOrderCommand(request, createdByUserId);
         ServiceOrderResponse response = createServiceOrderUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -75,10 +75,10 @@ public class ServiceOrderController {
     })
     public ResponseEntity<ServiceOrderResponse> open(
             @Valid @RequestBody OpenServiceOrderRequest request,
-            @AuthenticationPrincipal UserSecurityAdapter userDetails) {
+            @AuthenticationPrincipal GatewayPrincipal principal) {
         log.info("Opening service order with customer: {} | vehicle: {} | services count: {}",
                 request.getCustomerId(), request.getVehicleId(), request.getServiceIds().size());
-        UUID createdByUserId = userDetails.user().getId();
+        UUID createdByUserId = principal.id();
         var command = mapper.toOpenServiceOrderCommand(request, createdByUserId);
         ServiceOrderResponse response = openServiceOrderUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -98,8 +98,8 @@ public class ServiceOrderController {
     })
     public ResponseEntity<Void> updateStatus(
             @PathVariable UUID id, @RequestBody UpdateStatusRequest request,
-            @AuthenticationPrincipal UserSecurityAdapter userDetails) {
-        UUID userId = userDetails.user().getId();
+            @AuthenticationPrincipal GatewayPrincipal principal) {
+        UUID userId = principal.id();
         var command = new UpdateServiceOrderStatusCommand(id, OrderStatusEnum.fromString(request.getStatus()), userId);
         updateServiceOrderStatusUseCase.execute(command);
         return ResponseEntity.ok().build();
