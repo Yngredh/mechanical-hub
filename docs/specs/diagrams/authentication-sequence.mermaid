@@ -1,0 +1,32 @@
+sequenceDiagram
+    autonumber
+    participant F as Funcionário
+    participant GW as API Gateway
+    participant AUTH as λ authenticate
+    participant AZ as λ authorize
+    participant DB as RDS (users, profiles)
+    participant APP as App principal (EKS)
+
+    rect rgb(235, 245, 255)
+    Note over F,DB: A — Login (POST /auth/login, rota pública, sem authorizer)
+    F->>GW: POST /auth/login { cpf, password }
+    GW->>AUTH: invoke (rota pública)
+    AUTH->>DB: SELECT ... WHERE document_number = $1
+    DB-->>AUTH: linha do usuário (ou nenhuma)
+    Note right of AUTH: bcrypt.compare(senha, hash)<br/>+ checa deleted_at
+    AUTH-->>GW: 200 { accessToken, expiresIn }
+    GW-->>F: 200 { accessToken, tokenType, expiresIn }
+    end
+
+    rect rgb(255, 245, 235)
+    Note over F,APP: B — Acesso a rota protegida
+    F->>GW: GET /service-orders (Authorization: Bearer <token>)
+    GW->>AZ: invoke authorizer (cache miss)
+    Note right of AZ: verify JWT: assinatura, exp, iss, aud<br/>+ role x rota (access-policy)
+    AZ-->>GW: Allow + context { userId, role }
+    GW->>APP: GET /service-orders + x-user-id, x-user-role
+    APP-->>GW: 200
+    GW-->>F: 200
+    end
+
+    Note over GW,AZ: Cache do authorizer: TTL 300s por token.<br/>Deny (nunca chega ao App): sem token/malformado → 401 · token inválido/expirado → 401 ·<br/>perfil não autorizado → 403 · rota desconhecida → 403 (default deny)
