@@ -33,8 +33,3 @@ management:
           include: livenessState
         readiness:
           include: readinessState
-
-api:
-  security:
-    jwt:
-      secret: ${JWT_SECRET}

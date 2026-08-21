@@ -24,6 +24,9 @@ public class UserModel {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @Column(name = "document_number", unique = true, nullable = false, length = 11)
+    private String documentNumber;
+
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 

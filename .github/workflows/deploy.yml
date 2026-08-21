@@ -6,9 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 env:
   AWS_REGION: us-east-1
-  EKS_CLUSTER_NAME: mechanical-hub-production-eks
   TF_VERSION: 1.7.5
   JAVA_VERSION: '21'
 
@@ -40,49 +42,19 @@ jobs:
           path: target/surefire-reports/
           retention-days: 7
 
-  # ── Job 2: Validate Terraform + run unit tests (no AWS needed) ──────────────
-  terraform-validate:
-    name: Terraform Validate & Unit Tests
+  # ── Job 2: Resolve infrastructure from the remote states ────────────────────
+  resolve-infra:
+    name: Resolve Infrastructure Outputs
     runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Terraform init (local backend — no AWS)
-        working-directory: infra
-        run: terraform init -backend=false
-
-      - name: Terraform validate
-        working-directory: infra
-        run: terraform validate
-
-      - name: Unit tests — region validation
-        working-directory: infra
-        run: terraform test -filter=tests/unit/region_unit.tftest.hcl
-
-      - name: Unit tests — VPC plan
-        working-directory: infra
-        run: terraform test -filter=tests/unit/vpc_unit.tftest.hcl
-
-      - name: Unit tests — ECR plan
-        working-directory: infra
-        run: terraform test -filter=tests/unit/ecr_unit.tftest.hcl
-
-  # ── Job 3: Provision / update infrastructure with Terraform ─────────────────
-  terraform-apply:
-    name: Terraform Apply
-    runs-on: ubuntu-latest
-    needs: [test, terraform-validate]
+    needs: [test]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     outputs:
-      rds-endpoint: ${{ steps.tf-outputs.outputs.rds_endpoint }}
+      eks-cluster-name: ${{ steps.tf-outputs.outputs.eks_cluster_name }}
       ecr-repository-url: ${{ steps.tf-outputs.outputs.ecr_repository_url }}
+      rds-endpoint: ${{ steps.tf-outputs.outputs.rds_endpoint }}
+      rds-port: ${{ steps.tf-outputs.outputs.rds_port }}
+      rds-db-name: ${{ steps.tf-outputs.outputs.rds_db_name }}
 
     steps:
       - uses: actions/checkout@v4
@@ -101,43 +73,55 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
           terraform_wrapper: false
 
-      - name: Bootstrap Terraform state bucket
-        run: |
-          aws s3api create-bucket \
-            --bucket mechanical-hub-tfstate-${{ secrets.AWS_ACCOUNT_ID }} \
-            --region ${{ env.AWS_REGION }} || true
+      - name: Terraform init (read-only remote states)
+        working-directory: ci/remote-state
+        run: terraform init -input=false
 
-      - name: Terraform init
-        working-directory: infra
-        run: |
-          terraform init \
-            -backend-config="bucket=mechanical-hub-tfstate-${{ secrets.AWS_ACCOUNT_ID }}" \
-            -backend-config="key=mechanical-hub/terraform.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"
+      - name: Read remote states
+        working-directory: ci/remote-state
+        env:
+          TF_VAR_state_bucket: mechanical-hub-tfstate-${{ secrets.AWS_ACCOUNT_ID }}
+          TF_VAR_state_region: ${{ env.AWS_REGION }}
+        run: terraform apply -auto-approve -input=false
 
-      - name: Terraform apply
-        working-directory: infra
-        run: |
-          terraform apply -auto-approve \
-            -var="db_password=${{ secrets.DB_PASSWORD }}"
-
-      - name: Capture Terraform outputs
+      - name: Publish contract outputs
         id: tf-outputs
-        working-directory: infra
+        working-directory: ci/remote-state
         run: |
-          echo "rds_endpoint=$(terraform output -raw rds_endpoint)" >> $GITHUB_OUTPUT
-          echo "ecr_repository_url=$(terraform output -raw ecr_repository_url)" >> $GITHUB_OUTPUT
+          set -euo pipefail
+          for o in eks_cluster_name ecr_repository_url \
+                   rds_endpoint rds_port rds_db_name; do
+            value="$(terraform output -raw "$o")"
+            if [ -z "$value" ]; then
+              echo "::error::Output '$o' veio vazio dos states remotos. Aplique mechanical-hub-infra e mechanical-hub-database antes deste pipeline."
+              exit 1
+            fi
+            echo "${o}=${value}" >> "$GITHUB_OUTPUT"
+          done
 
-  # ── Job 4: Build Docker image and push to ECR ───────────────────────────────
+      - name: Summary
+        run: |
+          {
+            echo "### Infraestrutura resolvida (somente leitura)"
+            echo ""
+            echo "| Output | Valor | Origem |"
+            echo "| --- | --- | --- |"
+            echo "| eks_cluster_name | \`${{ steps.tf-outputs.outputs.eks_cluster_name }}\` | mechanical-hub-infra |"
+            echo "| ecr_repository_url | \`${{ steps.tf-outputs.outputs.ecr_repository_url }}\` | mechanical-hub-infra |"
+            echo "| rds_endpoint | \`${{ steps.tf-outputs.outputs.rds_endpoint }}\` | mechanical-hub-database |"
+            echo "| rds_port | \`${{ steps.tf-outputs.outputs.rds_port }}\` | mechanical-hub-database |"
+            echo "| rds_db_name | \`${{ steps.tf-outputs.outputs.rds_db_name }}\` | mechanical-hub-database |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ── Job 3: Build Docker image and push to ECR ───────────────────────────────
   build-and-push:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
-    needs: [terraform-apply]
+    needs: [resolve-infra]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     outputs:
       image-tag: ${{ steps.image-meta.outputs.tag }}
-      ecr-registry: ${{ steps.image-meta.outputs.ecr_registry }}
 
     steps:
       - uses: actions/checkout@v4
@@ -151,18 +135,11 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Log in to Amazon ECR
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Set image tag and ECR URL
+      - name: Set image tag
         id: image-meta
-        run: |
-          echo "tag=${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
-          # Construct the ECR URL directly — more reliable than Terraform output propagation.
-          # Format is always: <account>.dkr.ecr.<region>.amazonaws.com/<repo>
-          ECR_REPO="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/mechanical-hub/api"
-          echo "ecr_repo=${ECR_REPO}" >> $GITHUB_OUTPUT
-          echo "ecr_registry=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com" >> $GITHUB_OUTPUT
+        run: echo "tag=${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -173,16 +150,16 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.image-meta.outputs.ecr_repo }}:${{ steps.image-meta.outputs.tag }}
-            ${{ steps.image-meta.outputs.ecr_repo }}:latest
+            ${{ needs.resolve-infra.outputs.ecr-repository-url }}:${{ steps.image-meta.outputs.tag }}
+            ${{ needs.resolve-infra.outputs.ecr-repository-url }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ── Job 5: Deploy application to EKS ────────────────────────────────────────
+  # ── Job 4: Deploy application to EKS ────────────────────────────────────────
   deploy-k8s:
     name: Deploy to Kubernetes
     runs-on: ubuntu-latest
-    needs: [terraform-apply, build-and-push]
+    needs: [resolve-infra, build-and-push]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
@@ -196,56 +173,24 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set up Terraform (for DB_HOST fallback lookup)
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-          terraform_wrapper: false
-
       - name: Configure kubectl
         run: |
           aws eks update-kubeconfig \
-            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --name ${{ needs.resolve-infra.outputs.eks-cluster-name }} \
             --region ${{ env.AWS_REGION }}
-
-      - name: Resolve deployment variables
-        id: deploy-vars
-        run: |
-          # ECR registry — constructed directly (no Terraform output hop needed)
-          ECR_REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com"
-          echo "ecr_registry=${ECR_REGISTRY}" >> $GITHUB_OUTPUT
-
-          # DB_HOST — comes from Terraform output; fall back to fetching from
-          # Terraform state if the job-output didn't propagate.
-          DB_HOST="${{ needs.terraform-apply.outputs.rds-endpoint }}"
-          if [ -z "$DB_HOST" ]; then
-            echo "⚠ rds-endpoint job output is empty — fetching from Terraform state"
-            cd infra
-            terraform init -reconfigure \
-              -backend-config="bucket=mechanical-hub-tfstate-${{ secrets.AWS_ACCOUNT_ID }}" \
-              -backend-config="key=mechanical-hub/terraform.tfstate" \
-              -backend-config="region=${{ env.AWS_REGION }}"
-            DB_HOST=$(terraform output -raw rds_endpoint)
-            cd ..
-          fi
-
-          if [ -z "$DB_HOST" ]; then
-            echo "::error::DB_HOST is empty — cannot deploy without a database endpoint"
-            exit 1
-          fi
-          echo "db_host=${DB_HOST}" >> $GITHUB_OUTPUT
-          echo "DB_HOST resolved to: ${DB_HOST}"
 
       - name: Apply Kubernetes manifests
         env:
-          ECR_REGISTRY: ${{ steps.deploy-vars.outputs.ecr_registry }}
+          ECR_REPOSITORY_URL: ${{ needs.resolve-infra.outputs.ecr-repository-url }}
           IMAGE_TAG: ${{ needs.build-and-push.outputs.image-tag }}
-          DB_HOST: ${{ steps.deploy-vars.outputs.db_host }}
+          DB_HOST: ${{ needs.resolve-infra.outputs.rds-endpoint }}
+          DB_PORT: ${{ needs.resolve-infra.outputs.rds-port }}
+          DB_NAME: ${{ needs.resolve-infra.outputs.rds-db-name }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
           CORS_ALLOWED_ORIGINS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
         run: |
+          set -euo pipefail
           MANIFEST_DIR=src/main/resources/k8s
 
           kubectl apply -f $MANIFEST_DIR/namespace.yaml
@@ -288,11 +233,12 @@ jobs:
             echo ""
           done
 
-      - name: Print service endpoint
+      - name: Confirm service has healthy endpoints
         run: |
           echo "──────────────────────────────────────────"
-          kubectl get service mechanical-hub-svc \
-            --namespace production \
-            -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+          echo "NodePort: $(kubectl get svc mechanical-hub-svc -n production -o jsonpath='{.spec.ports[0].nodePort}')"
           echo ""
+          kubectl get endpoints mechanical-hub-svc -n production
+          echo ""
+          echo "Acesso publico via API Gateway (repositorio mechanical-hub-auth)."
           echo "──────────────────────────────────────────"

@@ -24,6 +24,7 @@ class UserRepositoryMapperTest {
         model.setId(user.getId());
         model.setName(user.getName());
         model.setEmail(user.getEmail());
+        model.setDocumentNumber(user.getDocumentNumber());
         model.setPasswordHash(user.getPasswordHash());
         model.setProfile(profileModel);
         model.setDeletedAt(user.getDeletedAt());
@@ -40,6 +41,7 @@ class UserRepositoryMapperTest {
         assertThat(model.getId()).isEqualTo(user.getId());
         assertThat(model.getName()).isEqualTo(user.getName());
         assertThat(model.getEmail()).isEqualTo(user.getEmail());
+        assertThat(model.getDocumentNumber()).isEqualTo(user.getDocumentNumber());
         assertThat(model.getPasswordHash()).isEqualTo(user.getPasswordHash());
         assertThat(model.getProfile()).isEqualTo(profileModel);
         assertThat(model.getDeletedAt()).isEqualTo(user.getDeletedAt());
@@ -56,6 +58,7 @@ class UserRepositoryMapperTest {
         assertThat(domain.getId()).isEqualTo(model.getId());
         assertThat(domain.getName()).isEqualTo(model.getName());
         assertThat(domain.getEmail()).isEqualTo(model.getEmail());
+        assertThat(domain.getDocumentNumber()).isEqualTo(model.getDocumentNumber());
         assertThat(domain.getPasswordHash()).isEqualTo(model.getPasswordHash());
         assertThat(domain.getDeletedAt()).isEqualTo(model.getDeletedAt());
     }

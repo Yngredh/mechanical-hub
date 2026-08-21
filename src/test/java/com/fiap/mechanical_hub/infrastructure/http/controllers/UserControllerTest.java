@@ -45,7 +45,7 @@ class UserControllerTest {
 
     @Test
     void shouldReturnOk_whenListingAllUsers() {
-        UserResponse userResponse = new UserResponse(USER_ID, "João Silva", "joao@email.com", "ADMIN");
+        UserResponse userResponse = new UserResponse(USER_ID, "João Silva", "joao@email.com", "529.982.247-25", "ADMINISTRATOR");
         when(findAllUsersUseCase.execute()).thenReturn(List.of(UserMock.active()));
         when(mapper.toResponse(any())).thenReturn(userResponse);
 
@@ -57,7 +57,7 @@ class UserControllerTest {
 
     @Test
     void shouldReturnOk_whenRegisteringNewUser() {
-        RegisterRequest request = new RegisterRequest("João", "joao@email.com", "senha123", "Admin");
+        RegisterRequest request = new RegisterRequest("João", "joao@email.com", "52998224725", "senha123", "Administrador");
         doNothing().when(userService).registerNewUser(request);
 
         ResponseEntity<String> response = controller.register(request);
@@ -68,7 +68,7 @@ class UserControllerTest {
 
     @Test
     void shouldReturnBadRequest_whenRegisteringUserWithExistingEmail() {
-        RegisterRequest request = new RegisterRequest("João", "joao@email.com", "senha123", "Admin");
+        RegisterRequest request = new RegisterRequest("João", "joao@email.com", "52998224725", "senha123", "Administrador");
         doThrow(new IllegalArgumentException("User with this email already exists"))
                 .when(userService).registerNewUser(request);
 

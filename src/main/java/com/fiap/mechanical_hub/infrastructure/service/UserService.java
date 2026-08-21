@@ -4,7 +4,9 @@ import com.fiap.mechanical_hub.application.dto.authentication.RegisterRequest;
 import com.fiap.mechanical_hub.domain.entities.Profile;
 import com.fiap.mechanical_hub.domain.entities.User;
 import com.fiap.mechanical_hub.domain.enums.ProfileEnum;
+import com.fiap.mechanical_hub.domain.exceptions.DuplicatedDocumentException;
 import com.fiap.mechanical_hub.domain.exceptions.UserNotFoundException;
+import com.fiap.mechanical_hub.domain.valueobjects.Document;
 import com.fiap.mechanical_hub.infrastructure.database.models.ProfileModel;
 import com.fiap.mechanical_hub.infrastructure.database.repositories.ProfileJpaRepository;
 import com.fiap.mechanical_hub.infrastructure.database.adapter.UserRepositoryAdapter;
@@ -29,6 +31,13 @@ public class UserService {
             throw new IllegalArgumentException("User with this email already exists");
         }
 
+        String documentNumber = Document.removeFormatting(request.documentNumber());
+        if (userRepositoryAdapter.findByDocumentNumber(documentNumber) != null) {
+            throw new DuplicatedDocumentException(
+                    "User with this document number already exists"
+            );
+        }
+
         ProfileModel profile = profileRepository.findByName(request.profile());
         if (profile == null) {
             throw new IllegalArgumentException("Profile not found: " + request.profile());
@@ -38,6 +47,7 @@ public class UserService {
         User newUser = User.create(
                 request.name(),
                 request.login(),
+                request.documentNumber(),
                 encryptedPassword,
                 Profile.create(ProfileEnum.valueOf(request.profile()))
         );

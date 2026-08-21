@@ -15,7 +15,7 @@ import com.fiap.mechanical_hub.application.usecases.serviceorder.FindServiceOrde
 import com.fiap.mechanical_hub.application.usecases.serviceorder.OpenServiceOrderUseCase;
 import com.fiap.mechanical_hub.application.usecases.serviceorder.UpdateServiceOrderStatusUseCase;
 import com.fiap.mechanical_hub.application.usecases.serviceorder.UpdateTaskStatusUseCase;
-import com.fiap.mechanical_hub.infrastructure.security.UserSecurityAdapter;
+import com.fiap.mechanical_hub.infrastructure.security.GatewayPrincipal;
 import com.fiap.mechanical_hub.mocks.domain.entities.UserMock;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -50,8 +50,8 @@ class ServiceOrderControllerTest {
             updateTaskStatusUseCase, mapper
     );
 
-    private UserSecurityAdapter buildUserDetails() {
-        return new UserSecurityAdapter(UserMock.active());
+    private GatewayPrincipal buildUserDetails() {
+        return new GatewayPrincipal(UserMock.USER_ID, "João Silva", "ADMINISTRATOR");
     }
 
     @Test

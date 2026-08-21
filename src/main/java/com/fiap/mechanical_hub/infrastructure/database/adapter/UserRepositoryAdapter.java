@@ -45,6 +45,13 @@ public class UserRepositoryAdapter implements UserRepository {
         return UserRepositoryMapper.toDomain(userModel);
     }
 
+    public User findByDocumentNumber(String documentNumber) {
+        UserModel userModel = jpaRepository.findByDocumentNumber(documentNumber);
+        if (userModel == null) return null;
+
+        return UserRepositoryMapper.toDomain(userModel);
+    }
+
     @Override
     public List<User> findAll() {
         return jpaRepository.findByDeletedAtIsNull().stream()

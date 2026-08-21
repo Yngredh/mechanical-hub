@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: ${ECR_REGISTRY}/mechanical-hub/api:${IMAGE_TAG}
+          image: ${ECR_REPOSITORY_URL}:${IMAGE_TAG}
           imagePullPolicy: Always
 
           ports:
@@ -46,11 +46,6 @@ spec:
                 secretKeyRef:
                   name: mechanical-hub-secrets
                   key: database-password
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: mechanical-hub-secrets
-                  key: jwt-secret
             - name: JAVA_TOOL_OPTIONS
               value: "-Xmx384m -Xms128m -XX:+UseContainerSupport"
           resources:

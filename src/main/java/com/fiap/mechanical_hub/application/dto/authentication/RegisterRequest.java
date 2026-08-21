@@ -12,6 +12,13 @@ public record RegisterRequest(
         @Email(message = "Login must be a valid email")
         String login,
 
+        @NotBlank(message = "Document number is required")
+        @Pattern(
+                regexp = "^\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}$",
+                message = "Document number must be a valid CPF"
+        )
+        String documentNumber,
+
         @NotBlank
         @Size(min = 6, message = "Password must have at least 6 characters")
         String password,
