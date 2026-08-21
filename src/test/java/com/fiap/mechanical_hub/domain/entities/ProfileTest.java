@@ -12,7 +12,7 @@ class ProfileTest {
         Profile profile = Profile.create(ProfileEnum.ADMINISTRATOR);
 
         assertThat(profile.getId()).isNotNull();
-        assertThat(profile.getName()).isEqualTo("ADMIN");
+        assertThat(profile.getName()).isEqualTo("ADMINISTRATOR");
     }
 
     @Test
@@ -20,7 +20,7 @@ class ProfileTest {
         Profile mechanicProfile = Profile.create(ProfileEnum.MECHANICAL);
 
         assertThat(mechanicProfile.getId()).isNotNull();
-        assertThat(mechanicProfile.getName()).isEqualTo("MECANICO");
+        assertThat(mechanicProfile.getName()).isEqualTo("MECHANICAL");
     }
 
     @Test
