@@ -51,7 +51,7 @@ jobs:
 
     outputs:
       eks-cluster-name: ${{ steps.tf-outputs.outputs.eks_cluster_name }}
-      ecr-repository-url: ${{ steps.tf-outputs.outputs.ecr_repository_url }}
+      ecr-repository-name: ${{ steps.tf-outputs.outputs.ecr_repository_name }}
       rds-endpoint: ${{ steps.tf-outputs.outputs.rds_endpoint }}
       rds-port: ${{ steps.tf-outputs.outputs.rds_port }}
       rds-db-name: ${{ steps.tf-outputs.outputs.rds_db_name }}
@@ -99,6 +99,15 @@ jobs:
             echo "${o}=${value}" >> "$GITHUB_OUTPUT"
           done
 
+          # Caminho do repositorio sem o host. O host contem o ID da conta e
+          # seria redigido ao cruzar de um job para outro.
+          repo_path="$(terraform output -raw ecr_repository_url | cut -d/ -f2-)"
+          if [ -z "$repo_path" ]; then
+            echo "::error::Nao foi possivel extrair o caminho do repositorio da ecr_repository_url."
+            exit 1
+          fi
+          echo "ecr_repository_name=${repo_path}" >> "$GITHUB_OUTPUT"
+
       - name: Summary
         run: |
           {
@@ -135,6 +144,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Log in to Amazon ECR
+        id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Set image tag
@@ -150,8 +160,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ needs.resolve-infra.outputs.ecr-repository-url }}:${{ steps.image-meta.outputs.tag }}
-            ${{ needs.resolve-infra.outputs.ecr-repository-url }}:latest
+            ${{ steps.ecr-login.outputs.registry }}/${{ needs.resolve-infra.outputs.ecr-repository-name }}:${{ steps.image-meta.outputs.tag }}
+            ${{ steps.ecr-login.outputs.registry }}/${{ needs.resolve-infra.outputs.ecr-repository-name }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -173,6 +183,13 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # Nao empurra imagem nenhuma aqui: o login serve so para obter o host do
+      # registry (`steps.ecr-login.outputs.registry`) sem trafegar o ID da
+      # conta entre jobs.
+      - name: Log in to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
       - name: Configure kubectl
         run: |
           aws eks update-kubeconfig \
@@ -181,7 +198,7 @@ jobs:
 
       - name: Apply Kubernetes manifests
         env:
-          ECR_REPOSITORY_URL: ${{ needs.resolve-infra.outputs.ecr-repository-url }}
+          ECR_REPOSITORY_URL: ${{ steps.ecr-login.outputs.registry }}/${{ needs.resolve-infra.outputs.ecr-repository-name }}
           IMAGE_TAG: ${{ needs.build-and-push.outputs.image-tag }}
           DB_HOST: ${{ needs.resolve-infra.outputs.rds-endpoint }}
           DB_PORT: ${{ needs.resolve-infra.outputs.rds-port }}
