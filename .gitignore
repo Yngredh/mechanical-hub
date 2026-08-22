@@ -36,3 +36,12 @@ build/
 .env
 .env.local
 .env.*.local
+
+### Terraform ###
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl
