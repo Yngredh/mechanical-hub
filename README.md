@@ -55,9 +55,6 @@ A Fase 2 evoluiu a aplicação do MVP para um ambiente de produção real na AWS
 | **Qualidade de código** | Testes automatizados integrados ao pipeline; falha em testes bloqueia o deploy |
 | **Documentação** | README reestruturado com arquitetura, fluxo de deploy e instruções separados em `docs/` |
 
-### Vídeo Fase 2
-- Link: https://drive.google.com/file/d/1i0_eIoHsf6tH4nhqJVDjZRtqenv4d8UX/view?usp=drive_link
-
 ---
 
 <a id="tecnologias"></a>
