@@ -55,6 +55,7 @@ jobs:
       rds-endpoint: ${{ steps.tf-outputs.outputs.rds_endpoint }}
       rds-port: ${{ steps.tf-outputs.outputs.rds_port }}
       rds-db-name: ${{ steps.tf-outputs.outputs.rds_db_name }}
+      rds-username: ${{ steps.tf-outputs.outputs.rds_username }}
 
     steps:
       - uses: actions/checkout@v4
@@ -90,7 +91,7 @@ jobs:
         run: |
           set -euo pipefail
           for o in eks_cluster_name ecr_repository_url \
-                   rds_endpoint rds_port rds_db_name; do
+                   rds_endpoint rds_port rds_db_name rds_username; do
             value="$(terraform output -raw "$o")"
             if [ -z "$value" ]; then
               echo "::error::Output '$o' veio vazio dos states remotos. Aplique mechanical-hub-infra e mechanical-hub-database antes deste pipeline."
@@ -120,6 +121,7 @@ jobs:
             echo "| rds_endpoint | \`${{ steps.tf-outputs.outputs.rds_endpoint }}\` | mechanical-hub-database |"
             echo "| rds_port | \`${{ steps.tf-outputs.outputs.rds_port }}\` | mechanical-hub-database |"
             echo "| rds_db_name | \`${{ steps.tf-outputs.outputs.rds_db_name }}\` | mechanical-hub-database |"
+            echo "| rds_username | \`${{ steps.tf-outputs.outputs.rds_username }}\` | mechanical-hub-database |"
           } >> "$GITHUB_STEP_SUMMARY"
 
   # ── Job 3: Build Docker image and push to ECR ───────────────────────────────
@@ -203,7 +205,7 @@ jobs:
           DB_HOST: ${{ needs.resolve-infra.outputs.rds-endpoint }}
           DB_PORT: ${{ needs.resolve-infra.outputs.rds-port }}
           DB_NAME: ${{ needs.resolve-infra.outputs.rds-db-name }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_USERNAME: ${{ needs.resolve-infra.outputs.rds-username }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           CORS_ALLOWED_ORIGINS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
         run: |
