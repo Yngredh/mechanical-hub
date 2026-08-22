@@ -7,7 +7,7 @@
 # os valores que os repositorios de infraestrutura publicam como contrato:
 #
 #   mechanical-hub-infra     -> eks_cluster_name, ecr_repository_url
-#   mechanical-hub-database  -> rds_endpoint, rds_port, rds_db_name
+#   mechanical-hub-database  -> rds_endpoint, rds_port, rds_db_name, rds_username
 #
 # A aplicacao e consumidora pura: um push aqui nunca altera VPC, EKS, ECR ou
 # RDS. Provisionar essas coisas e responsabilidade exclusiva dos repositorios
@@ -111,4 +111,16 @@ output "rds_port" {
 output "rds_db_name" {
   description = "Nome do banco. Vira DB_NAME no ConfigMap da aplicacao."
   value       = data.terraform_remote_state.database.outputs.rds_db_name
+}
+
+# Vem do state em vez de um secret do GitHub de proposito: o usuario do banco
+# nao e sigiloso (a senha e), e ele ja e publicado como contrato pelo
+# mechanical-hub-database. Lendo daqui, o valor nao pode divergir do que foi
+# provisionado nem chegar vazio sem o pipeline perceber — um secret ausente
+# resolvia para string vazia, o driver JDBC caia no usuario do SO do container
+# ("root") e o Flyway falhava com "password authentication failed for user
+# root", um erro que nao aponta para a causa.
+output "rds_username" {
+  description = "Usuario master do RDS. Vira DB_USERNAME no ConfigMap da aplicacao."
+  value       = data.terraform_remote_state.database.outputs.rds_username
 }
