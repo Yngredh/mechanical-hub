@@ -317,12 +317,12 @@ jobs:
 
           # A serie do Micrometer so aparece depois da primeira requisicao HTTP,
           # entao a verificacao usa uma metrica de JVM, sempre presente.
-          if ! printf '%s' "$saida" | grep -q '^jvm_memory_used_bytes'; then
+          if ! grep -q '^jvm_memory_used_bytes' <<< "$saida"; then
             echo "::error::O endpoint respondeu, mas sem metricas do Micrometer. Confira se micrometer-registry-prometheus esta no classpath."
             exit 1
           fi
 
-          echo "OK — endpoint de metricas servindo $(printf '%s' "$saida" | grep -c '^# TYPE') familias de metrica."
+          echo "OK — endpoint de metricas servindo $(grep -c '^# TYPE' <<< "$saida") familias de metrica."
 
           if kubectl get servicemonitor mechanical-hub-api -n production > /dev/null 2>&1; then
             echo "ServiceMonitor aplicado: o Prometheus vai descobrir este alvo em ate 30s."
