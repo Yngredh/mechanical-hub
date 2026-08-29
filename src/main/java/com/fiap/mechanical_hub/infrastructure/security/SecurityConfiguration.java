@@ -34,6 +34,7 @@ public class SecurityConfiguration {
                         handling.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health/**").permitAll()
+                        .requestMatchers("/actuator/prometheus").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/mechanical-hub/service-orders/**").permitAll()
                         .requestMatchers("/users", "/users/**").hasRole(administrator)

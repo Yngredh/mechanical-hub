@@ -56,6 +56,7 @@ jobs:
       rds-port: ${{ steps.tf-outputs.outputs.rds_port }}
       rds-db-name: ${{ steps.tf-outputs.outputs.rds_db_name }}
       rds-username: ${{ steps.tf-outputs.outputs.rds_username }}
+      otlp-http-endpoint: ${{ steps.tf-outputs.outputs.otlp_http_endpoint }}
 
     steps:
       - uses: actions/checkout@v4
@@ -108,6 +109,17 @@ jobs:
             exit 1
           fi
           echo "ecr_repository_name=${repo_path}" >> "$GITHUB_OUTPUT"
+
+          # Observabilidade (RFC-0004). Opcional de proposito: le com -json
+          # porque o valor e `null` quando a stack esta desligada no
+          # mechanical-hub-infra, e `-raw` falharia nesse caso. Sem coletor, a
+          # aplicacao sobe com a exportacao de traces desativada em vez de o
+          # deploy quebrar.
+          otlp="$(terraform output -json otlp_http_endpoint 2>/dev/null | jq -r '. // ""')"
+          echo "otlp_http_endpoint=${otlp}" >> "$GITHUB_OUTPUT"
+          if [ -z "$otlp" ]; then
+            echo "::warning::Coletor OpenTelemetry indisponivel nos states. A aplicacao sobe sem exportar traces; metricas e logs nao dependem deste valor."
+          fi
 
       - name: Summary
         run: |
@@ -208,9 +220,23 @@ jobs:
           DB_USERNAME: ${{ needs.resolve-infra.outputs.rds-username }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           CORS_ALLOWED_ORIGINS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
+          OTLP_HTTP_ENDPOINT: ${{ needs.resolve-infra.outputs.otlp-http-endpoint }}
         run: |
           set -euo pipefail
           MANIFEST_DIR=src/main/resources/k8s
+
+          # Observabilidade (RFC-0004). O Spring espera o caminho completo do
+          # sinal, nao a raiz OTLP — dai o sufixo /v1/traces. Sem coletor no
+          # ambiente, TRACING_ENABLED=false desliga a exportacao: o traceId
+          # continua sendo gerado e indo para o log (que e o que liga log e
+          # requisicao), so nao e enviado ao Tempo.
+          if [ -n "${OTLP_HTTP_ENDPOINT}" ]; then
+            export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT="${OTLP_HTTP_ENDPOINT}/v1/traces"
+            export TRACING_ENABLED="true"
+          else
+            export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=""
+            export TRACING_ENABLED="false"
+          fi
 
           kubectl apply -f $MANIFEST_DIR/namespace.yaml
 
@@ -223,6 +249,16 @@ jobs:
             echo "→ Applying $manifest"
             envsubst < "$MANIFEST_DIR/$manifest" | kubectl apply -f -
           done
+
+          # O ServiceMonitor e um objeto de CRD do Prometheus Operator. Aplicar
+          # sem a CRD instalada falha o deploy inteiro por causa de um recurso
+          # que so serve para monitoramento — por isso a verificacao antes.
+          if kubectl get crd servicemonitors.monitoring.coreos.com > /dev/null 2>&1; then
+            echo "→ Applying servicemonitor-app.yaml"
+            kubectl apply -f "$MANIFEST_DIR/servicemonitor-app.yaml"
+          else
+            echo "::warning::CRD ServiceMonitor ausente — o Prometheus nao vai raspar as metricas da aplicacao. Aplique a stack de observabilidade no mechanical-hub-infra e rode este pipeline de novo."
+          fi
 
       - name: Wait for rollout
         run: |
@@ -261,3 +297,35 @@ jobs:
           echo ""
           echo "Acesso publico via API Gateway (repositorio mechanical-hub-auth)."
           echo "──────────────────────────────────────────"
+
+      # Metrica que nao e raspada nao existe. Confirmar aqui evita descobrir o
+      # painel vazio so na hora de gravar a demonstracao.
+      - name: Confirm metrics endpoint is being served
+        run: |
+          set -uo pipefail
+          pod="$(kubectl get pods -n production -l app=mechanical-hub-api \
+                   -o jsonpath='{.items[0].metadata.name}')"
+
+          echo "Conferindo /actuator/prometheus em ${pod}..."
+          saida="$(kubectl exec -n production "$pod" -- \
+                     curl -sS --max-time 10 http://localhost:8080/actuator/prometheus 2>/dev/null || true)"
+
+          if [ -z "$saida" ]; then
+            echo "::error::/actuator/prometheus nao respondeu. Confira a exposicao do endpoint (application.yml) e a liberacao no SecurityConfiguration."
+            exit 1
+          fi
+
+          # A serie do Micrometer so aparece depois da primeira requisicao HTTP,
+          # entao a verificacao usa uma metrica de JVM, sempre presente.
+          if ! printf '%s' "$saida" | grep -q '^jvm_memory_used_bytes'; then
+            echo "::error::O endpoint respondeu, mas sem metricas do Micrometer. Confira se micrometer-registry-prometheus esta no classpath."
+            exit 1
+          fi
+
+          echo "OK — endpoint de metricas servindo $(printf '%s' "$saida" | grep -c '^# TYPE') familias de metrica."
+
+          if kubectl get servicemonitor mechanical-hub-api -n production > /dev/null 2>&1; then
+            echo "ServiceMonitor aplicado: o Prometheus vai descobrir este alvo em ate 30s."
+          else
+            echo "::warning::Sem ServiceMonitor — as metricas existem, mas ninguem as esta raspando."
+          fi

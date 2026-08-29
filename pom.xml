@@ -29,6 +29,9 @@
         <java.version>21</java.version>
         <sonar.version>4.0.0.4121</sonar.version>
         <jacoco.version>0.8.11</jacoco.version>
+        <!-- Unica dependencia de observabilidade fora dos BOMs do Spring Boot.
+             A serie 7.4 e a compativel com o Logback 1.4 que a 3.2.5 traz. -->
+        <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
 
         <!-- Configurações do Sonar -->
         <sonar.java.binaries>target/classes</sonar.java.binaries>
@@ -82,6 +85,49 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Observabilidade (RFC-0004) -->
+        <!--
+            Nenhuma destas dependencias leva versao propria: todas sao
+            gerenciadas pelo spring-boot-starter-parent (via micrometer-bom,
+            micrometer-tracing-bom e opentelemetry-bom), com a unica excecao do
+            logstash-logback-encoder, que nao entra em nenhum BOM do Spring.
+        -->
+
+        <!-- Expoe /actuator/prometheus para o Prometheus raspar. -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <!-- Ponte da Observation API do Spring para o OpenTelemetry: e o que
+             cria trace/span nas requisicoes HTTP e coloca traceId/spanId no MDC. -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+        </dependency>
+
+        <!-- Exporta os spans em OTLP para o coletor OpenTelemetry. -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+        </dependency>
+
+        <!-- Logs estruturados em JSON. O Spring Boot so ganhou formatacao
+             estruturada nativa na 3.4; nesta versao (3.2.5) o encoder vem daqui. -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>${logstash-logback-encoder.version}</version>
+        </dependency>
+
+        <!-- Necessario para os aspectos de metrica de negocio
+             (infrastructure/observability). Mantem a instrumentacao fora dos
+             casos de uso: nenhum construtor de application/ muda. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
         <!-- Utils -->

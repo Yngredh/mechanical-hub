@@ -124,3 +124,18 @@ output "rds_username" {
   description = "Usuario master do RDS. Vira DB_USERNAME no ConfigMap da aplicacao."
   value       = data.terraform_remote_state.database.outputs.rds_username
 }
+
+# ── Observabilidade (RFC-0004) ───────────────────────────────────────────────
+#
+# Diferente dos demais, este output e opcional: o `mechanical-hub-infra` publica
+# `null` quando a stack de observabilidade esta desligada, e um state aplicado
+# antes da etapa 1 sequer contem a chave. O `try` cobre os dois casos, e cabe ao
+# pipeline decidir o que fazer com o valor ausente — no caso, subir a aplicacao
+# com a exportacao de traces desativada, em vez de falhar o deploy.
+#
+# Nao use `terraform output -raw` neste valor: com `null` o comando falha. Leia
+# com `-json` e trate a ausencia (`jq -r '. // ""'`).
+output "otlp_http_endpoint" {
+  description = "Endpoint OTLP/HTTP do coletor OpenTelemetry, ou null se a observabilidade estiver desligada."
+  value       = try(data.terraform_remote_state.infra.outputs.otlp_http_endpoint, null)
+}

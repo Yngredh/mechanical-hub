@@ -25,6 +25,11 @@ spec:
     metadata:
       labels:
         app: mechanical-hub-api
+        # Rotulo padrao do Kubernetes. O processador k8sattributes do coletor
+        # OpenTelemetry deriva dele o `service.name` dos logs, que no Loki vira
+        # a label `service_name` — a mesma pela qual o painel de logs filtra.
+        # Sem este rotulo, os logs chegam sem identificacao de servico.
+        app.kubernetes.io/name: mechanical-hub
 
     spec:
       containers:
@@ -46,15 +51,20 @@ spec:
                 secretKeyRef:
                   name: mechanical-hub-secrets
                   key: database-password
+            # -Xmx subiu de 384m para 448m junto com o limite do container: o
+            # SDK do OpenTelemetry e o registro de metricas do Micrometer somam
+            # heap e metaspace que antes nao existiam. Manter o valor antigo
+            # deixaria a aplicacao mais perto do OOM sob carga — justamente
+            # quando a observabilidade precisa funcionar.
             - name: JAVA_TOOL_OPTIONS
-              value: "-Xmx384m -Xms128m -XX:+UseContainerSupport"
+              value: "-Xmx448m -Xms192m -XX:+UseContainerSupport"
           resources:
             requests:
               cpu: "250m"
               memory: "512Mi"
             limits:
               cpu: "1000m"
-              memory: "768Mi"
+              memory: "1Gi"
           startupProbe:
             httpGet:
               path: /actuator/health/liveness

@@ -10,6 +10,8 @@ import com.fiap.mechanical_hub.domain.service.VehicleDomainService;
 import com.fiap.mechanical_hub.domain.strategies.order_transition.OrderStatusTransitionFactory;
 import com.fiap.mechanical_hub.domain.strategies.order_transition.TransitionConfig;
 import com.fiap.mechanical_hub.domain.utils.OrderNumberGenerator;
+import com.fiap.mechanical_hub.infrastructure.observability.MeteredOrderStatusTransitionFactory;
+import com.fiap.mechanical_hub.infrastructure.observability.ServiceOrderMetrics;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -38,8 +40,10 @@ public class DomainConfig {
 
     @Bean
     public OrderStatusTransitionFactory orderStatusTransitionFactory(
-            SendBudgetApproval sendBudgetApproval
+            SendBudgetApproval sendBudgetApproval,
+            ServiceOrderMetrics serviceOrderMetrics
     ) {
-        return new TransitionConfig().transitionFactory(sendBudgetApproval);
+        OrderStatusTransitionFactory factory = new TransitionConfig().transitionFactory(sendBudgetApproval);
+        return new MeteredOrderStatusTransitionFactory(factory, serviceOrderMetrics);
     }
 }
