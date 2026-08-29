@@ -1,4 +1,9 @@
 spring:
+  application:
+    # Vira a tag `application` em toda metrica e o service.name dos traces.
+    # E o nome pelo qual a aplicacao aparece no Grafana.
+    name: mechanical-hub
+
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
@@ -13,6 +18,11 @@ spring:
     enabled: true
     baseline-on-migrate: false
 
+# Propriedade propria da aplicacao. Fonte unica do rotulo de ambiente: e lida
+# pelas tags de metrica, pelas observacoes (traces) e pelo logback-spring.xml.
+mechanical-hub:
+  environment: ${ENVIRONMENT:production}
+
 logging:
   level:
     root: WARN
@@ -22,7 +32,11 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        # `prometheus` e o endpoint que o ServiceMonitor raspa. Nao passa pelo
+        # API Gateway: a matriz de acesso do mechanical-hub-auth so libera
+        # /actuator/health/**, entao so o Prometheus, de dentro do cluster,
+        # alcanca esta rota.
+        include: health,info,prometheus,metrics
   endpoint:
     health:
       probes:
@@ -33,3 +47,39 @@ management:
           include: livenessState
         readiness:
           include: readinessState
+
+  metrics:
+    tags:
+      # Aplicadas a toda metrica desta aplicacao. Permitem separar aplicacoes e
+      # ambientes no mesmo Prometheus sem depender de label de scrape.
+      application: ${spring.application.name}
+      environment: ${mechanical-hub.environment}
+    distribution:
+      percentiles-histogram:
+        # Sem isto o Micrometer publica apenas _count e _sum, e o
+        # histogram_quantile(0.95, ...) dos dashboards e do alerta de latencia
+        # nao retorna nada — falha silenciosa, painel vazio sem erro.
+        http.server.requests: true
+      slo:
+        http.server.requests: 100ms,300ms,500ms,1s,2s,5s
+
+  observations:
+    key-values:
+      environment: ${mechanical-hub.environment}
+
+  tracing:
+    # Desligavel por variavel de ambiente: sem coletor no ambiente (maquina do
+    # dev, pipeline), a exportacao so produziria aviso de conexao recusada a
+    # cada span. O traceId continua sendo gerado e indo para o log de qualquer
+    # forma — o que se perde e o envio ao Tempo.
+    enabled: ${TRACING_ENABLED:true}
+    sampling:
+      # 100% das requisicoes. O volume deste projeto e baixo e a demonstracao
+      # precisa que qualquer requisicao feita ao vivo apareca como trace.
+      probability: ${TRACING_SAMPLE_RATE:1.0}
+
+  otlp:
+    tracing:
+      # Coletor OpenTelemetry provisionado pelo mechanical-hub-infra (output
+      # otlp_http_endpoint). O ConfigMap do Kubernetes preenche esta variavel.
+      endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:http://localhost:4318/v1/traces}

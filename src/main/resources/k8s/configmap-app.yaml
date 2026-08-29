@@ -14,3 +14,20 @@ data:
   SPRING_PROFILES_ACTIVE: production
   SERVER_PORT: "8080"
   CORS_ALLOWED_ORIGINS: "${CORS_ALLOWED_ORIGINS}"
+
+  # ── Observabilidade (RFC-0004) ─────────────────────────────────────────────
+  #
+  # ENVIRONMENT vira tag em toda metrica, atributo dos traces e campo dos logs.
+  ENVIRONMENT: production
+
+  # Coletor OpenTelemetry provisionado pelo mechanical-hub-infra. O valor vem do
+  # output `otlp_http_endpoint` daquele repositorio, resolvido pela pipeline —
+  # nao e digitado a mao. Com a observabilidade desligada la, a pipeline escreve
+  # TRACING_ENABLED=false e a aplicacao sobe sem tentar exportar nada.
+  OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT}"
+  TRACING_ENABLED: "${TRACING_ENABLED}"
+
+  # Amostragem de traces. 1.0 = todas as requisicoes: o volume do projeto e
+  # baixo e a demonstracao ao vivo precisa que a requisicao feita na hora
+  # apareca como trace.
+  TRACING_SAMPLE_RATE: "1.0"

@@ -1,0 +1,41 @@
+# ServiceMonitor — diz ao Prometheus onde raspar as metricas da aplicacao.
+#
+# Objeto de uma CRD do Prometheus Operator, instalado pelo kube-prometheus-stack
+# no mechanical-hub-infra. Se a observabilidade estiver desligada la, a CRD nao
+# existe e este arquivo nao pode ser aplicado — por isso a pipeline verifica a
+# CRD antes de aplicar, em vez de assumir que ela esta la.
+#
+# O Prometheus adota este ServiceMonitor porque o chart foi configurado com
+# `serviceMonitorSelectorNilUsesHelmValues: false`: ele aceita objetos de
+# qualquer namespace, sem exigir uma label do release. E o que permite a
+# aplicacao declarar aqui como quer ser raspada, sem conhecer detalhes do chart.
+#
+# Os rotulos que este scrape adiciona (`namespace`, `pod`, `service`) sao os
+# mesmos que os paineis e alertas usam para filtrar por ambiente.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mechanical-hub-api
+  namespace: production
+  labels:
+    app: mechanical-hub-api
+    app.kubernetes.io/name: mechanical-hub
+
+spec:
+  namespaceSelector:
+    matchNames:
+      - production
+
+  selector:
+    matchLabels:
+      app: mechanical-hub-api
+
+  endpoints:
+    # `port` e o NOME da porta no Service (nao o numero).
+    - port: http
+      path: /actuator/prometheus
+      scheme: http
+      # Alinhado ao scrapeInterval global do Prometheus. Mais frequente do que
+      # isso so aumenta a serie sem melhorar nenhum painel deste projeto.
+      interval: 30s
+      scrapeTimeout: 10s
