@@ -1,0 +1,52 @@
+%% Mechanical Hub - Arquitetura da Fase 2 (monolito)
+%% Escopo: componentes provisionados na AWS. Sem detalhes de rede (VPC, subnets, SGs).
+%% Setas numeradas: caminho de uma requisicao GET, do login no client ate a resposta.
+%%{init: {"theme":"base","themeVariables":{"fontFamily":"ui-sans-serif, system-ui, Segoe UI, Roboto, sans-serif","fontSize":"14px","lineColor":"#64748B","textColor":"#0F172A","mainBkg":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","titleColor":"#0F172A","edgeLabelBackground":"#FFFFFF"}}}%%
+flowchart LR
+    CLI["<b>Client</b><br/>funcionario da oficina<br/>navegador · Postman"]
+
+    subgraph AWS2["AWS — Fase 2"]
+        direction LR
+
+        ELB["<b>Elastic Load Balancer</b><br/>criado pelo Service<br/>type LoadBalancer"]
+
+        subgraph EKS2["Amazon EKS"]
+            MONO["<b>Monolito Spring Boot</b><br/>─────────<br/>login · emissao e validacao do JWT<br/>ordens de servico · estoque<br/>orcamento · relatorios<br/><i>1 imagem · 1 deployment · 1 processo</i>"]
+        end
+
+        RDS2[("<b>Amazon RDS</b><br/>PostgreSQL<br/>1 usuario de banco")]
+        ECR2["<b>Amazon ECR</b><br/>imagem da aplicacao"]
+    end
+
+    GHA2["<b>GitHub Actions</b><br/>1 repositorio · 1 pipeline<br/>infra e app no mesmo apply"]
+
+    CLI  -->|"① POST /auth/login"| ELB
+    ELB  -->|"② encaminha · ⑤ devolve o JWT emitido pelo proprio monolito"| MONO
+    MONO -->|"③ SELECT usuario · ④ confere cpf e senha"| RDS2
+    ELB  -.->|"⑥ 200 + token"| CLI
+
+    CLI  ==>|"⑦ GET /service-orders + Bearer"| ELB
+    ELB  ==>|"⑧ o monolito valida o JWT internamente"| MONO
+    MONO ==>|"⑨ SELECT ordens · ⑩ retorna as linhas"| RDS2
+    MONO -.->|"⑪"| ELB
+    ELB  -.->|"⑫ 200 JSON"| CLI
+
+    ECR2 -.->|"pull da imagem"| MONO
+    GHA2 -.->|"build · push · terraform · kubectl"| ECR2
+
+    classDef client fill:#E8EDF5,stroke:#64748B,stroke-width:1.5px,color:#0F172A
+    classDef lb fill:#E6F7EF,stroke:#0E9F6E,stroke-width:1.5px,color:#0A5238
+    classDef app fill:#E3F0FF,stroke:#2563EB,stroke-width:2px,color:#0B3A78
+    classDef db fill:#EFE6FF,stroke:#7C3AED,stroke-width:1.5px,color:#3B1D80
+    classDef reg fill:#FFF1E0,stroke:#ED7100,stroke-width:1.5px,color:#7A3E00
+    classDef ci fill:#F1F5F9,stroke:#94A3B8,stroke-width:1.5px,color:#334155
+
+    class CLI client
+    class ELB lb
+    class MONO app
+    class RDS2 db
+    class ECR2 reg
+    class GHA2 ci
+
+    style AWS2 fill:#FFFDF9,stroke:#ED7100,stroke-width:1.5px,color:#7A3E00
+    style EKS2 fill:#F4F8FF,stroke:#2563EB,stroke-width:1.5px,color:#0B3A78

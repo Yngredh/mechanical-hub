@@ -5,6 +5,7 @@ Este documento detalha a arquitetura da aplicação, a infraestrutura provisiona
 ---
 
 ## Componentes da Aplicação
+![Diagrama de componentes Alto Nível da Fase 3](assets/diagrama-de-componentes.png)
 
 A aplicação segue Clean Architecture em camadas, com separação clara entre domínio, casos de uso e adaptadores:
 
@@ -25,7 +26,7 @@ mechanical-hub/
 └── docker-compose.yml       # Stack local (app + postgres + sonarqube)
 ```
 
-**Diagrama de componentes:**
+**Camadas internas da aplicação:**
 
 ```
 ┌──────────────────────────────────────────────────────────┐
@@ -100,16 +101,42 @@ provisiona um NLB interno apontando para o NodePort fixo deste repositório
 Gateway até esse NLB. A cadeia completa é
 `cliente → API Gateway → VPC Link → NLB interno → NodePort → pod`.
 
-**Diagrama de infraestrutura (AWS):**
+## Diagrama de componentes (Fase 3)
 
-![Infraestrutura - Diagrama](assets/aws_infrastructure_diagram.png)
+Visão de nuvem, APIs, banco e monitoramento em um único desenho. Fonte versionada:
+[`docs/specs/diagrams/fase3-arquitetura-microsservicos.mermaid`](specs/diagrams/fase3-arquitetura-microsservicos.mermaid)
+(o equivalente da Fase 2, para comparação, está em
+[`fase2-arquitetura-monolito.mermaid`](specs/diagrams/fase2-arquitetura-monolito.mermaid)).
+
+![Diagrama de componentes e infraestrutura da Fase 3](assets/fase3-componentes.png)
+
+**Como ler.** As setas numeradas ①–⑯ traçam duas requisições completas, ida e volta: o login do
+funcionário (①–⑥, linha fina) e uma chamada a rota protegida (⑦–⑯, linha grossa). As setas
+pontilhadas sem número são relações permanentes entre componentes — telemetria, logs, pull de
+imagem, deploy — e não fazem parte do caminho de uma requisição.
+
+| Eixo do desenho | O que aparece |
+|---|---|
+| **Nuvem** | Região `us-east-1`; API Gateway, Lambdas, NLB interno, EKS (Kubernetes 1.33, 3× `t3.medium`), RDS, ECR, S3 de state e CloudWatch Logs. Rede (VPC, subnets, security groups) fica fora por decisão de escopo — o diagrama é de componentes, não de topologia de rede. |
+| **APIs** | O API Gateway como ponto único de entrada, com as duas superfícies: rotas protegidas pelo Lambda Authorizer (funcionário) e rotas públicas do cliente final (`/mechanical-hub/**`), que nunca autentica (RFC-0003). |
+| **Banco** | RDS PostgreSQL sem acesso público, com as duas roles: `mechanical_hub` para a aplicação e `mechanical_hub_auth`, de leitura restrita, para a Lambda de login. |
+| **Monitoramento** | Namespace `monitoring` no cluster: OTel Collector como gateway OTLP, `otel-logs-agent` (DaemonSet) lendo `/var/log/pods`, Prometheus (que também raspa `/actuator/prometheus` da aplicação), Loki, Tempo e Grafana. As Lambdas exportam OTLP pelo listener `30318` do NLB interno, já que rodam na VPC mas fora do cluster. CloudWatch Logs guarda os logs de execução do API Gateway e das Lambdas. |
+
+**Diagrama de infraestrutura da Fase 2 (histórico):** mostra a topologia anterior, com Service
+`type: LoadBalancer` público e sem gateway, Lambdas ou observabilidade — mantido para comparação
+com o desenho acima.
+
+![Infraestrutura da Fase 2 - Diagrama](assets/aws_infrastructure_diagram.png)
 ---
 
 ## Fluxo de Deploy
 
 O pipeline CI/CD é executado pelo GitHub Actions em cada push para a branch `main`. Os jobs são executados em sequência com dependências explícitas:
 
-![Fluxo de Deploy - Pipeline](assets/pipeline_diagram.png)
+> A imagem abaixo é da **Fase 2**, quando esta pipeline ainda provisionava infraestrutura. O fluxo
+> atual — sem Terraform, lendo os states dos outros repositórios — é o descrito logo em seguida.
+
+![Fluxo de Deploy da Fase 2 - Pipeline](assets/pipeline_diagram.png)
 
 ```
 push → main

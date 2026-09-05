@@ -1,0 +1,104 @@
+%% Mechanical Hub - Diagrama de componentes da Fase 3
+%% Escopo: componentes provisionados na AWS - nuvem, APIs, banco e monitoramento.
+%% Sem detalhes de rede (VPC, subnets, security groups) por decisao de escopo.
+%% Setas numeradas: caminho de uma requisicao, do login do funcionario ate a resposta.
+%%{init: {"theme":"base","themeVariables":{"fontFamily":"ui-sans-serif, system-ui, Segoe UI, Roboto, sans-serif","fontSize":"14px","lineColor":"#64748B","textColor":"#0F172A","mainBkg":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","titleColor":"#0F172A","edgeLabelBackground":"#FFFFFF"}}}%%
+flowchart LR
+    CLI["<b>Funcionario da oficina</b><br/>mecanico ou administrador<br/>navegador · Postman"]
+    CLIF["<b>Cliente final</b><br/><i>nunca autentica</i><br/>consulta OS · aprova · rejeita"]
+
+    subgraph AWS3["AWS us-east-1 — Fase 3"]
+        direction LR
+
+        GW["<b>Amazon API Gateway</b><br/>REST · stage prod<br/>ponto unico de entrada<br/>rotas publicas e protegidas"]
+
+        subgraph SERVERLESS["Autenticacao serverless"]
+            LAUTH["<b>AWS Lambda</b> authenticate<br/>POST /auth/login<br/>valida cpf e senha · emite JWT"]
+            LAZ["<b>AWS Lambda</b> authorize<br/>Lambda Authorizer<br/>valida JWT · Allow ou Deny<br/>cache de 300s"]
+        end
+
+        NLB["<b>Network Load Balancer</b><br/>interno · sem IP publico<br/>alvo do VPC Link<br/>listeners 30080 e 30318"]
+
+        subgraph EKS3["Amazon EKS · Kubernetes 1.33 · 3x t3.medium"]
+            APP["<b>Aplicacao Spring Boot</b><br/>─────────<br/>ordens de servico · estoque<br/>orcamento · relatorios<br/><i>sem responsabilidade de autenticacao</i><br/>le x-user-id, x-user-role e x-user-name<br/>Deployment + HPA"]
+            FUT["<b>Proximos servicos</b><br/><i>estoque · orcamento · notificacoes</i><br/>entram atras do mesmo gateway,<br/>sem mudar o client"]
+
+            subgraph OBSV["Observabilidade — namespace monitoring"]
+                direction TB
+                COL["<b>OpenTelemetry Collector</b><br/>gateway OTLP 4317/4318"]
+                AGENT["<b>otel-logs-agent</b><br/>DaemonSet · le /var/log/pods"]
+                PROM["<b>Prometheus</b><br/>metricas"]
+                LOKI["<b>Loki</b><br/>logs"]
+                TEMPO["<b>Tempo</b><br/>traces"]
+                GRAF["<b>Grafana</b><br/>dashboards e alertas<br/>acesso por port-forward"]
+            end
+        end
+
+        RDS3[("<b>Amazon RDS</b><br/>PostgreSQL 16 · db.t3.micro<br/>sem acesso publico<br/>role mechanical_hub — app<br/>role mechanical_hub_auth — Lambda")]
+        ECR3["<b>Amazon ECR</b><br/>imagem da aplicacao"]
+        S3["<b>Amazon S3</b><br/>state remoto do Terraform<br/>1 state por repositorio"]
+        CW["<b>CloudWatch Logs</b><br/>API Gateway e Lambdas"]
+    end
+
+    GHA3["<b>GitHub Actions</b><br/>4 repositorios · 4 pipelines<br/>infra · database · auth · app<br/>cada um evolui sozinho"]
+
+    CLI   -->|"① POST /auth/login · ⑥ 200 + accessToken"| GW
+    GW    -->|"② invoke · ⑤ recebe o JWT assinado"| LAUTH
+    LAUTH -->|"③ SELECT users e profiles · ④ retorna o usuario"| RDS3
+
+    CLI ==>|"⑦ GET /service-orders + Bearer · ⑯ 200 JSON"| GW
+    GW  ==>|"⑧ invoke authorizer · ⑨ Allow + userId, role e name"| LAZ
+    GW  ==>|"⑩ HTTP_PROXY via VPC Link<br/>injeta x-user-id, x-user-role e x-user-name · ⑮ resposta"| NLB
+    NLB ==>|"⑪ NodePort 30080 · ⑭ resposta"| APP
+    APP ==>|"⑫ SELECT ordens · ⑬ retorna as linhas"| RDS3
+
+    CLIF -->|"rotas publicas /mechanical-hub/**<br/>sem authorizer"| GW
+
+    NLB  -.->|"novos servicos entram aqui"| FUT
+    ECR3 -.->|"pull da imagem"| APP
+
+    APP   -.->|"traces OTLP"| COL
+    APP   -.->|"logs JSON no stdout"| AGENT
+    PROM  -.->|"scrape /actuator/prometheus"| APP
+    SERVERLESS -.->|"OTLP das Lambdas"| NLB
+    NLB   -.->|"NodePort 30318"| COL
+    COL   -.->|"remote write"| PROM
+    COL   -.-> TEMPO
+    COL   -.-> LOKI
+    AGENT -.-> LOKI
+    PROM  -.-> GRAF
+    LOKI  -.-> GRAF
+    TEMPO -.-> GRAF
+
+    GW    -.->|"access logs"| CW
+    SERVERLESS -.->|"logs das Lambdas"| CW
+
+    GHA3 -.->|"build e push da imagem"| ECR3
+    GHA3 -.->|"terraform apply · state remoto"| S3
+
+    classDef client fill:#E8EDF5,stroke:#64748B,stroke-width:1.5px,color:#0F172A
+    classDef gw fill:#FFE4CC,stroke:#ED7100,stroke-width:2px,color:#7A3E00
+    classDef lambda fill:#FFF1E0,stroke:#ED7100,stroke-width:1.5px,color:#7A3E00
+    classDef lb fill:#E6F7EF,stroke:#0E9F6E,stroke-width:1.5px,color:#0A5238
+    classDef app fill:#E3F0FF,stroke:#2563EB,stroke-width:2px,color:#0B3A78
+    classDef db fill:#EFE6FF,stroke:#7C3AED,stroke-width:1.5px,color:#3B1D80
+    classDef reg fill:#FFF1E0,stroke:#ED7100,stroke-width:1.5px,color:#7A3E00
+    classDef ci fill:#F1F5F9,stroke:#94A3B8,stroke-width:1.5px,color:#334155
+    classDef obs fill:#FDF2F8,stroke:#DB2777,stroke-width:1.5px,color:#831843
+    classDef future fill:#FFFFFF,stroke:#94A3B8,stroke-width:1.5px,stroke-dasharray:6 4,color:#475569
+
+    class CLI,CLIF client
+    class GW gw
+    class LAUTH,LAZ lambda
+    class NLB lb
+    class APP app
+    class RDS3 db
+    class ECR3,CW,S3 reg
+    class GHA3 ci
+    class COL,AGENT,PROM,LOKI,TEMPO,GRAF obs
+    class FUT future
+
+    style AWS3 fill:#FFFDF9,stroke:#ED7100,stroke-width:1.5px,color:#7A3E00
+    style EKS3 fill:#F4F8FF,stroke:#2563EB,stroke-width:1.5px,color:#0B3A78
+    style SERVERLESS fill:#FFF8F0,stroke:#ED7100,stroke-width:1.5px,color:#7A3E00
+    style OBSV fill:#FFF5FA,stroke:#DB2777,stroke-width:1.5px,color:#831843

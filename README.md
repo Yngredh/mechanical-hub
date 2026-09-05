@@ -8,6 +8,7 @@ Sistema de Gestão de Oficina Mecânica — automatiza o atendimento ao cliente,
 
 - [Visão Geral e Objetivos da Fase 1](#visão-geral-fase1)
 - [Visão Geral e Objetivos da Fase 2](#visão-geral)
+- [Visão Geral e Objetivos da Fase 3](#visão-geral-fase3)
 - [Tecnologias](#tecnologias)
 - [Arquitetura](docs/ARCHITECTURE.md)
 - [Pré-requisitos](#pré-requisitos)
@@ -57,6 +58,25 @@ A Fase 2 evoluiu a aplicação do MVP para um ambiente de produção real na AWS
 
 ---
 
+<a id="visão-geral-fase3"></a>
+## 💡 Objetivos da Fase 3
+
+A Fase 3 dividiu o monólito de infraestrutura em quatro repositórios independentes, cada um com pipeline e state próprios (ADR-0002), e substituiu a autenticação própria da aplicação por um fluxo serverless: funcionários fazem login por CPF em uma AWS Lambda, o API Gateway valida o token via Lambda Authorizer e injeta a identidade do usuário como cabeçalhos HTTP — a aplicação passou a confiar no gateway em vez de emitir e validar JWT (RFC-0003). A plataforma também ganhou uma stack de observabilidade própria, hospedada no mesmo cluster (RFC-0004).
+
+| Competência | Como foi aplicada |
+|---|---|
+| **Arquitetura multirrepositório** | Divisão em 4 repositórios (`mechanical-hub`, `mechanical-hub-auth`, `mechanical-hub-database`, `mechanical-hub-infra`), cada um com pipeline, state remoto e ciclo de deploy independentes (ADR-0002) |
+| **Autenticação serverless** | Login por CPF em AWS Lambda (`authenticate`), autorização via Lambda Authorizer do API Gateway (`authorize`); a aplicação não emite nem valida JWT, apenas lê os cabeçalhos `x-user-id`/`x-user-role`/`x-user-name` injetados pelo gateway (RFC-0003, `GatewayAuthenticationFilter`) |
+| **API Gateway como porta única** | Rotas públicas (cliente final, sem autenticação) e protegidas (funcionários, via Lambda Authorizer) expostas por um único Amazon API Gateway, encaminhadas ao backend via VPC Link + NLB interno |
+| **Observabilidade própria** | Coletor OpenTelemetry + Prometheus + Loki + Tempo + Grafana self-hosted no namespace `monitoring` do EKS; métricas via `/actuator/prometheus`, logs via stdout, traces via OTLP (RFC-0004) |
+| **Infraestrutura como Código distribuída** | Cada repositório provisiona seu próprio recorte (rede/cluster, banco, autenticação) e lê o que precisa dos demais via `terraform_remote_state`, sem hardcode de IDs |
+| **Restrições de ambiente de laboratório** | Decisões adaptadas ao AWS Academy Lab: sem `iam:*` de escrita (NLB provisionado direto via Terraform, sem AWS Load Balancer Controller; sem RDS Proxy), sem Secrets Manager (fallback por variável de ambiente), sessões de ~4h |
+| **Documentação de decisão** | ADRs e RFCs formalizando a divisão de repositórios, a escolha do banco gerenciado, o padrão de comunicação API Gateway ↔ aplicação, a autenticação via Lambda e a stack de observabilidade |
+
+Detalhes de cada decisão estão em [`docs/architecture/`](docs/architecture/); o desenho completo dos componentes (nuvem, APIs, banco e monitoramento) está em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+---
+
 <a id="tecnologias"></a>
 ## 🛠️ Tecnologias
 
@@ -65,7 +85,7 @@ A Fase 2 evoluiu a aplicação do MVP para um ambiente de produção real na AWS
 | Linguagem | Java 21 |
 | Framework | Spring Boot 3.2.5 |
 | Banco de Dados | PostgreSQL 16 |
-| Autenticação | JWT (JJWT 0.11.5 + Auth0 Java JWT 4.4.0) |
+| Autenticação | Delegada ao `mechanical-hub-auth` (API Gateway + Lambda Authorizer); a aplicação não emite nem valida JWT |
 | Documentação | SpringDoc OpenAPI 3 (Swagger UI) |
 | Build | Maven |
 | Contêineres | Docker + Docker Compose |
@@ -113,8 +133,6 @@ DB_PORT=5432
 DB_NAME=mechanical_hub_db
 DB_USERNAME=admin
 DB_PASSWORD=12345678
-JWT_SECRET=minha-chave-jwt-mechanical-hub
-JWT_EXPIRATION_MS=3600000
 ```
 
 ---
@@ -160,8 +178,6 @@ export DB_PORT=5432
 export DB_NAME=mechanical_hub_db
 export DB_USERNAME=admin
 export DB_PASSWORD=12345678
-export JWT_SECRET=minha-chave-jwt-mechanical-hub
-export JWT_EXPIRATION_MS=3600000
 ```
 
 **3. Execute a aplicação:**
@@ -180,21 +196,21 @@ java -jar target/mechanical-hub-0.0.1-SNAPSHOT.jar
 <a id="usuários-padrão"></a>
 ## 👤 Usuários Padrão
 
-O Flyway cria automaticamente dois usuários na primeira execução (migration `V15`):
+O Flyway cria automaticamente dois usuários na primeira execução (migration `V15`) e preenche o CPF de cada um (migration `V19`), campo usado para login desde a Fase 3:
 
-| Perfil | E-mail | Senha |
-|---|---|---|
-| Administrador | `admin@mechanicalhub.com` | consultar PDF |
-| Mecânico | `mecanico@mechanicalhub.com` | consultar PDF |
+| Perfil | CPF | E-mail | Senha |
+|---|---|---|---|
+| Administrador | `529.982.247-25` | `admin@mechanicalhub.com` | consultar PDF |
+| Mecânico | `111.444.777-35` | `mecanico@mechanicalhub.com` | consultar PDF |
 
-> Use o endpoint `POST /auth/login` para obter o token JWT e incluí-lo no header `Authorization: Bearer <token>` nas demais requisições.
+> O login não é feito nesta aplicação. Envie CPF + senha para `POST /auth/login` no `mechanical-hub-auth` (ver o README daquele repositório) para obter o token e inclua-o como `Authorization: Bearer <token>` nas demais requisições — o API Gateway injeta a identidade do usuário, a aplicação não valida o token.
 
 ---
 
 <a id="documentação-da-api"></a>
 ## 📚 Documentação de Endpoints da API
 
-Com a aplicação rodando, acesse o Swagger UI:
+Com a aplicação rodando localmente, acesse o Swagger UI:
 
 ```
 http://localhost:8080/swagger-ui/index.html
@@ -205,12 +221,24 @@ Esquema OpenAPI em JSON:
 http://localhost:8080/v3/api-docs
 ```
 
+**Ambiente implantado (AWS):** o Swagger UI e o schema OpenAPI são rotas públicas do API Gateway (`/swagger-ui/{proxy+}` e `/v3/{proxy+}`, sem autenticação — ver `mechanical-hub-auth/infra/terraform/api-gateway.tf`). Como o AWS Academy Lab não tem URL fixa (o `id` do API Gateway muda a cada reset do laboratório), obtenha a URL vigente com:
+
+```bash
+cd ../mechanical-hub-auth/infra/terraform
+terraform output api_base_url
+```
+
+e acrescente `/swagger-ui/index.html` (UI) ou `/v3/api-docs` (JSON) ao valor retornado.
+
+**Collection da API:** Verifique [docs/TESTING.md](docs/TESTING.md) para obter exemplos das requests (login, CRUD de ordens de serviço etc.) prontos para colar em qualquer cliente REST.
+
 ---
 
 ## 📂 Documentação Complementar
 
 | Documento | Conteúdo |
 |---|---|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Componentes da aplicação, infraestrutura AWS e fluxo de deploy |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | **Diagrama de componentes da Fase 3** (nuvem, APIs, banco e monitoramento), componentes da aplicação e fluxo de deploy |
+| [docs/specs/diagrams/](docs/specs/diagrams/) | Fontes Mermaid dos diagramas: componentes da Fase 3 e da Fase 2, e o diagrama de sequência de autenticação e abertura de OS |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | Deploy manual em Kubernetes e leitura dos states de infraestrutura |
 | [docs/TESTING.md](docs/TESTING.md) | Fluxo completo de teste da API, cenários pré-carregados e testes automatizados |

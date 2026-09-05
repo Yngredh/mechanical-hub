@@ -1,8 +1,3 @@
--- Fecha o contrato da coluna document_number (§3 da spec da autenticacao).
---
--- Roda depois do backfill (V19). Falha se sobrou algum usuario sem documento,
--- o que e o comportamento desejado: melhor quebrar o deploy do que deixar um
--- funcionario sem conseguir autenticar.
 DO $$
 DECLARE
     missing INTEGER;
