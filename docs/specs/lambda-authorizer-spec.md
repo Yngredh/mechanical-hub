@@ -22,7 +22,7 @@ Substituir a autenticação embutida no monolito Spring Boot (`TokenService` + `
 - Acesso somente-leitura ao RDS via RDS Proxy.
 
 ### Fora do escopo
-- Cadastro/edição de usuários — permanece na aplicação principal (`POST /auth/register`, restrito a ADMINISTRATOR).
+- Cadastro/edição de usuários — permanece na aplicação principal (`POST /users/register`, restrito a ADMINISTRATOR).
 - Autenticação de cliente final — **não existe**. As rotas do cliente (aprovar orçamento, rejeitar orçamento, consultar OS por número) seguem públicas, sem authorizer.
 - Refresh token, MFA, recuperação de senha, revogação/blacklist de token (v2).
 
@@ -237,7 +237,7 @@ Espelha a `SecurityConfiguration` atual do monolito:
 | `/actuator/health/**` | GET | Pública |
 | `/swagger-ui/**`, `/v3/api-docs/**` | GET | Pública (avaliar restringir em prod) |
 | `/mechanical-hub/service-orders/**` | GET/POST | **Pública** — rotas do cliente final (consulta por número, aprovação, rejeição) |
-| `/auth/register`, `/users/**` | ALL | `ADMINISTRATOR` |
+| `/users/**` (inclui `POST /users/register`) | ALL | `ADMINISTRATOR` |
 | `/customers/**`, `/vehicles/**`, `/services/**`, `/materials/**`, `/stock/**`, `/reports/**` | ALL | `ADMINISTRATOR` |
 | `/service-orders/**` | ALL | `MECHANICAL` ou `ADMINISTRATOR` |
 
