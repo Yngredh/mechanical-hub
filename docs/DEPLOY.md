@@ -80,7 +80,7 @@ kubectl rollout status deployment/mechanical-hub-api \
 
 ### 6. Confirmar que o Service está saudável
 
-O Service é `NodePort` (item 47 do plano) — não tem IP público, então não há
+O Service é `NodePort` não tem IP público, então não há
 hostname de LoadBalancer para consultar. O acesso externo é via API Gateway,
 através do VPC Link do `mechanical-hub-auth` até o NLB interno provisionado
 pelo `mechanical-hub-infra`.
