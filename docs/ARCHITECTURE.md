@@ -7,7 +7,7 @@ Este documento detalha a arquitetura da aplicação, a infraestrutura provisiona
 ## Componentes da Aplicação
 ![Diagrama de componentes Alto Nível da Fase 3](assets/diagrama-de-componentes.png)
 
-A aplicação segue Clean Architecture em camadas, com separação clara entre domínio, casos de uso e adaptadores:
+A aplicação segue Clean Architecture em camadas:
 
 ```
 mechanical-hub/
@@ -55,7 +55,7 @@ mechanical-hub/
 |---|---|
 | `Namespace` | `production` |
 | `Deployment` | 2 réplicas, RollingUpdate (`maxSurge: 1`, `maxUnavailable: 0`) |
-| `Service` | `NodePort` fixo (30080) → pod 8080; sem IP público (item 47 do plano) |
+| `Service` | `NodePort` fixo (30080) → pod 8080; sem IP público |
 | `HPA` | min 2 / max 4 réplicas; escala por CPU (70%) e memória (300 Mi) |
 | `ConfigMap` | Variáveis de ambiente não-sensíveis (host do banco, porta, perfil) |
 | `Secret` | `DB_PASSWORD` e `JWT_SECRET` |
@@ -94,8 +94,7 @@ ci/remote-state/
 Ordem de provisionamento: `infra → database → auth → aplicação`. Um push nesta
 aplicação nunca altera VPC, EKS, ECR ou RDS.
 
-**Como a aplicação é alcançada de fora da VPC.** O Service não tem IP público
-(item 47 do plano — ver tabela de recursos K8s acima). O `mechanical-hub-infra`
+**Como a aplicação é alcançada de fora da VPC.** O Service não tem IP público. O `mechanical-hub-infra`
 provisiona um NLB interno apontando para o NodePort fixo deste repositório
 (`app_node_port`, hoje 30080); o `mechanical-hub-auth` cria um VPC Link do API
 Gateway até esse NLB. A cadeia completa é
@@ -121,50 +120,6 @@ imagem, deploy — e não fazem parte do caminho de uma requisição.
 | **APIs** | O API Gateway como ponto único de entrada, com as duas superfícies: rotas protegidas pelo Lambda Authorizer (funcionário) e rotas públicas do cliente final (`/mechanical-hub/**`), que nunca autentica (RFC-0003). |
 | **Banco** | RDS PostgreSQL sem acesso público, com as duas roles: `mechanical_hub` para a aplicação e `mechanical_hub_auth`, de leitura restrita, para a Lambda de login. |
 | **Monitoramento** | Namespace `monitoring` no cluster: OTel Collector como gateway OTLP, `otel-logs-agent` (DaemonSet) lendo `/var/log/pods`, Prometheus (que também raspa `/actuator/prometheus` da aplicação), Loki, Tempo e Grafana. As Lambdas exportam OTLP pelo listener `30318` do NLB interno, já que rodam na VPC mas fora do cluster. CloudWatch Logs guarda os logs de execução do API Gateway e das Lambdas. |
-
-**Diagrama de infraestrutura da Fase 2 (histórico):** mostra a topologia anterior, com Service
-`type: LoadBalancer` público e sem gateway, Lambdas ou observabilidade — mantido para comparação
-com o desenho acima.
-
-![Infraestrutura da Fase 2 - Diagrama](assets/aws_infrastructure_diagram.png)
----
-
-## Fluxo de Deploy
-
-O pipeline CI/CD é executado pelo GitHub Actions em cada push para a branch `main`. Os jobs são executados em sequência com dependências explícitas:
-
-> A imagem abaixo é da **Fase 2**, quando esta pipeline ainda provisionava infraestrutura. O fluxo
-> atual — sem Terraform, lendo os states dos outros repositórios — é o descrito logo em seguida.
-
-![Fluxo de Deploy da Fase 2 - Pipeline](assets/pipeline_diagram.png)
-
-```
-push → main
-       │
-       ├─ Job 1: Build & Test (Java/Maven)
-       │          • mvn test
-       │          • Salva resultados dos testes no GitHub Actions (7 dias)
-       │
-       ├─ Job 2: Resolve Infrastructure Outputs  ← depende de [1]
-       │          • ci/remote-state: leitura dos states remotos
-       │          • De mechanical-hub-infra: eks_cluster_name, ecr_repository_url
-       │          • De mechanical-hub-database: rds_endpoint, rds_port, rds_db_name
-       │          • Nenhum recurso é criado ou alterado
-       │
-       ├─ Job 3: Build & Push Docker Image  ← depende de [2]
-       │          • docker buildx (multi-stage Dockerfile)
-       │          • Push para ${ecr_repository_url}: :<sha8> + :latest
-       │
-       └─ Job 4: Deploy to Kubernetes  ← depende de [2, 3]
-                  • aws eks update-kubeconfig --name ${eks_cluster_name}
-                  • envsubst nos manifests k8s/
-                  • kubectl apply (namespace → secret → configmap
-                    → deployment → service → hpa)
-                  • kubectl rollout status --timeout=600s
-```
-
-> Pull Requests executam apenas o Job 1. Os demais são condicionados a
-> `push` em `main` — nenhum PR toca a AWS.
 
 ---
 

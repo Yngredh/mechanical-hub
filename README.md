@@ -73,8 +73,6 @@ A Fase 3 dividiu o monólito de infraestrutura em quatro repositórios independe
 | **Restrições de ambiente de laboratório** | Decisões adaptadas ao AWS Academy Lab: sem `iam:*` de escrita (NLB provisionado direto via Terraform, sem AWS Load Balancer Controller; sem RDS Proxy), sem Secrets Manager (fallback por variável de ambiente), sessões de ~4h |
 | **Documentação de decisão** | ADRs e RFCs formalizando a divisão de repositórios, a escolha do banco gerenciado, o padrão de comunicação API Gateway ↔ aplicação, a autenticação via Lambda e a stack de observabilidade |
 
-Detalhes de cada decisão estão em [`docs/architecture/`](docs/architecture/); o desenho completo dos componentes (nuvem, APIs, banco e monitoramento) está em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
 ---
 
 <a id="tecnologias"></a>
